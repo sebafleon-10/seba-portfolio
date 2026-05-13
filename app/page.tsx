@@ -97,6 +97,47 @@ export default function Home() {
             Athlete. Analyst. Builder.
           </p>
         </div>
+
+        {/* Scroll indicator */}
+        <style>{`
+          @keyframes scrollPulse {
+            0%, 100% { opacity: 0.2; }
+            50%      { opacity: 0.6; }
+          }
+        `}</style>
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 32,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'monospace',
+              fontSize: 9,
+              letterSpacing: '0.4em',
+              color: 'rgba(255,255,255,0.3)',
+              margin: 0,
+            }}
+          >
+            SCROLL
+          </p>
+          <div
+            style={{
+              width: 1,
+              height: 48,
+              background: 'rgba(255,255,255,1)',
+              animation: 'scrollPulse 1.5s ease-in-out infinite',
+            }}
+          />
+        </div>
       </section>
 
       {/* ── Who ────────────────────────────────────────────────────────────── */}
