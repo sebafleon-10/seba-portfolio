@@ -123,7 +123,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                   height: 360,
                   borderRadius: 24,
                   padding: 24,
-                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-start',
                 }}>
                   <p style={{
                     color: '#ffffff',
