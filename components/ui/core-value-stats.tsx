@@ -36,7 +36,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
             color: '#ffffff', margin: 0, letterSpacing: '-0.03em', lineHeight: 1.1,
           }}>{title}</h2>
           {description && (
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15, lineHeight: 1.6, margin: 0 }}>{description}</p>
+            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 20, lineHeight: 1.75, margin: 0 }}>{description}</p>
           )}
         </div>
       )}
@@ -74,13 +74,23 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                     <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
                     <div style={{ position: 'absolute', inset: 0, padding: 24,
                       display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                      <p style={{ fontSize: 36, fontWeight: 700, color: '#fff', margin: '0 0 4px' }}>{item.value}</p>
-                      <p style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.3em',
-                        textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', margin: '0 0 8px' }}>{item.label}</p>
-                      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, margin: '0 0 8px' }}>{item.description}</p>
-                      <span style={{ fontFamily: 'monospace', fontSize: 10,
-                        letterSpacing: '0.2em', textTransform: 'uppercase',
-                        color: 'rgba(255,255,255,0.5)', marginTop: 8, display: 'block' }}>
+                      <p style={{ fontSize: 28, fontWeight: 700, color: '#fff', margin: '0 0 6px', fontFamily: 'monospace', letterSpacing: '0.06em' }}>{item.value}</p>
+                      <span style={{
+                        display: 'inline-block',
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                        letterSpacing: '0.2em',
+                        textTransform: 'uppercase' as const,
+                        color: 'rgba(255,255,255,0.6)',
+                        border: '1px solid rgba(255,255,255,0.22)',
+                        borderRadius: 999,
+                        padding: '3px 12px',
+                        marginBottom: 12,
+                      }}>{item.label}</span>
+                      <p style={{ fontSize: 20, color: 'rgba(255,255,255,0.8)', lineHeight: 1.75, margin: '0 0 8px' }}>{item.description}</p>
+                      <span style={{ fontFamily: 'monospace', fontSize: 13,
+                        letterSpacing: '0.2em', textTransform: 'uppercase' as const,
+                        color: 'rgba(255,255,255,0.9)', marginTop: 12, display: 'block', fontWeight: 600 }}>
                         {item.type || 'Open'} →
                       </span>
                     </div>
@@ -107,7 +117,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
               <a href={item.href} target="_blank" rel="noopener noreferrer"
                 style={{ textDecoration: 'none', display: 'block' }}>
                 <div style={{
-                  background: '#111111',
+                  background: 'radial-gradient(ellipse at top left, rgba(0,71,127,0.22) 0%, transparent 65%), #111111',
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#ffffff',
                   height: 320,
@@ -117,28 +127,33 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                 }}>
                   <p style={{
                     color: '#ffffff',
-                    fontSize: 52,
+                    fontSize: 28,
                     fontFamily: 'monospace',
                     letterSpacing: '0.08em',
                     fontWeight: 700,
-                    marginBottom: 8,
+                    marginBottom: 6,
                   }}>{item.value}</p>
-                  <p style={{
-                    color: 'rgba(255,255,255,0.45)',
-                    fontSize: 10,
-                    letterSpacing: '0.3em',
+                  <span style={{
+                    display: 'inline-block',
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase' as const,
-                    fontWeight: 600,
-                    marginBottom: 8,
-                  }}>{item.label}</p>
+                    color: 'rgba(255,255,255,0.6)',
+                    border: '1px solid rgba(255,255,255,0.22)',
+                    borderRadius: 999,
+                    padding: '3px 12px',
+                    marginBottom: 12,
+                  }}>{item.label}</span>
                   <p style={{
-                    color: 'rgba(255,255,255,0.5)',
-                    fontSize: 13,
-                    lineHeight: 1.65,
+                    color: 'rgba(255,255,255,0.75)',
+                    fontSize: 20,
+                    lineHeight: 1.75,
+                    margin: 0,
                   }}>{item.description}</p>
-                  <span style={{ fontFamily: 'monospace', fontSize: 10,
-                    letterSpacing: '0.2em', textTransform: 'uppercase',
-                    color: 'rgba(255,255,255,0.5)', marginTop: 8, display: 'block' }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 13,
+                    letterSpacing: '0.2em', textTransform: 'uppercase' as const,
+                    color: 'rgba(255,255,255,0.9)', marginTop: 12, display: 'block', fontWeight: 600 }}>
                     {item.type || 'Open'} →
                   </span>
                 </div>

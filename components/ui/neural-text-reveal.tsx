@@ -215,7 +215,7 @@ export function NeuralTextReveal() {
   return (
     <div style={{
       position: 'absolute',
-      top: 36, left: 64,
+      top: 16, left: 64,
       zIndex: 20,
       pointerEvents: 'none',
       width: 580,
