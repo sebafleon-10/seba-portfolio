@@ -42,7 +42,7 @@ function HeroSection() {
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
             style={{
               fontFamily: '"Inter", ui-rounded, system-ui, sans-serif',
-              fontSize: 'clamp(42px, 4.5vw, 68px)',
+              fontSize: 'clamp(36px, 3.8vw, 58px)',
               fontWeight: 800,
               lineHeight: 0.88,
               color: '#ffffff',
