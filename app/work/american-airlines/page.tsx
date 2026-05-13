@@ -29,7 +29,7 @@ function HeroSection() {
         />
       </div>
 
-      <div style={{ position: 'absolute', top: '44px', left: '160px', zIndex: 10 }}>
+      <div style={{ position: 'absolute', top: '68px', left: '96px', zIndex: 10 }}>
         <NeuralTextReveal />
       </div>
 
