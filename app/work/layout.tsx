@@ -1,0 +1,47 @@
+'use client';
+
+import Link from 'next/link';
+import { AmbientCanvas } from '@/components/ui/ambient-canvas';
+
+export default function WorkLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ minHeight: '100vh', background: '#000', color: '#ffffff' }}>
+      <AmbientCanvas />
+      <nav style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        padding: '20px 40px',
+        display: 'flex',
+        alignItems: 'center',
+        background: 'linear-gradient(to bottom, rgba(10,10,10,0.95) 0%, transparent 100%)',
+      }}>
+        <Link
+          href="/#work"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            fontFamily: 'monospace',
+            fontSize: 11,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.55)',
+            textDecoration: 'none',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.9)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.55)')}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Back
+        </Link>
+      </nav>
+      {children}
+    </div>
+  );
+}

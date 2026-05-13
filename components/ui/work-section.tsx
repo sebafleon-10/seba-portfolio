@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
 
@@ -25,8 +26,11 @@ const cards = [
   },
 ];
 
+const cardRoutes = ['/work/american-airlines', '/work/ghost-fc', '/work/remote-work'];
+
 export function WorkSection() {
   const [active, setActive] = useState(0);
+  const router = useRouter();
   const orbLabelRef   = useRef<HTMLParagraphElement>(null);
   const activeCardRef = useRef<HTMLDivElement>(null);
   const sectionRef    = useRef<HTMLElement>(null);
@@ -243,7 +247,7 @@ export function WorkSection() {
                 <motion.div
                   key={card.id}
                   ref={isActive ? activeCardRef : undefined}
-                  onClick={() => setActive(i)}
+                  onClick={() => isActive ? router.push(cardRoutes[card.id]) : setActive(i)}
                   animate={{ x, rotateZ, rotateX, scale, opacity: 1 }}
                   transition={{ type: 'spring', stiffness: 280, damping: 28 }}
                   style={{
@@ -256,7 +260,7 @@ export function WorkSection() {
                     borderRadius: 16,
                     zIndex: 100 - Math.abs(off),
                     transformStyle: 'preserve-3d',
-                    cursor: isActive ? 'default' : 'pointer',
+                    cursor: 'pointer',
                     overflow: 'hidden',
                   }}
                 >
@@ -353,6 +357,29 @@ export function WorkSection() {
                       overflow: 'hidden',
                     }}>{card.desc}</p>
                   </div>
+
+                  {/* VIEW PROJECT label — active card only */}
+                  {isActive && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                      style={{
+                        position: 'absolute',
+                        top: 20,
+                        right: 20,
+                        fontFamily: 'monospace',
+                        fontSize: 10,
+                        letterSpacing: '0.22em',
+                        textTransform: 'uppercase',
+                        color: card.id === 2 ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
+                        pointerEvents: 'none',
+                        zIndex: 11,
+                      }}
+                    >
+                      View Project →
+                    </motion.div>
+                  )}
 
                   {/* Border overlay */}
                   <div style={{
