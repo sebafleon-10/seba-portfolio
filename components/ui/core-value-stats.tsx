@@ -120,7 +120,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                   background: 'radial-gradient(ellipse at top left, rgba(0,71,127,0.22) 0%, transparent 65%), #111111',
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#ffffff',
-                  height: 320,
+                  height: 360,
                   borderRadius: 24,
                   padding: 24,
                   display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',

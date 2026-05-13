@@ -219,14 +219,14 @@ export default function AmericanAirlinesPage() {
             {
               value: 'GEN Z DATA',
               label: 'code',
-              description: 'Dataset 2: Gen Z keyword filter applied to airline subreddits to surface what Gen Z is actually discussing about American Airlines, Delta, and United.',
+              description: 'Dataset 2: Gen Z travel subreddit scrape filtered using a Gen Z language pattern classifier to isolate authentic Gen Z posts.',
               href: 'https://colab.research.google.com/drive/1M5ma_7f-GddO743pxZ-c515put95iek_?authuser=1',
               type: 'Open Notebook',
             },
             {
               value: 'COMPETITOR DATA',
               label: 'code',
-              description: 'Dataset 3: Direct three-airline comparison across r/americanairlines, r/delta, and r/unitedairlines.',
+              description: 'Dataset 3: Gen Z keyword filter applied to airline subreddits to surface what Gen Z is discussing about American Airlines, Delta, and United.',
               href: 'https://colab.research.google.com/drive/1hdYg84Oyi5RshCoa4nLSdaW4xeZyY0rA?authuser=1',
               type: 'Open Notebook',
             },
