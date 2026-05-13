@@ -205,7 +205,7 @@ export default function AmericanAirlinesPage() {
             {
               value: 'PRESENTATION',
               label: 'pdf',
-              description: 'Executive slide deck presented to Ron DeFeo and the American Airlines global marketing team.',
+              description: 'Executive slide deck presented to the American Airlines global marketing team.',
               href: '/aa-presentation.pdf',
               type: 'Open PDF',
             },
