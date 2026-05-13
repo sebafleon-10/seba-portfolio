@@ -219,7 +219,7 @@ export default function AmericanAirlinesPage() {
             {
               value: 'GEN Z DATA',
               label: 'code',
-              description: 'Dataset 2: Gen Z travel subreddit scrape filtered using a Gen Z language pattern classifier.',
+              description: 'Dataset 2: Gen Z keyword filter applied to airline subreddits to surface what Gen Z is actually discussing about American Airlines, Delta, and United.',
               href: 'https://colab.research.google.com/drive/1M5ma_7f-GddO743pxZ-c515put95iek_?authuser=1',
               type: 'Open Notebook',
             },
@@ -233,7 +233,7 @@ export default function AmericanAirlinesPage() {
             {
               value: 'MACHINE LEARNING MODEL',
               label: 'code',
-              description: 'K-Means clustering for generational segmentation and XGBoost + LightGBM loyalty prediction on Gen Z passengers. SHAP explainability ranks the service attributes that drive Gen Z loyalty enrollment.',
+              description: 'XGBoost + LightGBM predict Gen Z loyalty enrollment. SHAP ranks the service drivers. K-Means segments generational behavior.',
               href: 'https://colab.research.google.com/drive/13JB5oxn4z8e_q8CCXwUyM05fI8vDyjvW?authuser=1',
               type: 'Open Notebook',
             },
