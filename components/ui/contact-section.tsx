@@ -67,7 +67,7 @@ export function ContactSection() {
         orbLabelRef.current.style.transform =
           `translateX(-50%) translateY(${targetY}px)`;
 
-      if (rect.top < window.innerHeight * 0.45 &&
+      if (rect.top < window.innerHeight * 0.75 &&
           rect.bottom > 0 && !hasTriggered.current) run();
 
       if (hasScattered.current && orbLabelRef.current) {

@@ -51,8 +51,8 @@ export function WhoSection() {
         orbLabelRef.current.style.transform =
           `translateX(-50%) translateY(${targetY}px)`;
 
-      if (rect.top < window.innerHeight * 1.15 &&
-          rect.top > -150 && !hasTriggered.current) run();
+      if (rect.top < window.innerHeight * 0.75 &&
+          rect.bottom > 0 && !hasTriggered.current) run();
 
       if (hasScattered.current && orbLabelRef.current) {
         const entryFade = rect.top > 0

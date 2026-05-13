@@ -186,6 +186,7 @@ export function ParticleCanvas() {
     let staticStart   = 0;
     let smoothGX = -9999, smoothGY = -9999, smoothGInit = false;
     let lastScatterTrigger = 0;
+    let lastScatterTime    = -99999;
 
     function chaosTick(p: P) {
       p.vx += (Math.random() - 0.5) * 1.5;
@@ -291,14 +292,36 @@ export function ParticleCanvas() {
 
       if (phase === 'static' && particleInteraction.scatterTrigger !== lastScatterTrigger) {
         lastScatterTrigger = particleInteraction.scatterTrigger;
-        const T = 1 / (1 - 0.88);
+        lastScatterTime = now;
+
+        const numClusters = 4 + Math.floor(Math.random() * 3);
+        const margin  = 100;
+        const minSep  = 200;
+        const centers: { x: number; y: number }[] = [];
+        for (let attempt = 0; attempt < 500 && centers.length < numClusters; attempt++) {
+          const cx = margin + Math.random() * (W - margin * 2);
+          const cy = margin + Math.random() * (H - margin * 2);
+          if (
+            centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
+            Math.hypot(cx - W / 2, cy - H / 2) > 260
+          ) centers.push({ x: cx, y: cy });
+        }
+
+        const TRAVEL = 1 / (1 - 0.97);
         for (const p of ps) {
-          const dx = p.restX - p.x;
-          const dy = p.restY - p.y;
-          p.vx = (dx / T) * (1.2 + Math.random() * 0.6);
-          p.vy = (dy / T) * (1.2 + Math.random() * 0.6);
+          const cluster = centers[Math.floor(Math.random() * centers.length)];
+          const angle   = Math.random() * Math.PI * 2;
+          const rx      = 120 + Math.random() * 360;
+          const ry      = 120 + Math.random() * 360;
+          const targetX = Math.max(20, Math.min(W - 20, cluster.x + Math.cos(angle) * rx));
+          const targetY = Math.max(20, Math.min(H - 20, cluster.y + Math.sin(angle) * ry));
+          p.vx = (targetX - p.x) / TRAVEL;
+          p.vy = (targetY - p.y) / TRAVEL;
         }
       }
+
+      const sinceScatterFrame = now - lastScatterTime;
+      const isBlastingFrame   = sinceScatterFrame < 900;
 
       // ── Clear draw buffers ─────────────────────────────────────────────────
       ambient.length = 0;
@@ -417,13 +440,15 @@ export function ParticleCanvas() {
           }
 
           // Spring toward rest + buzz
-          if (!particleInteraction.gravityBoost) {
+          const sinceScatter = now - lastScatterTime;
+          const isBlasting   = sinceScatter < 900;
+          if (!particleInteraction.gravityBoost && !isBlasting) {
             p.vx += (p.restX + bx - p.x) * 0.04;
             p.vy += (p.restY + by - p.y) * 0.04;
           }
 
           // Direct gravity pull toward active target
-          if (gt.active) {
+          if (gt.active && !isBlasting) {
             const dx   = gt.x - p.x;
             const dy   = gt.y - p.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
@@ -452,9 +477,11 @@ export function ParticleCanvas() {
             p.vy += Math.sin(angle) * force;
           }
 
-          p.vx *= 0.92; p.vy *= 0.92;
-          p.vx = Math.max(-20, Math.min(20, p.vx));
-          p.vy = Math.max(-20, Math.min(20, p.vy));
+          const damp = isBlasting ? 0.97 : 0.92;
+          const cap  = isBlasting ? 28   : 20;
+          p.vx *= damp; p.vy *= damp;
+          p.vx = Math.max(-cap, Math.min(cap, p.vx));
+          p.vy = Math.max(-cap, Math.min(cap, p.vy));
           p.x  += p.vx;  p.y  += p.vy;
 
           if (p.x < 0)  { p.x = 0; p.vx =  Math.abs(p.vx); }
@@ -506,7 +533,8 @@ export function ParticleCanvas() {
               const b  = ps[j];
               const dx = a.x - b.x, dy = a.y - b.y;
               const d2 = dx * dx + dy * dy;
-              if (d2 >= linkR * linkR) continue;
+              const effectiveLinkR = isBlastingFrame ? Math.min(160, linkR * 1.4) : linkR;
+              if (d2 >= effectiveLinkR * effectiveLinkR) continue;
 
               if (phase === 'assembly') {
                 const fadeAmt = (pProg[i] + pProg[j]) * 0.5;
@@ -522,16 +550,18 @@ export function ParticleCanvas() {
                   sLines.push(a.x, a.y, b.x, b.y);
                 }
               } else {
-                if (connCount[i] >= 3 || connCount[j] >= 3) continue;
+                const blastCap = isBlastingFrame ? 5 : 3;
+                if (connCount[i] >= blastCap || connCount[j] >= blastCap) continue;
                 // Skip lines whose midpoint passes through the text repulsion zone
                 const mx  = (a.x + b.x) * 0.5, my = (a.y + b.y) * 0.5;
                 const mdx = mx - window.innerWidth * 0.42;
                 const mdy = my - window.innerHeight * 0.50;
                 if (mdx * mdx + mdy * mdy < 280 * 280) continue;
                 connCount[i]++; connCount[j]++;
-                const HALF2 = (linkR * 0.5) * (linkR * 0.5);
+                const splitR = isBlastingFrame ? effectiveLinkR * 0.5 : linkR * 0.5;
+                const HALF2  = splitR * splitR;
                 if (d2 < HALF2) sLinesNear.push(a.x, a.y, b.x, b.y);
-                else            sLinesFar.push(a.x, a.y, b.x, b.y);
+                else             sLinesFar.push(a.x, a.y, b.x, b.y);
                 // Brighter connections inside the gravity cluster
                 if (smoothGInit) {
                   const CL2 = 155 * 155;
