@@ -1,44 +1,73 @@
-# seba-portfolio — Project Notes
+# seba-portfolio, Project Notes
 Last updated: May 27, 2026
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
 - Framer Motion (animations)
-- Deployed to: Vercel — https://seba-portfolio-e1oz.vercel.app
+- Deployed to: Vercel, https://seba-portfolio-e1oz.vercel.app
 
 ## Git
 - GitHub repo: https://github.com/sebafleon-10/seba-portfolio.git
 - Branch: main
-- Every push to main auto-deploys to Vercel (~30-60s build time)
+- Every push to main auto-deploys to Vercel (~30 to 60s build time)
+- Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
-- 98c48e8 — orb reveal working on 002 and 003
-- 6fa26bd — orb reveal explosion tuned across all 3 sections
-- c7bab02 — hero locked in with neural text reveal animation
-- f1b8304 — AA page complete, deliverables, hero, back button
-- Latest — deployed, card descriptions fixed, layout polished
-- Latest — Bug 2 fixed via data-scroll-behavior attribute on <html>
+- 98c48e8, orb reveal working on 002 and 003
+- 6fa26bd, orb reveal explosion tuned across all 3 sections
+- c7bab02, hero locked in with neural text reveal animation
+- f1b8304, AA page complete, deliverables, hero, back button
+- 8bb28ce, add scroll indicator to hero
+- ed23ec5, CLAUDE.md imports NOTES.md, refresh project notes
+- 1307879, Bug 2 fix via data-scroll-behavior attribute on <html>
+- 7b99ab9, WHO section redesign with photo card and vertical marquee, /who detail page stub, remove duplicate left section labels, Card23 tag prop optional, add CLAUDE_PROMPTING.md
+
+## Current Status
+Site is shipped and live. Main page complete with all three sections done and polished. AA detail page complete and deployed. WHO section redesigned with new floating photo card and vertical marquee composition (May 27). Ghost FC and Remote Work detail pages still stubs. /who detail page exists as a stub, needs full build now that homepage routes to it.
 
 ## File Structure
-- app/page.tsx — Main layout, hero, tagline, section order
-- app/work/layout.tsx — Shared layout for all work detail pages (frosted glass pill back button, AmbientCanvas)
-- app/work/american-airlines/page.tsx — AA detail page (hero, overview, deliverables) — COMPLETE AND DEPLOYED
-- app/work/ghost-fc/page.tsx — Ghost FC detail page (stub)
-- app/work/remote-work/page.tsx — Remote Work detail page (stub)
-- components/ui/who-section.tsx — WHO athlete card + orb reveal
-- components/ui/work-section.tsx — Work fan card stack + orb reveal + navigation to detail pages
-- components/ui/contact-section.tsx — Contact floating cards + orb reveal
-- components/ui/particle-canvas.tsx — Main particle system (~680 lines)
-- components/ui/ambient-canvas.tsx — Lightweight ambient-only canvas for work detail pages
-- components/ui/neural-text-reveal.tsx — Neural network particle animation. Internal positioning: position absolute, top: 8, left: 48 (relative to wrapper div)
-- components/ui/bento-product-features.tsx — BentoGridShowcase component
-- components/ui/core-value-stats.tsx — Deliverables card grid (3-col, dark cards with AA navy blue radial gradient, justifyContent flex-start, height 360px)
-- components/ui/spotlight.tsx — Cursor-following spotlight effect
-- lib/particle-state.ts — Shared singleton for cross-component signals
-- context/parallax-context.tsx — zoomProgressRef
-- public/ — seba-celebrate.jpg, 1-6.jpg, linkedin-profile.jpg, builder.jpg,
-  aa-capstone.jpg, regression.jpg, depauw.png,
-  aa-report.pdf, aa-presentation.pdf, aa-logo.png, aa-logo.svg
+- app/page.tsx, main layout, hero, tagline, section order
+- app/layout.tsx, root layout (data-scroll-behavior="smooth" on <html> for Bug 2 fix)
+- app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, AmbientCanvas)
+- app/work/american-airlines/page.tsx, AA detail page, COMPLETE AND DEPLOYED
+- app/work/ghost-fc/page.tsx, Ghost FC detail page (stub)
+- app/work/remote-work/page.tsx, Remote Work detail page (stub)
+- app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern)
+- app/who/page.tsx, /who detail page (stub, needs full build)
+- components/ui/who-section.tsx, WHO athlete section with photo card + vertical marquee composition
+- components/ui/work-section.tsx, Work fan card stack + orb reveal + navigation to detail pages
+- components/ui/contact-section.tsx, Contact floating cards + orb reveal
+- components/ui/vertical-marquee.tsx, vertical marquee primitive (from 21st.dev) with mask-based edge fade
+- components/ui/particle-canvas.tsx, main particle system (~680 lines)
+- components/ui/ambient-canvas.tsx, lightweight ambient-only canvas for work detail pages
+- components/ui/neural-text-reveal.tsx, neural network particle animation. Internal positioning: position absolute, top: 8, left: 48
+- components/ui/bento-product-features.tsx, BentoGridShowcase component
+- components/ui/core-value-stats.tsx, deliverables card grid
+- components/ui/card-23.tsx, Card23 component (tag prop now OPTIONAL as of 7b99ab9)
+- components/ui/spotlight.tsx, cursor-following spotlight effect
+- lib/particle-state.ts, shared singleton for cross-component signals
+- context/parallax-context.tsx, zoomProgressRef
+- CLAUDE.md, imports NOTES.md and CLAUDE_PROMPTING.md
+- CLAUDE_PROMPTING.md, prompting tactics for destructive changes (added May 27)
+- public/, seba-celebrate.jpg, 1-6.jpg, linkedin-profile.jpg, builder.jpg, aa-capstone.jpg, regression.jpg, depauw.png, aa-report.pdf, aa-presentation.pdf, aa-logo.png, aa-logo.svg
+
+## Main Page Sections (app/page.tsx)
+
+### WHO (001 · THE ATHLETE), DONE (redesigned May 27)
+- Floating photo card (DePauw #11 jersey celebration photo) anchored left, tilted -2deg
+- Vertical marquee on right with achievements: 03× NCAC CHAMPION, TOURNAMENT MVP, DEPAUW CAPTAIN, GHOST FC CAPTAIN, SEMI-PRO
+- Marquee uses Inter weight 300, opacity fades from center via JS, mask-image gradient on container fades edges to transparent
+- "Explore the story →" CTA below photo card, left-aligned, ~72px gap
+- Whole composition is one click target routing to /who
+
+### Work (002 · WORK), DONE
+- card 0 → /work/american-airlines
+- card 1 → /work/ghost-fc
+- card 2 → /work/remote-work
+- Duplicate left section label removed (May 27), only top-center label remains
+
+### Contact (003 · CONTACT), DONE
+- Duplicate left section label removed (May 27), only top-center label remains
 
 ## Particle System
 - Seeded PRNG: mulberry32(seed=42)
@@ -51,8 +80,8 @@ Last updated: May 27, 2026
 
 ## Orb Reveal Scatter Tuning (particle-canvas.tsx)
 When scatterTrigger fires in static phase:
-- Generates 4-6 cluster centers spread across screen (min 200px sep, 260px from center)
-- Each particle fires toward nearest cluster with spread rx/ry: 120-480px
+- Generates 4 to 6 cluster centers spread across screen (min 200px sep, 260px from center)
+- Each particle fires toward nearest cluster with spread rx/ry: 120 to 480px
 - TRAVEL = 1/(1-0.97) for velocity calculation
 - isBlasting window: 900ms after scatter
   - Cap raised to 28 during blast
@@ -82,6 +111,35 @@ export const particleInteraction = {
 };
 ```
 
+## WHO Section Composition (components/ui/who-section.tsx)
+
+### Photo Card
+- Image: seba-celebrate.jpg (DePauw #11, celebration moment)
+- Width 560 to 620px, height 700 to 760px
+- Rounded corners, frame 1px rgba(255,255,255,0.08)
+- Shadow: 0 40px 80px -20px rgba(0,0,0,0.6)
+- Tilt: rotate(-2deg)
+- Positioned with offset to close middle gap (moved right by 100px from initial left anchor)
+- Fully contained, no bleed off viewport
+
+### Vertical Marquee (components/ui/vertical-marquee.tsx)
+- Width 440px, positioned 240px from right viewport edge
+- Items: 03× NCAC CHAMPION, TOURNAMENT MVP, DEPAUW CAPTAIN, GHOST FC CAPTAIN, SEMI-PRO
+- Font: Inter weight 300, ~36px, uppercase
+- textShadow: '0 0 8px rgba(0,0,0,0.85), 0 0 24px rgba(0,0,0,0.6)' for readability against particles
+- Opacity-from-center via useEffect: opacity = 1 - normalizedDistance * 0.92
+- mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%) for smooth edge fade
+- speed prop: 15
+
+### CTA
+- "Explore the story →"
+- 18px, rgba(255,255,255,0.9) at rest
+- Underline animates in on hover, arrow translateX(6px) on hover
+- Positioned ~72px below photo card bottom, left-aligned with photo
+
+### Click target
+- Whole section composition routes to /who using scroll restoration pattern from work-section.tsx
+
 ## Work Detail Pages
 
 ### Shared Layout (app/work/layout.tsx)
@@ -102,7 +160,7 @@ export const particleInteraction = {
 - Connection lines: linkR 130px, max 3 per particle
 - Canvas element opacity: 0.4
 
-### AA Page (app/work/american-airlines/page.tsx) — COMPLETE AND DEPLOYED
+### AA Page (app/work/american-airlines/page.tsx), COMPLETE AND DEPLOYED
 
 **HERO (HeroSection component)**
 - Section height: auto
@@ -112,8 +170,8 @@ export const particleInteraction = {
   - Bottom fade: linear-gradient to top, #000 to rgba(0,0,0,0.6) to transparent, height 55%
   - Image: aa-capstone.jpg, objectPosition 12% top, brightness 0.82
 - NeuralTextReveal wrapper: position absolute, top 68px, left 96px, zIndex 10
-- Title: "Perception Over Product", clamp 36px-58px, weight 800, tracking -0.04em
-- Descriptor: clamp 18px-26px, weight 300, color rgba(255,255,255,0.55)
+- Title: "Perception Over Product", clamp 36px to 58px, weight 800, tracking -0.04em
+- Descriptor: clamp 18px to 26px, weight 300, color rgba(255,255,255,0.55)
 - Red ambient glow: radial-gradient rgba(204,0,0,0.07) top-left
 
 **NEURAL TEXT REVEAL (components/ui/neural-text-reveal.tsx)**
@@ -135,10 +193,6 @@ export const particleInteraction = {
 - 6 cards, 3-col grid, gap 24px, maxWidth 1400px, card height 360px
 - Card background: radial-gradient ellipse top-left rgba(0,71,127,0.22) + #111111
 - justifyContent: flex-start (titles all align to top)
-- Big title: monospace, 28px, weight 700
-- Tag pill: inline-block, monospace, 12px, border rgba(255,255,255,0.18), borderRadius 999
-- Description: 20px, rgba(255,255,255,0.8), lineHeight 1.75
-- CTA: monospace 13px, rgba(255,255,255,0.9)
 - Cards:
   1. FINAL REPORT / pdf / Full written analysis covering methodology, findings, and strategic recommendations delivered to AA. / /aa-report.pdf / Open PDF
   2. PRESENTATION / pdf / Executive slide deck presented to the American Airlines global marketing team. / /aa-presentation.pdf / Open PDF
@@ -165,13 +219,10 @@ export const particleInteraction = {
 - Image cards: photo with dark overlay
 - Grid layout: repeat(3, 1fr), gap 24px
 
-## Main Page Sections (app/page.tsx)
-### WHO (001 · THE ATHLETE) — DONE
-### Work (002 · WORK) — DONE
-- card 0 → /work/american-airlines
-- card 1 → /work/ghost-fc
-- card 2 → /work/remote-work
-### Contact (003 · CONTACT) — DONE
+## Card23 Component (components/ui/card-23.tsx)
+- Props: tag (optional), pills, title, description, imageSrc, location, onClick
+- tag prop made optional in 7b99ab9 to allow cards without a tag
+- hasTopRow flag conditionally renders the top row only if tag OR pills exist
 
 ## Style Tokens
 ```
@@ -180,6 +231,7 @@ INTER = { fontFamily: 'Inter, ui-rounded, system-ui, sans-serif' }
 Section label: monospace 10px letterSpacing 0.4em uppercase rgba(255,255,255,0.22)
 AA red accent: #CC0000
 AA navy accent: rgba(0,71,127,0.22)
+Background: #080808
 ```
 
 ## Rules
@@ -188,16 +240,64 @@ AA navy accent: rgba(0,71,127,0.22)
 - No light sections on main page
 - Work detail pages use AmbientCanvas (not ParticleCanvas)
 - Tailwind v4: no tailwind.config file needed
+- Section labels are top-center only (left labels removed May 27)
 
-## Current Status
-Graduated from DePauw May 2026, took a short break after graduation. Site was fully shipped before the break (all main page sections done, AA detail page complete and deployed). Picking it back up now, starting with the scroll bug below.
+## Bugs
 
-## Bug 2 - Back Button Flicker (FIXED)
-FIXED via one-line change: added data-scroll-behavior="smooth" to the <html> tag in app/layout.tsx. This tells Next.js to swap smooth scroll to instant during route transitions, eliminating the visible flicker on back navigation.
+### Bug 1 (FIXED)
+Work card forward-nav scroll bug: clicking a card lands on section 2 then scrolls up to hero. Likely scrollIntoView in useEffect on detail pages or hash navigation conflict.
+
+### Bug 2 (FIXED)
+Back button flicker on /#work navigation. Fixed via one-line change: added data-scroll-behavior="smooth" to the <html> tag in app/layout.tsx. Tells Next.js to swap smooth scroll to instant during route transitions, eliminating the visible flicker.
+
+## Prompting Lessons (CLAUDE_PROMPTING.md)
+Documented May 27 after the WHO section redesign exposed a recurring failure mode.
+
+### Pattern
+When asking Claude Code to DELETE components (files, JSX blocks, imports, variants), the orphaned references at OTHER places in the codebase are likely to be left behind unless the spec explicitly names them. This causes compile failures that cascade ("Module not found", "X is not defined") and waste session time on cleanup.
+
+### Specific failure modes seen
+- Claude Code interprets "keep all other behavior unchanged" as license to preserve deletions it should have made
+- Confirms completion while saying "X preserved" when X was supposed to go
+- Treats visual elements as "behavior" worth protecting
+- Completes the additive change while skipping the destructive change
+
+### Tactics (full text in CLAUDE_PROMPTING.md)
+1. Lead with destruction. Put DELETE before ADD in the spec.
+2. Violent verbs. DELETE, REMOVE, RIP OUT. Not "clean up" or "tidy".
+3. Name failure modes explicitly. "DO NOT INTERPRET preserve animations AS keeping broken references."
+4. Skip "keep unchanged" lists when doing destructive work. They invite over-preservation.
+5. Require verification with paste-back of the affected lines after the change.
+
+### CLAUDE.md import
+CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` line in CLAUDE.md.
 
 ## Next Steps
-1. **Fix Work card forward-nav scroll bug**: clicking a card lands on section 2 then scrolls up to hero. Likely scrollIntoView in useEffect on detail pages or hash navigation conflict.
-2. Build Ghost FC detail page (same structure as AA)
-3. Build Remote Work detail page (same structure as AA)
-4. Create GitHub repo for scraping code and add link to AA page
-5. Content accuracy pass on all three detail pages
+
+### Priority 1: Build /who detail page proper
+- The homepage WHO section routes to /who but the destination is a stub
+- Needs full content: longer story, more photos, achievement breakdown, soccer business background, training, semi-pro experience
+- Use AA detail page structure as the model: hero, overview cards, deliverables/gallery
+- Should match the floating card visual language
+
+### Priority 2: Build Ghost FC detail page
+- Same structure as AA page (hero, overview, deliverables)
+- Strong portfolio piece (current internship, real BA work)
+- Content: PlayMetrics API pipeline, match tracker Excel workbook, Instagram Graph API, KPI tracking work
+- Use Ghost FC branding/imagery
+
+### Priority 3: Build Remote Work detail page
+- Same structure as AA page
+- Content: BUSA 305 econometrics paper on remote work and the gender wage gap, IPUMS CPS data in Stata, five OLS models with interaction terms, esttab export
+
+### Priority 4: Create GitHub repo for AA scraping code
+- Add link to AA detail page deliverables
+- Currently marked PENDING in deliverables section
+
+### Priority 5: Content accuracy pass on all detail pages
+- Once all three detail pages are built, full review for accuracy, dates, credit attribution
+
+### Lower priority
+- Google AI Essentials cert placement
+- PC rendering issue (deferred, low priority)
+- Fix author on commit 1307879 (Bug 2 fix has wrong git author, would need rebase)
