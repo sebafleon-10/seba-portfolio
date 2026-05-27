@@ -159,6 +159,7 @@ export function ParticleCanvas() {
     const sLinesFar:    number[] = [];
     const letterLines:  number[] = [];
     const clusterLines: number[] = [];
+    const mouseLines:   number[] = [];
     const linesB = [[] as number[], [] as number[], [] as number[], [] as number[]];
     const pProg     = new Float32Array(N_TOTAL);
     const connCount = new Uint8Array(N_TOTAL);
@@ -172,6 +173,9 @@ export function ParticleCanvas() {
     const onMouseLeave = () => { mouse.x = -9999; mouse.y = -9999; };
     window.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseleave', onMouseLeave);
+
+    const MOUSE_R = 45;
+    const MOUSE_R2 = MOUSE_R * MOUSE_R;
 
     const onResize = () => { linkR = window.innerWidth < 768 ? 50 : 120; };
     window.addEventListener('resize', onResize, { passive: true });
@@ -420,8 +424,8 @@ export function ParticleCanvas() {
             const d2  = dxM * dxM + dyM * dyM;
             if (d2 < 150 * 150 && d2 > 1) {
               const d = Math.sqrt(d2);
-              p.vx += (dxM / d) * (1 - d / 150) * 0.3;
-              p.vy += (dyM / d) * (1 - d / 150) * 0.3;
+              p.vx += (dxM / d) * (1 - d / 150) * 0.6;
+              p.vy += (dyM / d) * (1 - d / 150) * 0.6;
             }
           }
 
@@ -500,6 +504,7 @@ export function ParticleCanvas() {
       sLinesFar.length    = 0;
       letterLines.length  = 0;
       clusterLines.length = 0;
+      mouseLines.length   = 0;
       for (const b of linesB) b.length = 0;
       connCount.fill(0);
 
@@ -569,6 +574,14 @@ export function ParticleCanvas() {
                   const dbG = (b.x - smoothGX) * (b.x - smoothGX) + (b.y - smoothGY) * (b.y - smoothGY);
                   if (daG < CL2 && dbG < CL2) clusterLines.push(a.x, a.y, b.x, b.y);
                 }
+                // Mouse proximity: tag for white highlight overlay
+                if (mouse.x !== -9999) {
+                  const daM = (a.x - mouse.x) * (a.x - mouse.x) + (a.y - mouse.y) * (a.y - mouse.y);
+                  const dbM = (b.x - mouse.x) * (b.x - mouse.x) + (b.y - mouse.y) * (b.y - mouse.y);
+                  if (daM < MOUSE_R2 || dbM < MOUSE_R2) {
+                    mouseLines.push(a.x, a.y, b.x, b.y);
+                  }
+                }
               }
             }
           }
@@ -615,6 +628,7 @@ export function ParticleCanvas() {
           ctx.stroke();
         }
       } else if (lineAlpha > 0) {
+        ctx.strokeStyle = 'rgba(200, 150, 255, 1)';
         if (sLinesNear.length > 0) {
           ctx.globalAlpha = 0.30 * lineAlpha;
           ctx.beginPath();
@@ -639,6 +653,16 @@ export function ParticleCanvas() {
           for (let k = 0; k < clusterLines.length; k += 4) {
             ctx.moveTo(clusterLines[k], clusterLines[k + 1]);
             ctx.lineTo(clusterLines[k + 2], clusterLines[k + 3]);
+          }
+          ctx.stroke();
+        }
+        if (mouseLines.length > 0) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.globalAlpha = 1.0;
+          ctx.beginPath();
+          for (let k = 0; k < mouseLines.length; k += 4) {
+            ctx.moveTo(mouseLines[k], mouseLines[k + 1]);
+            ctx.lineTo(mouseLines[k + 2], mouseLines[k + 3]);
           }
           ctx.stroke();
         }
