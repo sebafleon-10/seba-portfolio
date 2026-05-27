@@ -1,5 +1,5 @@
 # seba-portfolio — Project Notes
-Last updated: May 26, 2026
+Last updated: May 27, 2026
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -17,6 +17,7 @@ Last updated: May 26, 2026
 - c7bab02 — hero locked in with neural text reveal animation
 - f1b8304 — AA page complete, deliverables, hero, back button
 - Latest — deployed, card descriptions fixed, layout polished
+- Latest — Bug 2 fixed via data-scroll-behavior attribute on <html>
 
 ## File Structure
 - app/page.tsx — Main layout, hero, tagline, section order
@@ -191,8 +192,11 @@ AA navy accent: rgba(0,71,127,0.22)
 ## Current Status
 Graduated from DePauw May 2026, took a short break after graduation. Site was fully shipped before the break (all main page sections done, AA detail page complete and deployed). Picking it back up now, starting with the scroll bug below.
 
+## Bug 2 - Back Button Flicker (FIXED)
+FIXED via one-line change: added data-scroll-behavior="smooth" to the <html> tag in app/layout.tsx. This tells Next.js to swap smooth scroll to instant during route transitions, eliminating the visible flicker on back navigation.
+
 ## Next Steps
-1. **Fix Work card scroll bug**: clicking a card lands on section 2 then scrolls up to hero. Back button shoots to top of home, then jumps back down to Work. Likely scroll restoration vs custom scroll conflict. Check for scrollIntoView in useEffect on detail pages, hash navigation in URL, or CSS scroll-behavior: smooth interacting with router navigation.
+1. **Fix Work card forward-nav scroll bug**: clicking a card lands on section 2 then scrolls up to hero. Likely scrollIntoView in useEffect on detail pages or hash navigation conflict.
 2. Build Ghost FC detail page (same structure as AA)
 3. Build Remote Work detail page (same structure as AA)
 4. Create GitHub repo for scraping code and add link to AA page
