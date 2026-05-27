@@ -30,7 +30,7 @@ interface Pill {
 }
 
 interface Card23Props {
-  tag: string;
+  tag?: string;
   pills?: Pill[];
   title: string;
   description: string;
@@ -42,6 +42,7 @@ interface Card23Props {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function Card23({ tag, pills, title, description, imageSrc, location, onClick }: Card23Props) {
+  const hasTopRow = !!tag || (pills && pills.length > 0);
   return (
     <motion.div
       variants={cardVariants}
@@ -61,44 +62,46 @@ export function Card23({ tag, pills, title, description, imageSrc, location, onC
       <div style={{ padding: 24 }}>
 
         {/* Pills row */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 14,
-        }}>
-          {/* Tag pill — bg-secondary */}
-          <span style={{
-            fontFamily: 'monospace',
-            fontSize: 12,
-            padding: '4px 12px',
-            borderRadius: 9999,
-            background: 'rgba(255,255,255,0.08)',
-            color: 'rgba(255,255,255,0.70)',
-            whiteSpace: 'nowrap',
+        {hasTopRow && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 14,
           }}>
-            {tag}
-          </span>
+            {tag ? (
+              <span style={{
+                fontFamily: 'monospace',
+                fontSize: 12,
+                padding: '4px 12px',
+                borderRadius: 9999,
+                background: 'rgba(255,255,255,0.08)',
+                color: 'rgba(255,255,255,0.70)',
+                whiteSpace: 'nowrap',
+              }}>
+                {tag}
+              </span>
+            ) : <span />}
 
-          {/* Right pills — bg-secondary + bg-primary */}
-          {pills && pills.length > 0 && (
-            <div style={{ display: 'flex', gap: 6 }}>
-              {pills.map((pill, i) => (
-                <span key={i} style={{
-                  fontSize: 12,
-                  padding: '4px 12px',
-                  borderRadius: 9999,
-                  background: pill.primary
-                    ? 'rgba(255,255,255,0.18)'
-                    : 'rgba(255,255,255,0.08)',
-                  color: '#ffffff',
-                }}>
-                  {pill.label}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
+            {pills && pills.length > 0 && (
+              <div style={{ display: 'flex', gap: 6 }}>
+                {pills.map((pill, i) => (
+                  <span key={i} style={{
+                    fontSize: 12,
+                    padding: '4px 12px',
+                    borderRadius: 9999,
+                    background: pill.primary
+                      ? 'rgba(255,255,255,0.18)'
+                      : 'rgba(255,255,255,0.08)',
+                    color: '#ffffff',
+                  }}>
+                    {pill.label}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Title — text-2xl font-bold tracking-tight */}
         <h2 style={{

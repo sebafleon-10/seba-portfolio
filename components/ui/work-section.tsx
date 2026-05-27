@@ -202,23 +202,6 @@ export function WorkSection() {
         </svg>
       </button>
 
-      <p
-        style={{
-          position: 'absolute',
-          top: 40,
-          left: 80,
-          fontFamily: 'monospace',
-          fontSize: 10,
-          letterSpacing: '0.28em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.3)',
-          margin: 0,
-          pointerEvents: 'none',
-        }}
-      >
-        002 · WORK
-      </p>
-
       {/* Outer wrapper */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32 }}>
 

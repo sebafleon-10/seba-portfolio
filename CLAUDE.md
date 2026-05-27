@@ -1,2 +1,3 @@
 @AGENTS.md
 @NOTES.md
+@CLAUDE_PROMPTING.md
