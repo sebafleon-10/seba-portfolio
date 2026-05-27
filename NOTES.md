@@ -21,6 +21,7 @@ Last updated: May 27, 2026
 - ed23ec5, CLAUDE.md imports NOTES.md, refresh project notes
 - 1307879, Bug 2 fix via data-scroll-behavior attribute on <html>
 - 7b99ab9, WHO section redesign with photo card and vertical marquee, /who detail page stub, remove duplicate left section labels, Card23 tag prop optional, add CLAUDE_PROMPTING.md
+- cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
 Site is shipped and live. Main page complete with all three sections done and polished. AA detail page complete and deployed. WHO section redesigned with new floating photo card and vertical marquee composition (May 27). Ghost FC and Remote Work detail pages still stubs. /who detail page exists as a stub, needs full build now that homepage routes to it.
@@ -99,6 +100,41 @@ All three sections use:
 - Reset: rect.top > window.innerHeight * 1.5 || rect.bottom < 0
 - isRunning guard prevents double-fire
 - Labels: "001 · THE ATHLETE", "002 · WORK", "003 · CONTACT"
+
+## Purple Connection Lines + Mouse Hover Overlay (particle-canvas.tsx)
+Added May 27 to bring the purple line aesthetic and white-on-hover overlay from the 21st.dev "aether-flow-hero" component into the existing ParticleCanvas without replacing it.
+
+### Goal
+Bring the purple connection lines and white-on-mouse-hover aesthetic from the 21st.dev "aether-flow-hero" component into the existing ParticleCanvas, without replacing the existing component.
+
+### Decision
+Keep the sophisticated existing ParticleCanvas (chaos to assembly to hold to scatter to static phase choreography, the SEBASTIAN LEON name formation, parallax-driven zoom forces, text repulsion zone for the tagline, mobile breakpoints, seeded PRNG, gravity targets) rather than swap it for the simpler 21st.dev component. The throughline behavior across all sections is a differentiator worth preserving.
+
+### Implementation
+All surgical edits to components/ui/particle-canvas.tsx:
+- Added MOUSE_R (45) and MOUSE_R2 constants near the mouse listener setup
+- Added mouseLines bucket alongside existing sLinesNear, sLinesFar, letterLines, clusterLines arrays
+- Reset mouseLines.length to 0 in the connection-line clearing block each frame
+- In static-phase connection logic, after the gravity cluster check, tag lines whose either endpoint is within MOUSE_R pixels of the cursor by pushing to mouseLines
+- Inside the static-phase draw block (else if (lineAlpha > 0)), changed strokeStyle to rgba(200, 150, 255, 1) for a light purple tint applied to all regular static-phase line buckets
+- Added a separate draw pass at the end of the static-phase draw block for mouseLines using strokeStyle white at globalAlpha 1.0, overlaying purple lines under the cursor with bright white
+- Boosted the static-phase mouse-attract force from 0.3 to 0.6 (both vx and vy terms) so particles within 150px of the cursor visibly pull toward it
+
+### Tuning journey (tried and reverted)
+- MOUSE_R started at 200 to match 21st.dev's value, but our network is roughly 5x denser (1020 particles vs ~200) so the same radius captured far too many connections; moved to 100, then 60, landed on 45
+- Tried widening cluster scatter spreads (rx 40 + rand()*240 to 150 + rand()*400, ry 20 + rand()*120 to 100 + rand()*280) to approximate 21st.dev's uniform distribution; this made the network blanket the viewport with no negative space, which let it compete visually with content sections; REVERTED
+- Tried boosting static-phase line alphas (sLinesNear 0.30 to 0.65, sLinesFar 0.17 to 0.35, clusterLines 0.45 to 0.75); combined with widened clusters this read as overpowering against content; REVERTED
+- Final state preserves original cluster spread and original line alphas; the only persistent additions are the purple strokeStyle, the white mouse-hover overlay, the MOUSE_R = 45 radius, and the 0.3 to 0.6 force boost
+
+### Files touched this session
+- components/ui/particle-canvas.tsx, modified, shipped in commit cccdfff
+- components/ui/particle-network.tsx, created then deleted as an orphan when the decision shifted to enhancing the existing canvas instead of adopting the simpler 21st.dev-style standalone candidate
+
+### Prompting lessons (continuation of CLAUDE_PROMPTING.md pattern)
+- Always inspect what components already exist in the project before adding new ones; an orphan got created because the existing ParticleCanvas's presence wasn't verified first
+- When user says "don't break what we have going," clarify which existing component they are referring to before assuming
+- Multi-edit Claude Code prompts work well when each edit is scoped with explicit before/after find-and-replace and surrounding context lines
+- Single-number tuning iterations (radius, alpha, force multiplier) are faster than architectural changes; default to tuning values in place rather than refactoring
 
 ## particle-state.ts singleton
 ```ts
