@@ -13,7 +13,7 @@ Last updated: May 28, 2026
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
-- (NEXT COMMIT), remote-work detail page: dot-grid background swap, gated particle canvas, full-width left-aligned layout with single spine
+- 77c5d1e, remote-work detail page: dot-grid background swap, gated particle canvas, full-width left-aligned layout with single spine
 - 98c48e8, orb reveal working on 002 and 003
 - 6fa26bd, orb reveal explosion tuned across all 3 sections
 - c7bab02, hero locked in with neural text reveal animation
