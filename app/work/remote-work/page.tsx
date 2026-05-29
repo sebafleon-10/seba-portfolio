@@ -356,10 +356,7 @@ function ModelWalk() {
 }
 
 function HeroSection() {
-  const [isLoaded, setIsLoaded] = useState(false);
   const prefersReduced = usePrefersReducedMotion();
-  useEffect(() => { setIsLoaded(true); }, []);
-  const animate = (target: object) => (prefersReduced || isLoaded) ? target : {};
 
   return (
     <section className="relative w-full" style={{ minHeight: '100vh', zIndex: 1 }}>
@@ -384,7 +381,7 @@ function HeroSection() {
         <div style={{ maxWidth: 1000 }}>
           <motion.p
             initial={prefersReduced ? false : { opacity: 0, y: 20 }}
-            animate={animate({ opacity: 1, y: 0 })}
+            animate={{ opacity: 1, y: 0 }}
             transition={prefersReduced ? { duration: 0 } : { duration: 0.7, delay: 0.1, ease: 'easeOut' }}
             style={{ ...EYEBROW, margin: '0 0 28px' }}
           >
@@ -393,7 +390,7 @@ function HeroSection() {
 
           <motion.h1
             initial={prefersReduced ? false : { opacity: 0, y: 30 }}
-            animate={animate({ opacity: 1, y: 0 })}
+            animate={{ opacity: 1, y: 0 }}
             transition={prefersReduced ? { duration: 0 } : { duration: 0.8, delay: 0.2, ease: 'easeOut' }}
             style={{
               fontFamily: '"Inter", ui-rounded, system-ui, sans-serif',
@@ -410,7 +407,7 @@ function HeroSection() {
 
           <motion.p
             initial={prefersReduced ? false : { opacity: 0, y: 30 }}
-            animate={animate({ opacity: 1, y: 0 })}
+            animate={{ opacity: 1, y: 0 }}
             transition={prefersReduced ? { duration: 0 } : { duration: 0.7, delay: 0.35, ease: 'easeOut' }}
             style={{
               fontFamily: '"Inter", ui-rounded, system-ui, sans-serif',
@@ -432,7 +429,7 @@ function HeroSection() {
         {/* Chart band, full width */}
         <motion.div
           initial={prefersReduced ? false : { opacity: 0, y: 40 }}
-          animate={animate({ opacity: 1, y: 0 })}
+          animate={{ opacity: 1, y: 0 }}
           transition={prefersReduced ? { duration: 0 } : { duration: 0.9, delay: 0.5, ease: 'easeOut' }}
           style={{ width: '100%' }}
         >
@@ -447,7 +444,7 @@ function HeroSection() {
         {/* Tag pills */}
         <motion.div
           initial={prefersReduced ? false : { opacity: 0, y: 20 }}
-          animate={animate({ opacity: 1, y: 0 })}
+          animate={{ opacity: 1, y: 0 }}
           transition={prefersReduced ? { duration: 0 } : { duration: 0.7, delay: 0.7, ease: 'easeOut' }}
           style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}
         >
