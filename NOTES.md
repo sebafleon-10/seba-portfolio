@@ -1,5 +1,5 @@
 # seba-portfolio, Project Notes
-Last updated: May 27, 2026
+Last updated: May 28, 2026
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -13,6 +13,7 @@ Last updated: May 27, 2026
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- (NEXT COMMIT), remote-work detail page: dot-grid background swap, gated particle canvas, full-width left-aligned layout with single spine
 - 98c48e8, orb reveal working on 002 and 003
 - 6fa26bd, orb reveal explosion tuned across all 3 sections
 - c7bab02, hero locked in with neural text reveal animation
@@ -24,15 +25,15 @@ Last updated: May 27, 2026
 - cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
-Site is shipped and live. Main page complete with all three sections done and polished. AA detail page complete and deployed. WHO section redesigned with new floating photo card and vertical marquee composition (May 27). Ghost FC and Remote Work detail pages still stubs. /who detail page exists as a stub, needs full build now that homepage routes to it.
+Site is shipped and live. Main page complete with all three sections done and polished. AA detail page complete and deployed. WHO section redesigned with new floating photo card and vertical marquee composition (May 27). Remote Work detail page substantially built (May 28): full content, dot-grid background (replaces particle network on this route only), full-width left-aligned editorial layout matching the AA page spine. Ghost FC detail page still a stub. /who detail page exists as a stub, needs full build now that homepage routes to it.
 
 ## File Structure
 - app/page.tsx, main layout, hero, tagline, section order
-- app/layout.tsx, root layout (data-scroll-behavior="smooth" on <html> for Bug 2 fix)
-- app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, AmbientCanvas)
+- app/layout.tsx, root layout (data-scroll-behavior="smooth" on <html> for Bug 2 fix; renders GatedParticleCanvas instead of ParticleCanvas directly)
+- app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, AmbientCanvas gated off on /work/remote-work via usePathname)
 - app/work/american-airlines/page.tsx, AA detail page, COMPLETE AND DEPLOYED
 - app/work/ghost-fc/page.tsx, Ghost FC detail page (stub)
-- app/work/remote-work/page.tsx, Remote Work detail page (stub)
+- app/work/remote-work/page.tsx, Remote Work detail page (substantially built, May 28; dot-grid bg, full-width left-aligned layout)
 - app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern)
 - app/who/page.tsx, /who detail page (stub, needs full build)
 - components/ui/who-section.tsx, WHO athlete section with photo card + vertical marquee composition
@@ -40,7 +41,9 @@ Site is shipped and live. Main page complete with all three sections done and po
 - components/ui/contact-section.tsx, Contact floating cards + orb reveal
 - components/ui/vertical-marquee.tsx, vertical marquee primitive (from 21st.dev) with mask-based edge fade
 - components/ui/particle-canvas.tsx, main particle system (~680 lines)
+- components/ui/gated-particle-canvas.tsx, client wrapper: renders ParticleCanvas everywhere EXCEPT /work/remote-work (usePathname gate). Lets root layout stay a Server Component
 - components/ui/ambient-canvas.tsx, lightweight ambient-only canvas for work detail pages
+- components/ui/dot-grid-background.tsx, dot-grid shader bg (react-three-fiber) for /work/remote-work only. One-time center-out reveal then faint shimmer, prefers-reduced-motion aware
 - components/ui/neural-text-reveal.tsx, neural network particle animation. Internal positioning: position absolute, top: 8, left: 48
 - components/ui/bento-product-features.tsx, BentoGridShowcase component
 - components/ui/core-value-stats.tsx, deliverables card grid
@@ -244,9 +247,43 @@ export const particleInteraction = {
 - ML Model: https://colab.research.google.com/drive/13JB5oxn4z8e_q8CCXwUyM05fI8vDyjvW?authuser=1
 - Scraping code: PENDING (GitHub repo, not yet created)
 
-### Ghost FC + Remote Work Pages
-- Currently stubs, need same treatment as AA page
-- Same section structure: hero, overview, deliverables
+### Ghost FC Page
+- Currently a stub, needs same structure as AA page (hero, overview, deliverables)
+
+### Remote Work Page (app/work/remote-work/page.tsx), SUBSTANTIALLY BUILT (May 28)
+
+Design direction: editorial, Lusion-style. Full-width, left-aligned, single vertical spine down the left (matches the AA page's structural feel without copying its split-photo hero). Background is the dot-grid shader, NOT the particle network.
+
+**BACKGROUND ARCHITECTURE (important, the gotcha)**
+- There were TWO particle systems painting on this route: ParticleCanvas (root layout, app/layout.tsx) AND AmbientCanvas (work layout, app/work/layout.tsx). Both had to be gated off to reveal the dot-grid.
+- AmbientCanvas: gated in app/work/layout.tsx via usePathname (skips /work/remote-work)
+- ParticleCanvas: root layout is a Server Component so it cannot use usePathname directly. Solution: components/ui/gated-particle-canvas.tsx ('use client', usePathname, returns null on /work/remote-work, else renders ParticleCanvas). Root layout renders GatedParticleCanvas. Root layout stays a Server Component, ParticleCanvas itself untouched.
+- Result on /work/remote-work: single WebGL context (only the dot-grid). Every other route still gets the particle network exactly as before.
+
+**DOT-GRID BACKGROUND (components/ui/dot-grid-background.tsx)**
+- Shader-based dot grid via react-three-fiber (three ^0.184.0, @react-three/fiber ^9.6.1). Adapted from a 21st.dev CanvasRevealEffect/DotMatrix component
+- Behavior: one-time center-out reveal on mount (~2s), then settles to a barely-perceptible slow shimmer (does not loop or replay on scroll)
+- useFrame timing: effective = t while t < 2.0s (plays reveal once), then effective = 2.0 + sin((t-2.0)*0.3)*0.15 (low-amplitude shimmer around the past-reveal threshold)
+- prefers-reduced-motion: snaps to REVEAL_DURATION, static dots, no reveal, no shimmer
+- Default tuning: colors dim gray-violet, dotSize 2, low opacities. Dots read as faint texture, never compete with content
+
+**LAYOUT (full-width, left-aligned spine)**
+- All sections share ONE left edge (the hero's left edge is the canonical spine). Eyebrows, headings, body, and card rows all start at the same x
+- Text is left-aligned everywhere (no centered text). Right edge can vary (cards go full width, paragraphs narrower)
+- No frosted panels. An earlier version wrapped each content block in frosted/opaque panels (legibility armor against the busy particle network). Once the calm dot-grid replaced the network, the panels were removed; text sits directly on the grid
+
+**PAGE BEATS (top to bottom)**
+1. Hero: eyebrow "RESEARCH · ECONOMETRICS", title "Does Remote Work Narrow the Gender Wage Gap?", intro paragraph. Fills full width
+2. Subgroup bar chart: "REMOTE WAGE PREMIUM BY SUBGROUP" + 4 bars. Non-college men 6.5%, Non-college women 6.1%, College men 16.9% (purple), College women 9.5% (purple). College rows brighter/highlighted, non-college dimmer. Caption below + 4 metadata pills: Stata, IPUMS CPS, OLS Regression, 30,272 obs
+3. Collapse module: eyebrow "BUILDING THE ESTIMATE" (purple tick), heading "Watch the remote premium collapse." (collapse in purple), body. Then 3 model cards: Model 01 Raw premium 34.6% R2 0.05, Model 02 Human capital 20.7% R2 0.21, Model 03 Full model 6.5% R2 0.44 (purple, the result accent). Shrinking purple progress bars sell the collapse. Scroll-triggered: cards reveal L-to-R with stagger, percentages count up from 0, bars fill on scroll (whileInView once)
+4. The finding: eyebrow "THE FINDING", heading "A marker of high-paying jobs, not a flexibility benefit." Light card (rgba(255,255,255,0.82), dark text, purple left-border) holds the interpretation. Mentions -0.004 (non-college remote-by-female, insignificant) and -0.070 (triple interaction, significant at 10%). This is the one intentional bright surface on the page
+5. Deliverables: eyebrow "DELIVERABLES", heading "What I built.", 3-card grid: FULL PAPER (pdf, /remote-work paper), PRESENTATION (pdf, placeholder /remote-work-presentation.pdf), DATA SOURCE (IPUMS CPS, Oct 2022 onward, 30,272 obs)
+
+**OPEN FOLLOW-UPS (next session)**
+- Light finding card reads as a big bright slab; left as-is for now by choice. Revisit whether to cap its max-width or tone the surface down once judged on the finished page
+- Presentation PDF href is a placeholder (/remote-work-presentation.pdf), needs the real file
+- The data/copy on this page must NEVER be altered by a styling prompt; every numbers/label string was verified intact through the redesign. Keep ending styling prompts with "do not change data or copy"
+- Hero has no right-side anchor (AA fills it with a photo); currently the bar chart below carries the width. Fine for now, revisit only if it reads empty
 
 ## CoreValueStats Component (components/ui/core-value-stats.tsx)
 - Accepts stats array with: value, label, description, image?, href?, type?
@@ -273,10 +310,11 @@ Background: #080808
 ## Rules
 - Never use em dashes in any text or code comments
 - No card borders or container backgrounds on main page sections
-- No light sections on main page
-- Work detail pages use AmbientCanvas (not ParticleCanvas)
+- No light sections on main page (exception: the finding card on /work/remote-work is a deliberate single light surface)
+- Work detail pages use AmbientCanvas (not ParticleCanvas), EXCEPT /work/remote-work which uses the dot-grid background and has both particle systems gated off
 - Tailwind v4: no tailwind.config file needed
 - Section labels are top-center only (left labels removed May 27)
+- /work/remote-work styling prompts must always end with an instruction not to change data or copy (every number/label is verified correct)
 
 ## Bugs
 
@@ -308,6 +346,11 @@ When asking Claude Code to DELETE components (files, JSX blocks, imports, varian
 ### CLAUDE.md import
 CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` line in CLAUDE.md.
 
+### Background-swap lesson (May 28)
+- When swapping a background on one route, search for ALL background layers first. There were two independent particle canvases (root layout + work layout) painting on the same route. The first gating attempt only caught one, so the new background appeared not to apply (it was buried under the still-painting root canvas).
+- Tell-tale: if a new bg "doesn't apply," it may be rendering correctly but masked by another layer at the same z-index. Gate every layer, then verify with a single-WebGL-context check.
+- A Server Component root layout cannot use usePathname. Wrap the conditional client logic in a small 'use client' component and render that, rather than converting the whole root layout to a client component.
+
 ## Next Steps
 
 ### Priority 1: Build /who detail page proper
@@ -321,10 +364,11 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 - Strong portfolio piece (current internship, real BA work)
 - Content: PlayMetrics API pipeline, match tracker Excel workbook, Instagram Graph API, KPI tracking work
 - Use Ghost FC branding/imagery
+- NOTE: if reusing the dot-grid background here, the gating is already centralized (gated-particle-canvas.tsx for root, usePathname in work layout). Add /work/ghost-fc to those checks
 
-### Priority 3: Build Remote Work detail page
-- Same structure as AA page
-- Content: BUSA 305 econometrics paper on remote work and the gender wage gap, IPUMS CPS data in Stata, five OLS models with interaction terms, esttab export
+### Priority 3: Remote Work detail page polish
+- Page is substantially built. Remaining: real presentation PDF (placeholder href), decide on finding-card width/brightness, optional hero right-side anchor
+- Content accuracy already verified through the redesign
 
 ### Priority 4: Create GitHub repo for AA scraping code
 - Add link to AA detail page deliverables

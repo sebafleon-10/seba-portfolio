@@ -1,12 +1,18 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { AmbientCanvas } from '@/components/ui/ambient-canvas';
 
 export default function WorkLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  // Skip the particle network only on /work/remote-work — that page swaps in its own
+  // dot-grid background. AA and Ghost FC keep AmbientCanvas unchanged.
+  const showParticles = !pathname?.startsWith('/work/remote-work');
+
   return (
     <div style={{ minHeight: '100vh', background: '#000', color: '#ffffff' }}>
-      <AmbientCanvas />
+      {showParticles && <AmbientCanvas />}
       <nav style={{
         position: 'fixed',
         top: 0,
@@ -35,17 +41,19 @@ export default function WorkLayout({ children }: { children: React.ReactNode }) 
             border: '1px solid rgba(255,255,255,0.14)',
             borderRadius: 999,
             padding: '10px 20px',
-            transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
+            transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease',
           }}
           onMouseEnter={e => {
             e.currentTarget.style.background = 'rgba(255,255,255,0.14)';
             e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)';
             e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={e => {
             e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
             e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)';
             e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
+            e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

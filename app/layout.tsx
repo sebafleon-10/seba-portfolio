@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ParticleCanvas } from "@/components/ui/particle-canvas";
+import { GatedParticleCanvas } from "@/components/ui/gated-particle-canvas";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { ParallaxProvider } from "@/context/parallax-context";
 
@@ -33,7 +33,7 @@ export default function RootLayout({
     >
       <body>
         <ParallaxProvider>
-          <ParticleCanvas />
+          <GatedParticleCanvas />
           <ScrollProgress />
           {children}
         </ParallaxProvider>
