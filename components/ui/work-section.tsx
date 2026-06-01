@@ -294,14 +294,20 @@ export function WorkSection() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      padding: '64px 64px 180px',
                     }}>
-                      <span style={{
-                        fontSize: 11,
-                        letterSpacing: '0.4em',
-                        textTransform: 'uppercase',
-                        color: 'rgba(255,255,255,0.12)',
-                        fontFamily: 'system-ui, sans-serif',
-                      }}>Ghost FC</span>
+                      <img
+                        src="/ghost-fc-logo.png"
+                        alt="Chicago Ghost FC crest"
+                        draggable={false}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          maxWidth: 380,
+                          objectFit: 'contain',
+                          display: 'block',
+                        }}
+                      />
                     </div>
                   )}
 
@@ -367,7 +373,7 @@ export function WorkSection() {
                         letterSpacing: '0.22em',
                         textTransform: 'uppercase',
                         color: activeHovered
-                          ? '#2DD4BF'
+                          ? (card.id === 2 ? '#000000' : '#ffffff')
                           : (card.id === 2 ? 'rgba(0,0,0,0.88)' : 'rgba(255,255,255,0.92)'),
                         background: card.id === 2
                           ? `rgba(255,255,255,${activeHovered ? 0.78 : 0.6})`
@@ -419,7 +425,7 @@ export function WorkSection() {
                 borderRadius: i === active ? 4 : '50%',
                 border:       'none',
                 padding:      0,
-                background:   i === active ? '#2DD4BF' : 'rgba(255,255,255,0.3)',
+                background:   i === active ? '#ffffff' : 'rgba(255,255,255,0.3)',
                 cursor:       'pointer',
                 transition:   'all 0.3s ease',
               }}

@@ -12,7 +12,7 @@ const MAX_COEF = 34.6;
 // One eyebrow treatment used by every beat on the page. Dim white so teal can stay reserved for the result.
 const EYEBROW: React.CSSProperties = {
   fontFamily: 'monospace',
-  fontSize: 12,
+  fontSize: 14,
   letterSpacing: '0.4em',
   textTransform: 'uppercase' as const,
   color: 'rgba(255,255,255,0.4)',
@@ -248,12 +248,12 @@ function ModelCard({ m, i, run, prefersReduced }: {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 20 }}>
         <span style={{
-          fontFamily: 'monospace', fontSize: 11,
+          fontFamily: 'monospace', fontSize: 13,
           letterSpacing: '0.3em', textTransform: 'uppercase',
           color: isFinal ? ACCENT_BRIGHT : 'rgba(255,255,255,0.35)',
         }}>Model {m.n}</span>
         <span style={{
-          fontFamily: 'monospace', fontSize: 11,
+          fontFamily: 'monospace', fontSize: 13,
           letterSpacing: '0.2em', textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.3)',
         }}>R² {m.r2.toFixed(2)}</span>
@@ -261,21 +261,21 @@ function ModelCard({ m, i, run, prefersReduced }: {
 
       <h3 style={{
         fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
-        fontSize: 24, fontWeight: 600,
+        fontSize: 28, fontWeight: 600,
         color: '#ffffff', letterSpacing: '-0.015em',
         margin: '0 0 12px',
       }}>{m.name}</h3>
 
       <p style={{
         fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
-        fontSize: 14, fontWeight: 300, lineHeight: 1.6,
+        fontSize: 16, fontWeight: 300, lineHeight: 1.6,
         color: 'rgba(255,255,255,0.7)',
         margin: '0 0 auto',
       }}>{m.adds}</p>
 
       <div style={{ marginTop: 32 }}>
         <p style={{
-          fontFamily: 'monospace', fontSize: 10,
+          fontFamily: 'monospace', fontSize: 12,
           letterSpacing: '0.3em', textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.3)', margin: '0 0 6px',
         }}>Remote premium</p>
@@ -420,9 +420,9 @@ function HeroSection() {
               letterSpacing: '0.01em',
             }}
           >
-            A weighted regression on 30,000 Census records testing the leading
-            theory of the wage gap. The data said the opposite of what the
-            theory predicted.
+            A weighted regression on 30,272 Current Population Survey records
+            testing whether remote work narrows it. The data said the opposite
+            of what the theory predicted.
           </motion.p>
         </div>
 
@@ -434,7 +434,7 @@ function HeroSection() {
           style={{ width: '100%' }}
         >
           <p style={{
-            fontFamily: 'monospace', fontSize: 11,
+            fontFamily: 'monospace', fontSize: 13,
             letterSpacing: '0.35em', textTransform: 'uppercase',
             color: 'rgba(255,255,255,0.55)', margin: '0 0 12px',
           }}>Remote wage premium by subgroup</p>
@@ -717,9 +717,11 @@ export default function RemoteWorkPage() {
               }}
             >
               A raw 34.6 percent remote premium shrinks to 6.5 percent once the
-              model controls for which jobs remote workers actually hold. Most of
-              the apparent advantage was never about remote work. It was about
-              occupation.
+              model controls for which jobs remote workers actually hold. Most
+              of the apparent advantage was never about remote work. It was
+              about occupation. And what survives does not land evenly. The
+              chart above shows where it lands, on college men, not the women
+              remote work was supposed to help.
             </motion.p>
           </div>
 

@@ -148,7 +148,7 @@ function HeroSection() {
             margin: '0 0 32px',
           }}
         >
-          001 · The Athlete
+          001
         </motion.p>
 
         <motion.h1
@@ -184,7 +184,7 @@ function HeroSection() {
           }}
         >
           Soccer is the throughline. The captaincy, the conditioning,
-          the standard set every day for two decades.
+          the standard set every day for most of my life.
         </motion.p>
 
         <motion.p
@@ -193,7 +193,7 @@ function HeroSection() {
           transition={{ duration: 0.7, delay: 0.5, ease: 'easeOut' }}
           style={{
             ...INTER,
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: 300,
             color: 'rgba(255,255,255,0.5)',
             margin: 0,
@@ -202,7 +202,7 @@ function HeroSection() {
           }}
         >
           It is where I learned how to work, how to lead, and why I
-          keep showing up when the work is hard.
+          keep showing up when it gets hard.
         </motion.p>
       </div>
     </section>
@@ -215,7 +215,7 @@ function StorySection() {
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
         <p style={{ ...SECTION_LABEL, marginBottom: 32 }}>The Story</p>
         <h2 style={{ ...SECTION_HEADING, marginBottom: 56, maxWidth: 720 }}>
-          A son of an immigrant, raised on the field.
+          Son of an immigrant, raised on the field.
         </h2>
         <div style={{
           display: 'flex',
@@ -238,18 +238,20 @@ function StorySection() {
               do not waste the chance you were given.
             </p>
             <p style={BODY_TEXT}>
-              Soccer carried me through it. From Rochester youth clubs to a
-              transfer to DePauw, I went after the next level every season.
-              At DePauw I earned the captaincy and we took back-to-back NCAC
-              titles, a run that came down to standards inside the locker
-              room as much as anything on the pitch.
+              Soccer carried me through all of it. From the streets of Peru
+              to Chicago clubs to a season at Rochester, then a transfer to
+              DePauw, I chased the next level every season. At DePauw I
+              earned the captaincy. We went back-to-back in the NCAC
+              Tournament and took the regular-season title last year, a run
+              that came down to standards inside the locker room as much as
+              anything on the pitch.
             </p>
             <p style={BODY_TEXT}>
-              After college I kept playing. Semi-pro with the Chicago Dutch
-              Lions and a season in USL League Two with Chicago City SC.
-              Different rosters, same lesson: the work compounds, and the
-              people who keep doing it long after it stops being convenient
-              are the ones who end up in the room.
+              I never stopped playing. Semi-pro in USL League Two with the
+              Chicago Dutch Lions and Chicago City SC. Different rosters,
+              same lesson: the work compounds, and the people who keep
+              doing it long after it stops being convenient are the ones
+              who end up in the room.
             </p>
           </div>
           <motion.div
@@ -293,12 +295,12 @@ const ACHIEVEMENTS: Achievement[] = [
   {
     value: '03× NCAC',
     label: 'champion',
-    description: 'Back to back to back North Coast Athletic Conference titles with DePauw.',
+    description: 'Back-to-back North Coast Athletic Conference tournament titles, plus the regular-season title last year.',
   },
   {
     value: 'NCAC MVP',
     label: 'tournament',
-    description: 'NCAC Tournament Most Valuable Player on the championship run.',
+    description: 'The individual honor on the title run.',
   },
   {
     value: 'DEPAUW',
@@ -308,7 +310,7 @@ const ACHIEVEMENTS: Achievement[] = [
   {
     value: 'GHOST FC',
     label: 'captain',
-    description: 'Captain of Ghost FC, an adult competitive side that grew into a real organization.',
+    description: 'Captain of Chicago Ghost FC, a semi-pro side in the MWPL, and now the club\'s analyst.',
   },
   {
     value: 'SEMI-PRO',
@@ -556,12 +558,12 @@ function BeyondSection() {
 // who-6 (landscape, Peru): full-width prominent closer in row 4 with extra
 //   row height.
 const GALLERY = [
-  { src: '/who-1.jpg', alt: 'Soccer action', gridColumn: '1', gridRow: '1 / span 3' },
-  { src: '/who-2.jpg', alt: 'Coaching', gridColumn: '2', gridRow: '1' },
-  { src: '/who-3.jpg', alt: 'Team photo', gridColumn: '3', gridRow: '1' },
-  { src: '/who-4.jpg', alt: 'Snowboarding', gridColumn: '3', gridRow: '2 / span 2' },
-  { src: '/who-5.jpg', alt: 'In the weight room', gridColumn: '2', gridRow: '2 / span 2' },
-  { src: '/who-6.jpg', alt: 'Peru', gridColumn: '1 / span 3', gridRow: '4' },
+  { src: '/who-1.jpg', alt: 'Soccer action', gridColumn: '1', gridRow: '1 / span 3', backgroundPosition: 'center' },
+  { src: '/who-2.jpg', alt: 'Coaching', gridColumn: '2', gridRow: '1', backgroundPosition: 'center' },
+  { src: '/who-3.jpg', alt: 'Team photo', gridColumn: '3', gridRow: '1', backgroundPosition: 'center' },
+  { src: '/who-4.jpg', alt: 'Snowboarding', gridColumn: '3', gridRow: '2 / span 2', backgroundPosition: 'center top' },
+  { src: '/who-5.jpg', alt: 'In the weight room', gridColumn: '2', gridRow: '2 / span 2', backgroundPosition: 'center' },
+  { src: '/who-6.jpg', alt: 'Peru', gridColumn: '1 / span 3', gridRow: '4', backgroundPosition: 'center' },
 ];
 
 function GallerySection() {
@@ -599,7 +601,7 @@ function GallerySection() {
                 backgroundColor: '#111111',
                 backgroundImage: `url(${item.src})`,
                 backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundPosition: item.backgroundPosition,
                 backgroundRepeat: 'no-repeat',
               }}
             >
