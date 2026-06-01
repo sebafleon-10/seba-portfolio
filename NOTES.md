@@ -1,5 +1,5 @@
 # seba-portfolio, Project Notes
-Last updated: May 29, 2026
+Last updated: June 1, 2026
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -13,6 +13,7 @@ Last updated: May 29, 2026
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- d6fb335, who page full build: hero with night-match photo, story section with family senior-day photo, receipts editorial list with enlarged mono titles + teal ticks + hover, beyond-the-pitch 2x2 with teal ghost numbers, six-photo asymmetric gallery with Peru closer, TextScrim for particle legibility, teal #2DD4BF accent introduced
 - e0b4886, fix type error in remote-work hero: replace animate() helper with plain motion target objects
 - c41b1c0, add regression paper PDF as remote-work Full Paper deliverable, record commit hash in notes
 - 77c5d1e, remote-work detail page: dot-grid background swap, gated particle canvas, full-width left-aligned layout with single spine
@@ -27,7 +28,7 @@ Last updated: May 29, 2026
 - cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
-Site is shipped and live. Main page complete with all three sections done and polished. AA detail page complete and deployed. WHO section redesigned with new floating photo card and vertical marquee composition (May 27). Remote Work detail page substantially built (May 28): full content, dot-grid background (replaces particle network on this route only), full-width left-aligned editorial layout matching the AA page spine. Ghost FC detail page still a stub. /who detail page exists as a stub, needs full build now that homepage routes to it.
+Site is shipped and live. Main page complete with all three sections done and polished. AA detail page complete and deployed. WHO section redesigned with new floating photo card and vertical marquee composition (May 27). Remote Work detail page substantially built (May 28): full content, dot-grid background (replaces particle network on this route only), full-width left-aligned editorial layout matching the AA page spine. /who detail page now fully built and committed (d6fb335): hero with night-match photo, story section with family senior-day photo, receipts editorial list, beyond-the-pitch ghost-number grid, six-photo asymmetric gallery, TextScrim for particle legibility, teal #2DD4BF accent introduced. Ghost FC detail page still a stub.
 
 ## File Structure
 - app/page.tsx, main layout, hero, tagline, section order
@@ -37,7 +38,7 @@ Site is shipped and live. Main page complete with all three sections done and po
 - app/work/ghost-fc/page.tsx, Ghost FC detail page (stub)
 - app/work/remote-work/page.tsx, Remote Work detail page (substantially built, May 28; dot-grid bg, full-width left-aligned layout)
 - app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern)
-- app/who/page.tsx, /who detail page (stub, needs full build)
+- app/who/page.tsx, /who detail page (BUILT, d6fb335): hero (night-match action photo, text over dark-left), story section with featured family photo (who-story.jpg) on the right, receipts editorial hairline list (enlarged mono titles, teal ticks, hover motion), beyond-the-pitch 2x2 with oversized faint-teal ghost numbers, six-photo asymmetric gallery (who-1 to who-6) with Peru childhood-surf photo as full-width closer. Note it now contains a local TextScrim element (fixed column-wide gradient that dims particles behind body copy for legibility, page-local, does not touch global AmbientCanvas)
 - components/ui/who-section.tsx, WHO athlete section with photo card + vertical marquee composition
 - components/ui/work-section.tsx, Work fan card stack + orb reveal + navigation to detail pages
 - components/ui/contact-section.tsx, Contact floating cards + orb reveal
@@ -55,7 +56,7 @@ Site is shipped and live. Main page complete with all three sections done and po
 - context/parallax-context.tsx, zoomProgressRef
 - CLAUDE.md, imports NOTES.md and CLAUDE_PROMPTING.md
 - CLAUDE_PROMPTING.md, prompting tactics for destructive changes (added May 27)
-- public/, seba-celebrate.jpg, 1-6.jpg, linkedin-profile.jpg, builder.jpg, aa-capstone.jpg, regression.jpg, depauw.png, aa-report.pdf, aa-presentation.pdf, aa-logo.png, aa-logo.svg
+- public/, seba-celebrate.jpg, 1-6.jpg, linkedin-profile.jpg, builder.jpg, aa-capstone.jpg, regression.jpg, depauw.png, who-hero.jpg, who-story.jpg, who-1.jpg, who-2.jpg, who-3.jpg, who-4.jpg, who-5.jpg, who-6.jpg, aa-report.pdf, aa-presentation.pdf, aa-logo.png, aa-logo.svg
 
 ## Main Page Sections (app/page.tsx)
 
@@ -306,6 +307,7 @@ INTER = { fontFamily: 'Inter, ui-rounded, system-ui, sans-serif' }
 Section label: monospace 10px letterSpacing 0.4em uppercase rgba(255,255,255,0.22)
 AA red accent: #CC0000
 AA navy accent: rgba(0,71,127,0.22)
+Teal accent: #2DD4BF (introduced on /who only: section eyebrows, receipt tags + hover, faint teal beyond-the-pitch ghost numbers; candidate to roll out site-wide later)
 Background: #080808
 ```
 
@@ -355,29 +357,28 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 
 ## Next Steps
 
-### Priority 1: Build /who detail page proper
-- The homepage WHO section routes to /who but the destination is a stub
-- Needs full content: longer story, more photos, achievement breakdown, soccer business background, training, semi-pro experience
-- Use AA detail page structure as the model: hero, overview cards, deliverables/gallery
-- Should match the floating card visual language
-
-### Priority 2: Build Ghost FC detail page
+### Priority 1: Build Ghost FC detail page
 - Same structure as AA page (hero, overview, deliverables)
 - Strong portfolio piece (current internship, real BA work)
 - Content: PlayMetrics API pipeline, match tracker Excel workbook, Instagram Graph API, KPI tracking work
 - Use Ghost FC branding/imagery
 - NOTE: if reusing the dot-grid background here, the gating is already centralized (gated-particle-canvas.tsx for root, usePathname in work layout). Add /work/ghost-fc to those checks
 
-### Priority 3: Remote Work detail page polish
+### Priority 2: Remote Work detail page polish
 - Page is substantially built. Remaining: real presentation PDF (placeholder href), decide on finding-card width/brightness, optional hero right-side anchor
 - Content accuracy already verified through the redesign
 
-### Priority 4: Create GitHub repo for AA scraping code
+### Priority 3: Create GitHub repo for AA scraping code
 - Add link to AA detail page deliverables
 - Currently marked PENDING in deliverables section
 
-### Priority 5: Content accuracy pass on all detail pages
+### Priority 4: Content accuracy pass on all detail pages
 - Once all three detail pages are built, full review for accuracy, dates, credit attribution
+
+### /who followups (parked)
+- /who builder section: hands-on building and customizing is part of identity and implied in the hero copy but not yet represented on /who; design a section for it later
+- Option to add imagery to /who beyond-the-pitch if it still reads flat
+- Decide whether to roll the teal #2DD4BF accent out site-wide
 
 ### Lower priority
 - Google AI Essentials cert placement
