@@ -52,7 +52,10 @@ export function WhoSection() {
         const distance = Math.abs(centerY - itemCenterY);
         const maxDistance = containerRect.height / 2;
         const normalizedDistance = Math.min(distance / maxDistance, 1);
-        const opacity = 1 - normalizedDistance * 0.92;
+        // Quadratic falloff: stays near full opacity through the center band,
+        // then drops only as items approach the edges. Widens the readable
+        // window from one item to roughly 3-4 at once.
+        const opacity = Math.max(0.08, 1 - Math.pow(normalizedDistance, 2.2));
         (item as HTMLElement).style.opacity = opacity.toString();
       });
     };
@@ -290,27 +293,48 @@ export function WhoSection() {
                 WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)',
               }}
             >
-              <VerticalMarquee speed={15} className="h-full w-full">
-                {marqueeItems.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="marquee-item"
-                    style={{
-                      fontFamily: 'Inter, sans-serif',
-                      fontSize: '36px',
-                      fontWeight: 300,
-                      letterSpacing: '-0.01em',
-                      color: 'rgba(255,255,255,0.95)',
-                      padding: '32px 0',
-                      textAlign: 'right',
-                      whiteSpace: 'nowrap',
-                      textShadow: '0 0 8px rgba(0,0,0,0.85), 0 0 24px rgba(0,0,0,0.6)',
-                    }}
-                  >
-                    {item}
-                  </div>
-                ))}
-              </VerticalMarquee>
+              {/* Page-local text scrim — mirrors the /who TextScrim pattern,
+                  scoped to this marquee column. Dims the global particles
+                  behind the achievements without touching the global canvas
+                  or its repulsion zones. The parent maskImage above already
+                  fades this scrim at the top and bottom edges. */}
+              <div
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  zIndex: 0,
+                  pointerEvents: 'none',
+                  background:
+                    'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0.58) 30%, rgba(0,0,0,0.58) 70%, rgba(0,0,0,0) 100%)',
+                }}
+              />
+              {/* Wrapper gives the marquee an explicit stacking layer above
+                  the scrim. Without it, the scrim (positioned) would paint
+                  over the static-positioned marquee text. */}
+              <div style={{ position: 'relative', zIndex: 1, height: '100%' }}>
+                <VerticalMarquee speed={15} className="h-full w-full">
+                  {marqueeItems.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="marquee-item"
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '36px',
+                        fontWeight: 300,
+                        letterSpacing: '-0.01em',
+                        color: 'rgba(255,255,255,0.95)',
+                        padding: '32px 0',
+                        textAlign: 'right',
+                        whiteSpace: 'nowrap',
+                        textShadow: '0 0 8px rgba(0,0,0,0.85), 0 0 24px rgba(0,0,0,0.6)',
+                      }}
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </VerticalMarquee>
+              </div>
             </div>
 
           </div>

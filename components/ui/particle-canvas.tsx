@@ -107,6 +107,15 @@ function makeP(x: number, y: number, tx = -1, ty = -1): P {
   };
 }
 
+// Module-level intro gate: the SEBASTIAN LEON neural-network reveal animation
+// should only play on a genuine first load of the site, not on client-side
+// back-navigation (which remounts this component but does NOT reload this
+// module). Once true, subsequent mounts initialize particles directly in
+// their settled scattered-cluster state with no replay. A full page reload
+// re-evaluates the module and resets this back to false, restoring the
+// first-load behavior.
+let introHasPlayed = false;
+
 // ── Component ──────────────────────────────────────────────────────────────────
 export function ParticleCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -191,6 +200,50 @@ export function ParticleCanvas() {
     let smoothGX = -9999, smoothGY = -9999, smoothGInit = false;
     let lastScatterTrigger = 0;
     let lastScatterTime    = -99999;
+
+    // If the intro has already played in this module's lifetime, snap the
+    // particles directly to the settled state the natural scatter→static
+    // transition would have produced. No phase replay, no flash of the
+    // formation, no flash of the pre-reveal: the canvas opens at rest.
+    if (introHasPlayed) {
+      phase = 'static';
+      staticStart = start;
+
+      // Replicate the cluster-distribution math from the hold→scatter
+      // transition (line block beginning "Generate 4-6 organic cluster centers").
+      const numClusters = 4 + Math.floor(rand() * 3);
+      const margin = 110, minSep = 230;
+      const centers: { x: number; y: number }[] = [];
+      for (let attempt = 0; attempt < 600 && centers.length < numClusters; attempt++) {
+        const cx = margin + rand() * (W - margin * 2);
+        const cy = margin + rand() * (H - margin * 2);
+        if (
+          centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
+          Math.hypot(cx - W / 2, cy - H / 2) > 220
+        ) centers.push({ x: cx, y: cy });
+      }
+
+      for (let i = 0; i < N_TOTAL; i++) {
+        const p       = ps[i];
+        const cluster = centers[Math.floor(rand() * centers.length)];
+        const angle   = rand() * Math.PI * 2;
+        const rx      = 40 + rand() * 240;
+        const ry      = 20 + rand() * 120;
+        p.x = Math.max(20, Math.min(W - 20, cluster.x + Math.cos(angle) * rx));
+        p.y = Math.max(20, Math.min(H - 20, cluster.y + Math.sin(angle) * ry));
+        p.vx = 0; p.vy = 0;
+        p.restX = p.x; p.restY = p.y;
+        // Buzz personality is normally assigned at chaos→assembly. Initialize
+        // it here so static-phase ambient buzz matches a first-load run.
+        p.buzzPhaseX = Math.random() * Math.PI * 2;
+        p.buzzPhaseY = Math.random() * Math.PI * 2;
+        p.buzzFreq   = 2 + Math.random() * 4;
+        p.buzzAmp    = 1.5 + Math.random() * 1.5;
+      }
+      for (let i = 0; i < N_TEXT; i++) pProg[i] = 1;
+    } else {
+      introHasPlayed = true;
+    }
 
     function chaosTick(p: P) {
       p.vx += (Math.random() - 0.5) * 1.5;

@@ -28,17 +28,17 @@ Last updated: June 1, 2026
 - cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
-Site is shipped and live. Main page complete with all three sections done and polished. AA detail page complete and deployed. WHO section redesigned with new floating photo card and vertical marquee composition (May 27). Remote Work detail page substantially built (May 28): full content, dot-grid background (replaces particle network on this route only), full-width left-aligned editorial layout matching the AA page spine. /who detail page now fully built and committed (d6fb335): hero with night-match photo, story section with family senior-day photo, receipts editorial list, beyond-the-pitch ghost-number grid, six-photo asymmetric gallery, TextScrim for particle legibility, teal #2DD4BF accent introduced. Ghost FC detail page still a stub.
+Site is shipped and live. Main page complete with all three sections done and polished, and the hero neural intro now plays only on first page load, it no longer replays when navigating Back to the main page (gated by a module-level flag in the main page). All four detail pages (who, AA, ghost-fc, remote-work) now share the same unified dot-grid background. The old AmbientCanvas neural-network overlay was removed from who, AA, and ghost-fc so each renders a single background. On the AA and athlete (/who) detail pages the hero photo now blends into the background via a bottom and left gradient fade, removing the hard slide-style seam. AA work-card count and the report headline are set to 627K and the corrected aa-report.pdf is deployed. CTA renamed from VIEW PROJECT to VIEW WORK site-wide. Ghost FC detail page is still a content stub (now inherits the unified background).
 
 ## File Structure
-- app/page.tsx, main layout, hero, tagline, section order
+- app/page.tsx, main layout, hero, tagline, section order (June 1: hero neural intro gated to first load via module-level flag, does not replay on Back)
 - app/layout.tsx, root layout (data-scroll-behavior="smooth" on <html> for Bug 2 fix; renders GatedParticleCanvas instead of ParticleCanvas directly)
 - app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, AmbientCanvas gated off on /work/remote-work via usePathname)
-- app/work/american-airlines/page.tsx, AA detail page, COMPLETE AND DEPLOYED
-- app/work/ghost-fc/page.tsx, Ghost FC detail page (stub)
+- app/work/american-airlines/page.tsx, AA detail page, COMPLETE AND DEPLOYED (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
+- app/work/ghost-fc/page.tsx, Ghost FC detail page (stub) (June 1: now uses unified dot-grid background, AmbientCanvas removed)
 - app/work/remote-work/page.tsx, Remote Work detail page (substantially built, May 28; dot-grid bg, full-width left-aligned layout)
 - app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern)
-- app/who/page.tsx, /who detail page (BUILT, d6fb335): hero (night-match action photo, text over dark-left), story section with featured family photo (who-story.jpg) on the right, receipts editorial hairline list (enlarged mono titles, teal ticks, hover motion), beyond-the-pitch 2x2 with oversized faint-teal ghost numbers, six-photo asymmetric gallery (who-1 to who-6) with Peru childhood-surf photo as full-width closer. Note it now contains a local TextScrim element (fixed column-wide gradient that dims particles behind body copy for legibility, page-local, does not touch global AmbientCanvas)
+- app/who/page.tsx, /who detail page (BUILT, d6fb335): hero (night-match action photo, text over dark-left), story section with featured family photo (who-story.jpg) on the right, receipts editorial hairline list (enlarged mono titles, teal ticks, hover motion), beyond-the-pitch 2x2 with oversized faint-teal ghost numbers, six-photo asymmetric gallery (who-1 to who-6) with Peru childhood-surf photo as full-width closer. Note it now contains a local TextScrim element (fixed column-wide gradient that dims particles behind body copy for legibility, page-local, does not touch global AmbientCanvas) (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
 - components/ui/who-section.tsx, WHO athlete section with photo card + vertical marquee composition
 - components/ui/work-section.tsx, Work fan card stack + orb reveal + navigation to detail pages
 - components/ui/contact-section.tsx, Contact floating cards + orb reveal
@@ -315,7 +315,7 @@ Background: #080808
 - Never use em dashes in any text or code comments
 - No card borders or container backgrounds on main page sections
 - No light sections on main page (exception: the finding card on /work/remote-work is a deliberate single light surface)
-- Work detail pages use AmbientCanvas (not ParticleCanvas), EXCEPT /work/remote-work which uses the dot-grid background and has both particle systems gated off
+- All detail pages (who, AA, ghost-fc, remote-work) use the unified dot-grid background. AmbientCanvas is no longer used on any detail page (removed June 1). The main page uses the ParticleCanvas neural system, which now plays its intro reveal only on first load.
 - Tailwind v4: no tailwind.config file needed
 - Section labels are top-center only (left labels removed May 27)
 - /work/remote-work styling prompts must always end with an instruction not to change data or copy (every number/label is verified correct)
@@ -327,6 +327,9 @@ Work card forward-nav scroll bug: clicking a card lands on section 2 then scroll
 
 ### Bug 2 (FIXED)
 Back button flicker on /#work navigation. Fixed via one-line change: added data-scroll-behavior="smooth" to the <html> tag in app/layout.tsx. Tells Next.js to swap smooth scroll to instant during route transitions, eliminating the visible flicker.
+
+### Bug 3 (FIXED)
+Main-page neural intro replayed every time the user navigated Back to the home page, because the page component remounts on client-side navigation. Fixed by gating the intro with a module-level flag that survives client-side navigation but resets on a full page reload, so the intro plays on first load only. Option on file: swap the module flag for sessionStorage if it should also not replay on a same-tab refresh.
 
 ## Prompting Lessons (CLAUDE_PROMPTING.md)
 Documented May 27 after the WHO section redesign exposed a recurring failure mode.
@@ -356,6 +359,12 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 - A Server Component root layout cannot use usePathname. Wrap the conditional client logic in a small 'use client' component and render that, rather than converting the whole root layout to a client component.
 
 ## Next Steps
+
+### Priority: finish detail-page cohesion (teal single accent)
+- Background unification and hero blend are DONE (June 1). Remaining cohesion work, NOT yet done: make teal (#2DD4BF, currently /who only) the single site accent. Recolor the work-section chrome accents (active pagination dot, VIEW WORK hover, arrow hover, the 002 number) to teal, mirroring /who.
+- Recolor the remote-work page's purple/violet live charts to a teal-anchored two-tone palette (multi-series need teal plus a distinguishable second tone).
+- The remote-work scatter chart (Does Remote Work Close the Gender Wage Gap?) is likely a STATIC image, it cannot be recolored in code and must be regenerated from the Python plotting source with a teal palette, then re-exported. Audit and flag all static chart images before recoloring.
+- Verify the intro-replay fix holds (Back does not replay, fresh load does), and decide module flag vs sessionStorage for refresh behavior.
 
 ### Priority 1: Build Ghost FC detail page
 - Same structure as AA page (hero, overview, deliverables)

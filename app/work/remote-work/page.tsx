@@ -4,12 +4,12 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
 
-// Violet accent for this research page. Ties to the purple particle lines on the main page.
-const ACCENT = '#7C5CFF';
-const ACCENT_BRIGHT = '#A99BFF';
+// Teal accent for this research page. Matches the site-wide accent defined on /who.
+const ACCENT = '#2DD4BF';
+const ACCENT_BRIGHT = '#5EEAD4';
 const MAX_COEF = 34.6;
 
-// One eyebrow treatment used by every beat on the page. Dim white so purple can stay reserved for the result.
+// One eyebrow treatment used by every beat on the page. Dim white so teal can stay reserved for the result.
 const EYEBROW: React.CSSProperties = {
   fontFamily: 'monospace',
   fontSize: 12,
@@ -672,7 +672,7 @@ export default function RemoteWorkPage() {
 
           {/* Header + body, tight gap to the cards below so the heading reads as the title of the card group. */}
           <div style={{ maxWidth: 880, margin: '0 0 28px' }}>
-            {/* Eyebrow with purple left tick — reuses the same 2px ACCENT left-border device
+            {/* Eyebrow with teal left tick — reuses the same 2px ACCENT left-border device
                 as the pullquote in The Finding section. */}
             <motion.p
               initial={prefersReduced ? false : { opacity: 0, y: 20 }}
@@ -688,7 +688,7 @@ export default function RemoteWorkPage() {
             >Building the estimate</motion.p>
 
             {/* Climax heading: larger than the other section h2s on the page, with the result word
-                ("collapse") in result-purple. */}
+                ("collapse") in result-teal. */}
             <motion.h2
               initial={prefersReduced ? false : { opacity: 0, y: 20 }}
               whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
@@ -730,7 +730,7 @@ export default function RemoteWorkPage() {
       {/* THE FINDING — eyebrow + heading stay in their dim/white treatment above the card.
           The narrative body + pullquote drop into a floating light card that reuses the
           AA "Project" card vocabulary so the two pages feel like siblings. Monochrome
-          inside — purple stays reserved for the result on this page. */}
+          inside, teal stays reserved for the result on this page. */}
       <section style={{ position: 'relative', zIndex: 1, padding: '120px 0' }}>
         {/* Left-aligned on the same page spine as every other section. AA's container
             spec (maxWidth 1200, centered with auto margins, 64px horizontal padding) is

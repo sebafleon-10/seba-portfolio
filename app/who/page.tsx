@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { DotGridBackground } from '@/components/ui/dot-grid-background';
 
 const MONO = { fontFamily: 'monospace' };
 const INTER = { fontFamily: 'Inter, ui-rounded, system-ui, sans-serif' };
@@ -51,7 +52,6 @@ function HeroSection() {
       className="relative w-full"
       style={{
         zIndex: 1,
-        background: '#080808',
         minHeight: `${HERO_HEIGHT_VH}vh`,
         overflow: 'hidden',
       }}
@@ -71,6 +71,19 @@ function HeroSection() {
           // clean dark band instead of a broken-image gap.
           background: '#0c0c0c',
           zIndex: 1,
+          // Dissolve the photo (and its overlays) into the page's dot-grid on
+          // both the bottom and the left edges, so the hero has no hard seam
+          // against the dot-grid. Two gradient mask layers are composited
+          // with mask-composite: intersect (source-in on Webkit), so the
+          // photo paints only where BOTH masks are opaque.
+          maskImage:
+            'linear-gradient(to bottom, black 0%, black 76%, transparent 100%), ' +
+            'linear-gradient(to right, transparent 0%, black 18%, black 100%)',
+          maskComposite: 'intersect',
+          WebkitMaskImage:
+            'linear-gradient(to bottom, black 0%, black 76%, transparent 100%), ' +
+            'linear-gradient(to right, transparent 0%, black 18%, black 100%)',
+          WebkitMaskComposite: 'source-in',
         }}
       >
         <img
@@ -102,7 +115,7 @@ function HeroSection() {
             bottom: 0,
             height: '38%',
             background:
-              'linear-gradient(to top, #080808 0%, rgba(8,8,8,0.6) 50%, rgba(8,8,8,0) 100%)',
+              'linear-gradient(to top, transparent 0%, rgba(8,8,8,0.55) 50%, rgba(8,8,8,0) 100%)',
             pointerEvents: 'none',
           }}
         />
@@ -614,7 +627,7 @@ function GallerySection() {
   );
 }
 
-// One tunable scrim. Sits above AmbientCanvas (fixed, z=0) and below the
+// One tunable scrim. Sits above DotGridBackground (fixed, z=0) and below the
 // text sections (relative, z=1, DOM-ordered after this element). Absolute
 // (not fixed) so it begins at the bottom of the hero band and never paints
 // over the hero photo. Requires WhoPage root to be position:relative.
@@ -643,7 +656,11 @@ function TextScrim() {
 
 export default function WhoPage() {
   return (
-    <div style={{ background: '#000', minHeight: '100vh', position: 'relative' }}>
+    <div style={{ minHeight: '100vh', position: 'relative' }}>
+      {/* Shared dot-grid background, matching /work/remote-work and the
+          other detail pages for visual coherence. Fixed full-viewport,
+          behind all content (zIndex 0, pointer-events none). */}
+      <DotGridBackground />
       <TextScrim />
       <HeroSection />
       <StorySection />

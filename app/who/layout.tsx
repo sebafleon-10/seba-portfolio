@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { AmbientCanvas } from '@/components/ui/ambient-canvas';
 
 export default function WhoLayout({ children }: { children: React.ReactNode }) {
+  // The /who page renders its own DotGridBackground at the page level for
+  // visual coherence with the work detail pages, so no layout-level canvas.
+
   return (
     <div style={{ minHeight: '100vh', background: '#000', color: '#ffffff' }}>
-      <AmbientCanvas />
       <nav style={{
         position: 'fixed',
         top: 0,

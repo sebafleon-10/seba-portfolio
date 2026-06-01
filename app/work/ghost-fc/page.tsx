@@ -1,3 +1,7 @@
+'use client';
+
+import { DotGridBackground } from '@/components/ui/dot-grid-background';
+
 const pill: React.CSSProperties = {
   fontFamily: 'monospace',
   fontSize: 10,
@@ -55,7 +59,18 @@ const statLabel: React.CSSProperties = {
 
 export default function GhostFCPage() {
   return (
-    <main style={{ background: '#000', minHeight: '100vh' }}>
+    <main style={{ minHeight: '100vh' }}>
+
+      {/* Shared dot-grid background, matching /work/remote-work for visual
+          coherence across all detail pages. Fixed full-viewport, behind all
+          content (zIndex 0, pointer-events none). */}
+      <DotGridBackground />
+
+      {/* Stacking wrapper: this page's sections are non-positioned (no
+          zIndex), so without this they would paint behind the fixed dot
+          grid. Single relative+zIndex wrapper keeps the visual layout
+          identical while lifting all content above the background. */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* HERO */}
       <section style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
@@ -133,6 +148,7 @@ export default function GhostFCPage() {
           ))}
         </div>
 
+      </div>
       </div>
     </main>
   );

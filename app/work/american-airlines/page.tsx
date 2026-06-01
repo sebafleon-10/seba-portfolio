@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { NeuralTextReveal } from '@/components/ui/neural-text-reveal';
 import CoreValueStats from '@/components/ui/core-value-stats';
+import { DotGridBackground } from '@/components/ui/dot-grid-background';
 
 function HeroSection() {
   const [isLoaded, setIsLoaded] = useState(false);
   useEffect(() => { setIsLoaded(true); }, []);
 
   return (
-    <section className="relative w-full bg-black" style={{ height: 'auto', zIndex: 1 }}>
+    <section className="relative w-full" style={{ height: 'auto', zIndex: 1 }}>
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -68,7 +69,7 @@ function HeroSection() {
               letterSpacing: '0.01em',
             }}
           >
-            We scraped 627,000 Reddit posts to find out why Gen Z is not
+            We scraped 627K Reddit posts to find out why Gen Z is not
             loyal to American Airlines. The answer surprised everyone in the room.
           </motion.p>
         </div>
@@ -77,10 +78,26 @@ function HeroSection() {
           initial={{ opacity: 0, scale: 1.04 }}
           animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
           transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
-          style={{ position: 'absolute', top: 0, right: 0, width: '58%', height: '100%', overflow: 'hidden', zIndex: 1 }}
+          style={{
+            position: 'absolute', top: 0, right: 0, width: '58%', height: '100%',
+            overflow: 'hidden', zIndex: 1,
+            // Dissolve the photo (and its overlays) into the page's dot-grid on
+            // both the bottom and the left edges, so the hero has no hard seam
+            // against the dot-grid. Two gradient mask layers are composited
+            // with mask-composite: intersect (source-in on Webkit), so the
+            // photo paints only where BOTH masks are opaque.
+            maskImage:
+              'linear-gradient(to bottom, black 0%, black 76%, transparent 100%), ' +
+              'linear-gradient(to right, transparent 0%, black 18%, black 100%)',
+            maskComposite: 'intersect',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, black 0%, black 76%, transparent 100%), ' +
+              'linear-gradient(to right, transparent 0%, black 18%, black 100%)',
+            WebkitMaskComposite: 'source-in',
+          }}
         >
           <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '22%', background: 'linear-gradient(to right, #000000 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'linear-gradient(to top, #000000 0%, rgba(0,0,0,0.7) 35%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'linear-gradient(to top, transparent 0%, rgba(0,0,0,0.55) 50%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
           <img
             src="/aa-capstone.jpg"
             alt="Sebastian Leon presenting to American Airlines"
@@ -102,7 +119,12 @@ function HeroSection() {
 
 export default function AmericanAirlinesPage() {
   return (
-    <div style={{ background: '#000', minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
+
+      {/* Shared dot-grid background, matching /work/remote-work for visual
+          coherence across all detail pages. Fixed full-viewport, behind all
+          content (zIndex 0, pointer-events none). */}
+      <DotGridBackground />
 
       <HeroSection />
 
@@ -126,7 +148,7 @@ export default function AmericanAirlinesPage() {
               {
                 number: '02',
                 label: 'The Approach',
-                body: 'We scraped 627,000 Reddit posts across four airline communities, scored every post with Twitter RoBERTa, and ran LDA topic modeling to surface recurring themes across four years of organic conversation data.',
+                body: 'We scraped 627K Reddit posts across four airline communities, scored every post with Twitter RoBERTa, and ran LDA topic modeling to surface recurring themes across four years of organic conversation data.',
               },
               {
                 number: '03',

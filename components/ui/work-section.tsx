@@ -10,7 +10,7 @@ const cards = [
     id: 0,
     title: 'American Airlines',
     tag: 'NLP · Sentiment · Strategy',
-    desc: "RoBERTa sentiment pipeline across 970K Reddit posts",
+    desc: "RoBERTa sentiment pipeline across 627K Reddit posts",
   },
   {
     id: 1,
@@ -30,6 +30,7 @@ const cardRoutes = ['/work/american-airlines', '/work/ghost-fc', '/work/remote-w
 
 export function WorkSection() {
   const [active, setActive] = useState(0);
+  const [activeHovered, setActiveHovered] = useState(false);
   const router = useRouter();
   const orbLabelRef   = useRef<HTMLParagraphElement>(null);
   const activeCardRef = useRef<HTMLDivElement>(null);
@@ -42,6 +43,10 @@ export function WorkSection() {
   const canGoNext = active < cards.length - 1;
   const prev = () => setActive(a => a - 1);
   const next = () => setActive(a => a + 1);
+
+  // Clear the active-card hover flag whenever the active card changes,
+  // so the new front card starts in its base state until the user re-enters.
+  useEffect(() => { setActiveHovered(false); }, [active]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -181,11 +186,11 @@ export function WorkSection() {
         onClick={prev}
         disabled={!canGoPrev}
         style={{ position: 'absolute', left: 24, top: '50%', transform: 'translateY(-50%)', zIndex: 200 }}
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
+        className="flex items-center justify-center w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white hover:text-[#2DD4BF] transition disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Previous"
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M10 3L5 8L10 13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
 
@@ -194,11 +199,11 @@ export function WorkSection() {
         onClick={next}
         disabled={!canGoNext}
         style={{ position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)', zIndex: 200 }}
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
+        className="flex items-center justify-center w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white hover:text-[#2DD4BF] transition disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Next"
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M6 3L11 8L6 13" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
 
@@ -231,6 +236,8 @@ export function WorkSection() {
                   key={card.id}
                   ref={isActive ? activeCardRef : undefined}
                   onClick={() => isActive ? router.push(cardRoutes[card.id]) : setActive(i)}
+                  onMouseEnter={isActive ? () => setActiveHovered(true)  : undefined}
+                  onMouseLeave={isActive ? () => setActiveHovered(false) : undefined}
                   animate={{ x, rotateZ, rotateX, scale, opacity: 1 }}
                   transition={{ type: 'spring', stiffness: 280, damping: 28 }}
                   style={{
@@ -341,7 +348,11 @@ export function WorkSection() {
                     }}>{card.desc}</p>
                   </div>
 
-                  {/* VIEW PROJECT label — active card only */}
+                  {/* VIEW PROJECT label — active card only.
+                      Frosted pill (matches the work detail back-button chrome)
+                      keeps the label legible over any image. Light variant for
+                      the light regression card, dark variant for the rest.
+                      Base opacity is already high; card hover bumps to full. */}
                   {isActive && (
                     <motion.div
                       initial={{ opacity: 0, y: 6 }}
@@ -349,18 +360,34 @@ export function WorkSection() {
                       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                       style={{
                         position: 'absolute',
-                        top: 20,
-                        right: 20,
+                        top: 16,
+                        right: 16,
                         fontFamily: 'monospace',
                         fontSize: 10,
                         letterSpacing: '0.22em',
                         textTransform: 'uppercase',
-                        color: card.id === 2 ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
+                        color: activeHovered
+                          ? '#2DD4BF'
+                          : (card.id === 2 ? 'rgba(0,0,0,0.88)' : 'rgba(255,255,255,0.92)'),
+                        background: card.id === 2
+                          ? `rgba(255,255,255,${activeHovered ? 0.78 : 0.6})`
+                          : `rgba(0,0,0,${activeHovered ? 0.55 : 0.4})`,
+                        border: card.id === 2
+                          ? '1px solid rgba(0,0,0,0.10)'
+                          : '1px solid rgba(255,255,255,0.18)',
+                        borderRadius: 999,
+                        padding: '6px 12px',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        textShadow: card.id === 2
+                          ? '0 1px 0 rgba(255,255,255,0.45)'
+                          : '0 1px 2px rgba(0,0,0,0.45)',
+                        transition: 'color 220ms ease, background 220ms ease',
                         pointerEvents: 'none',
                         zIndex: 11,
                       }}
                     >
-                      View Project →
+                      View Work →
                     </motion.div>
                   )}
 
@@ -392,7 +419,7 @@ export function WorkSection() {
                 borderRadius: i === active ? 4 : '50%',
                 border:       'none',
                 padding:      0,
-                background:   i === active ? '#ffffff' : 'rgba(255,255,255,0.3)',
+                background:   i === active ? '#2DD4BF' : 'rgba(255,255,255,0.3)',
                 cursor:       'pointer',
                 transition:   'all 0.3s ease',
               }}

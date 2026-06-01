@@ -1,18 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { AmbientCanvas } from '@/components/ui/ambient-canvas';
 
 export default function WorkLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  // Skip the particle network only on /work/remote-work — that page swaps in its own
-  // dot-grid background. AA and Ghost FC keep AmbientCanvas unchanged.
-  const showParticles = !pathname?.startsWith('/work/remote-work');
+  // All work detail pages render their own DotGridBackground at the page level
+  // for visual coherence with /work/remote-work, so no layout-level canvas here.
 
   return (
     <div style={{ minHeight: '100vh', background: '#000', color: '#ffffff' }}>
-      {showParticles && <AmbientCanvas />}
       <nav style={{
         position: 'fixed',
         top: 0,
