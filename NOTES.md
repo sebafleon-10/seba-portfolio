@@ -13,6 +13,7 @@ Last updated: June 1, 2026
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- aacfbd8, June 1 session: unified dot-grid background across who/AA/ghost-fc detail pages (match remote-work), removed double-stacked AmbientCanvas from those three, blended AA and athlete hero photos into background with bottom+left gradient fade, gated main-page neural intro to first load only via module-level flag (no replay on Back), renamed VIEW PROJECT to VIEW WORK site-wide, set AA work-card count and report headline to 627K, deployed corrected aa-report.pdf
 - d6fb335, who page full build: hero with night-match photo, story section with family senior-day photo, receipts editorial list with enlarged mono titles + teal ticks + hover, beyond-the-pitch 2x2 with teal ghost numbers, six-photo asymmetric gallery with Peru closer, TextScrim for particle legibility, teal #2DD4BF accent introduced
 - e0b4886, fix type error in remote-work hero: replace animate() helper with plain motion target objects
 - c41b1c0, add regression paper PDF as remote-work Full Paper deliverable, record commit hash in notes
