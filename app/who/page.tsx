@@ -215,7 +215,7 @@ function StorySection() {
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
         <p style={{ ...SECTION_LABEL, marginBottom: 32 }}>The Story</p>
         <h2 style={{ ...SECTION_HEADING, marginBottom: 56, maxWidth: 720 }}>
-          Son of an immigrant, raised on the field.
+          Son of an immigrant, raised on the field
         </h2>
         <div style={{
           display: 'flex',
@@ -417,7 +417,7 @@ function AchievementSection() {
     <section style={{ position: 'relative', zIndex: 1, padding: '0 0 88px' }}>
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
         <p style={{ ...SECTION_LABEL, marginBottom: 12 }}>On the Field</p>
-        <h2 style={{ ...SECTION_HEADING, marginBottom: 48 }}>The receipts.</h2>
+        <h2 style={{ ...SECTION_HEADING, marginBottom: 48 }}>The receipts</h2>
         <div>
           {ACHIEVEMENTS.map((item, i) => (
             <AchievementRow
@@ -529,7 +529,7 @@ function BeyondSection() {
     <section style={{ position: 'relative', zIndex: 1, padding: '0 0 88px' }}>
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
         <p style={{ ...SECTION_LABEL, marginBottom: 12 }}>Beyond the Pitch</p>
-        <h2 style={{ ...SECTION_HEADING, marginBottom: 56 }}>What I do off it.</h2>
+        <h2 style={{ ...SECTION_HEADING, marginBottom: 56 }}>Everything else</h2>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(2, 1fr)',
@@ -571,7 +571,7 @@ function GallerySection() {
     <section style={{ position: 'relative', zIndex: 1, padding: '0 0 160px' }}>
       <div style={{ maxWidth: 1400, width: '100%', margin: '0 auto', padding: '0 64px' }}>
         <p style={{ ...SECTION_LABEL, marginBottom: 12 }}>Moments</p>
-        <h2 style={{ ...SECTION_HEADING, marginBottom: 48 }}>A few frames.</h2>
+        <h2 style={{ ...SECTION_HEADING, marginBottom: 48 }}>A few frames</h2>
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',

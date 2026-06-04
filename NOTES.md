@@ -13,6 +13,7 @@ Last updated: June 1, 2026
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- 6e01fd7, June 1 session 2: /who copy pass (hero eyebrow to 001, tightened taglines, story reworked around the Peru to Chicago to Rochester to DePauw path with corrected NCAC titles, receipts copy fixed including Ghost FC analyst line, Beyond the Pitch tweaks, snowboard gallery crop fixed), remote-work copy (exact 30,272 and Current Population Survey in hero, collapse module bridged to the subgroup chart, eyebrows and model-card supporting text enlarged, presentation PDF linked), built Ghost FC detail page (hero plus What I'm building section with white-knockout crest), work-section (Ghost FC logo on card, teal removed from VIEW WORK hover and pagination dots), added public/ghost-fc-logo.png and public/remote-work-presentation.pdf
 - aacfbd8, June 1 session: unified dot-grid background across who/AA/ghost-fc detail pages (match remote-work), removed double-stacked AmbientCanvas from those three, blended AA and athlete hero photos into background with bottom+left gradient fade, gated main-page neural intro to first load only via module-level flag (no replay on Back), renamed VIEW PROJECT to VIEW WORK site-wide, set AA work-card count and report headline to 627K, deployed corrected aa-report.pdf
 - d6fb335, who page full build: hero with night-match photo, story section with family senior-day photo, receipts editorial list with enlarged mono titles + teal ticks + hover, beyond-the-pitch 2x2 with teal ghost numbers, six-photo asymmetric gallery with Peru closer, TextScrim for particle legibility, teal #2DD4BF accent introduced
 - e0b4886, fix type error in remote-work hero: replace animate() helper with plain motion target objects
@@ -29,14 +30,14 @@ Last updated: June 1, 2026
 - cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
-Site is shipped and live. Main page complete with all three sections done and polished, and the hero neural intro now plays only on first page load, it no longer replays when navigating Back to the main page (gated by a module-level flag in the main page). All four detail pages (who, AA, ghost-fc, remote-work) now share the same unified dot-grid background. The old AmbientCanvas neural-network overlay was removed from who, AA, and ghost-fc so each renders a single background. On the AA and athlete (/who) detail pages the hero photo now blends into the background via a bottom and left gradient fade, removing the hard slide-style seam. AA work-card count and the report headline are set to 627K and the corrected aa-report.pdf is deployed. CTA renamed from VIEW PROJECT to VIEW WORK site-wide. Ghost FC detail page is still a content stub (now inherits the unified background).
+Site is shipped and live (latest deploy 6e01fd7). The /who page copy is finalized: hero trimmed and tightened, the story reworked around the real Peru to Chicago to Rochester to DePauw path with corrected NCAC title language (back-to-back tournament titles plus last year's regular-season title), receipts copy fixed including a Ghost FC analyst line, Beyond the Pitch tweaked, and the snowboard gallery crop fixed. The remote-work page now uses the exact 30,272 and names the Current Population Survey in the hero, bridges the collapse module to the subgroup chart, has larger eyebrows and model-card supporting text, and links the real presentation PDF. The Ghost FC detail page is now built and no longer a stub: a hero with the white-knockout club crest plus a "What I'm building right now" section. Teal has been removed from the Work-section chrome (VIEW WORK hover and pagination dots), partially reversing the planned site-wide teal rollout.
 
 ## File Structure
 - app/page.tsx, main layout, hero, tagline, section order (June 1: hero neural intro gated to first load via module-level flag, does not replay on Back)
 - app/layout.tsx, root layout (data-scroll-behavior="smooth" on <html> for Bug 2 fix; renders GatedParticleCanvas instead of ParticleCanvas directly)
 - app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, AmbientCanvas gated off on /work/remote-work via usePathname)
 - app/work/american-airlines/page.tsx, AA detail page, COMPLETE AND DEPLOYED (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
-- app/work/ghost-fc/page.tsx, Ghost FC detail page (stub) (June 1: now uses unified dot-grid background, AmbientCanvas removed)
+- app/work/ghost-fc/page.tsx, Ghost FC detail page, built (hero plus "What I'm building right now" section, white-knockout crest on the right) (June 1: unified dot-grid background, AmbientCanvas removed; June 1 session 2: stub replaced with the real hero + work section)
 - app/work/remote-work/page.tsx, Remote Work detail page (substantially built, May 28; dot-grid bg, full-width left-aligned layout)
 - app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern)
 - app/who/page.tsx, /who detail page (BUILT, d6fb335): hero (night-match action photo, text over dark-left), story section with featured family photo (who-story.jpg) on the right, receipts editorial hairline list (enlarged mono titles, teal ticks, hover motion), beyond-the-pitch 2x2 with oversized faint-teal ghost numbers, six-photo asymmetric gallery (who-1 to who-6) with Peru childhood-surf photo as full-width closer. Note it now contains a local TextScrim element (fixed column-wide gradient that dims particles behind body copy for legibility, page-local, does not touch global AmbientCanvas) (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
@@ -57,7 +58,7 @@ Site is shipped and live. Main page complete with all three sections done and po
 - context/parallax-context.tsx, zoomProgressRef
 - CLAUDE.md, imports NOTES.md and CLAUDE_PROMPTING.md
 - CLAUDE_PROMPTING.md, prompting tactics for destructive changes (added May 27)
-- public/, seba-celebrate.jpg, 1-6.jpg, linkedin-profile.jpg, builder.jpg, aa-capstone.jpg, regression.jpg, depauw.png, who-hero.jpg, who-story.jpg, who-1.jpg, who-2.jpg, who-3.jpg, who-4.jpg, who-5.jpg, who-6.jpg, aa-report.pdf, aa-presentation.pdf, aa-logo.png, aa-logo.svg
+- public/, seba-celebrate.jpg, 1-6.jpg, linkedin-profile.jpg, builder.jpg, aa-capstone.jpg, regression.jpg, depauw.png, who-hero.jpg, who-story.jpg, who-1.jpg, who-2.jpg, who-3.jpg, who-4.jpg, who-5.jpg, who-6.jpg, aa-report.pdf, aa-presentation.pdf, aa-logo.png, aa-logo.svg, ghost-fc-logo.png, remote-work-presentation.pdf
 
 ## Main Page Sections (app/page.tsx)
 
@@ -362,20 +363,21 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 ## Next Steps
 
 ### Priority: finish detail-page cohesion (teal single accent)
+- ON HOLD (June 1 session 2): teal was REMOVED from the Work-section chrome this session. VIEW WORK hover now brightens to white (full black on the light regression card) and the active pagination dot is now white, not teal. This partially reverses the planned site-wide teal rollout. Reconsider whether teal should still be the single site accent before doing any further teal recoloring. The left/right card-nav arrow hover and the /who eyebrows are still teal.
 - Background unification and hero blend are DONE (June 1). Remaining cohesion work, NOT yet done: make teal (#2DD4BF, currently /who only) the single site accent. Recolor the work-section chrome accents (active pagination dot, VIEW WORK hover, arrow hover, the 002 number) to teal, mirroring /who.
 - Recolor the remote-work page's purple/violet live charts to a teal-anchored two-tone palette (multi-series need teal plus a distinguishable second tone).
 - The remote-work scatter chart (Does Remote Work Close the Gender Wage Gap?) is likely a STATIC image, it cannot be recolored in code and must be regenerated from the Python plotting source with a teal palette, then re-exported. Audit and flag all static chart images before recoloring.
 - Verify the intro-replay fix holds (Back does not replay, fresh load does), and decide module flag vs sessionStorage for refresh behavior.
 
-### Priority 1: Build Ghost FC detail page
-- Same structure as AA page (hero, overview, deliverables)
-- Strong portfolio piece (current internship, real BA work)
-- Content: PlayMetrics API pipeline, match tracker Excel workbook, Instagram Graph API, KPI tracking work
-- Use Ghost FC branding/imagery
-- NOTE: if reusing the dot-grid background here, the gating is already centralized (gated-particle-canvas.tsx for root, usePathname in work layout). Add /work/ghost-fc to those checks
+### Priority 1: Build Ghost FC detail page, DONE (June 1 session 2)
+- Built as a hero plus a compact "What I'm building right now" section, deliberately NOT a full AA-style case study, since the role is ongoing
+- Hero is text-left + white-knockout crest right (no container, sits directly on the dark dot-grid), with a "Live · In progress" pill
+- Four work items: match & standings analytics, automated data pipelines, social growth KPIs, league strategy
+- Optional later: expand to a full case study (problem/approach/finding + deliverables), add a hero photo (currently crest only)
 
 ### Priority 2: Remote Work detail page polish
-- Page is substantially built. Remaining: real presentation PDF (placeholder href), decide on finding-card width/brightness, optional hero right-side anchor
+- Presentation PDF is now linked (June 1 session 2): /remote-work-presentation.pdf is shipped to public/ and the Deliverables card href is no longer a placeholder
+- Page is substantially built. Remaining: decide on finding-card width/brightness, optional hero right-side anchor
 - Content accuracy already verified through the redesign
 
 ### Priority 3: Create GitHub repo for AA scraping code

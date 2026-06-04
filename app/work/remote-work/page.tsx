@@ -701,7 +701,7 @@ export default function RemoteWorkPage() {
                 lineHeight: 1.06, margin: '0 0 24px', maxWidth: 880,
               }}
             >
-              Watch the remote premium <span style={{ color: ACCENT_BRIGHT }}>collapse</span>.
+              Watch the remote premium <span style={{ color: ACCENT_BRIGHT }}>collapse</span>
             </motion.h2>
 
             <motion.p
@@ -747,7 +747,7 @@ export default function RemoteWorkPage() {
                   fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 700,
                   color: '#ffffff', letterSpacing: '-0.03em',
                   lineHeight: 1.15, margin: '0 0 40px',
-                }}>A marker of high-paying jobs, not a flexibility benefit.</h2>
+                }}>A marker of high-paying jobs, not a flexibility benefit</h2>
               }
             />
 
@@ -822,7 +822,7 @@ export default function RemoteWorkPage() {
                 fontSize: 'clamp(32px, 4vw, 52px)', fontWeight: 700,
                 color: '#ffffff', margin: '0 0 48px', letterSpacing: '-0.03em',
                 lineHeight: 1.1, textAlign: 'left' as const,
-              }}>What I built.</h2>
+              }}>What I built</h2>
             }
           />
 

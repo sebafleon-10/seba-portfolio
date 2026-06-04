@@ -35,9 +35,9 @@ const STATUS_PILL: React.CSSProperties = {
   borderRadius: 999,
 };
 
-const HERO_TITLE = 'The data behind the club.';
+const HERO_TITLE = 'The data behind the club';
 const HERO_INTRO = "Business analyst for Chicago Ghost FC, the semi-pro side I also play for. I'm building the club's analytics from the ground up: match and standings tracking, automated data pipelines, and the KPIs behind its push to grow.";
-const SECTION_HEADING = "What I'm building right now.";
+const SECTION_HEADING = "What I'm building right now";
 
 const ITEMS = [
   {

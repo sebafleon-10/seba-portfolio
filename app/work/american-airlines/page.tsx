@@ -215,7 +215,7 @@ export default function AmericanAirlinesPage() {
             fontSize: 'clamp(32px, 4vw, 52px)', fontWeight: 700,
             color: '#ffffff', margin: '0 0 48px', letterSpacing: '-0.03em',
             lineHeight: 1.1, textAlign: 'left' as const,
-          }}>Everything we built.</h2>
+          }}>Everything we built</h2>
           <CoreValueStats title="" subtitle="" description="" stats={[
             {
               value: 'FINAL REPORT',
