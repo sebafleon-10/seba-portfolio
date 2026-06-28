@@ -24,9 +24,15 @@ const cards = [
     tag: 'Regression · IPUMS · Labor Economics',
     desc: 'Triple-interaction OLS model on IPUMS CPS data',
   },
+  {
+    id: 3,
+    title: 'Front Office',
+    tag: 'Next.js · Causal Model · Claude AI',
+    desc: 'Interactive sim for running a lower-league soccer club for a season',
+  },
 ];
 
-const cardRoutes = ['/work/american-airlines', '/work/ghost-fc', '/work/remote-work'];
+const cardRoutes = ['/work/american-airlines', '/work/ghost-fc', '/work/remote-work', '/work/front-office'];
 
 export function WorkSection() {
   const [active, setActive] = useState(0);
@@ -259,6 +265,22 @@ export function WorkSection() {
                     <img
                       src="/aa-capstone.jpg"
                       alt="American Airlines"
+                      draggable={false}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%', height: '100%',
+                        objectFit: 'cover', objectPosition: 'center top',
+                        display: 'block',
+                      }}
+                    />
+                  )}
+
+                  {/* Front Office card image — dashboard cover on dark bg */}
+                  {card.id === 3 && (
+                    <img
+                      src="/front-office.png"
+                      alt="Front Office command center"
                       draggable={false}
                       style={{
                         position: 'absolute',
