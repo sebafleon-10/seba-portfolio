@@ -11,6 +11,7 @@ const NO_PARTICLE_ROUTES = [
   '/work/remote-work',
   '/work/american-airlines',
   '/work/ghost-fc',
+  '/work/front-office',
   '/who',
 ];
 

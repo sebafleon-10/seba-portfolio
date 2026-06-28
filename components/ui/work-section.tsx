@@ -5,7 +5,16 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
 
+// Array order = left-to-right order in the fan (lower index sits further left).
+// `id` is a stable identity used by cardRoutes and the per-card image/style
+// blocks, so cards can be reordered here without touching routes or visuals.
 const cards = [
+  {
+    id: 3,
+    title: 'Front Office',
+    tag: 'Next.js · Causal Model · Claude AI',
+    desc: 'Interactive sim for running a lower-league soccer club for a season',
+  },
   {
     id: 0,
     title: 'American Airlines',
@@ -23,12 +32,6 @@ const cards = [
     title: 'Remote Work & the Gender Wage Gap',
     tag: 'Regression · IPUMS · Labor Economics',
     desc: 'Triple-interaction OLS model on IPUMS CPS data',
-  },
-  {
-    id: 3,
-    title: 'Front Office',
-    tag: 'Next.js · Causal Model · Claude AI',
-    desc: 'Interactive sim for running a lower-league soccer club for a season',
   },
 ];
 

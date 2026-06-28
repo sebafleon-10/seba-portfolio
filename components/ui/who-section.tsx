@@ -244,9 +244,14 @@ export function WhoSection() {
           style={{
             position: 'absolute',
             left: 200,
-            top: 'calc(50% - 360px)',
-            width: 580,
-            height: 720,
+            // Viewport-relative height (capped at 560px for tall displays) so the
+            // card fits shorter viewports — keeps clearance below the floating
+            // "001 · THE ATHLETE" label and stops the CTA below from being
+            // clipped off the section. The min(280px,28vh) offset is half the
+            // height, shared with the CTA so both track the card's center.
+            top: 'calc(50% - min(280px, 28vh))',
+            width: 500,
+            height: 'min(560px, 56vh)',
             borderRadius: 16,
             border: '1px solid rgba(255,255,255,0.08)',
             boxShadow: '0 40px 80px -20px rgba(0,0,0,0.6)',
@@ -346,7 +351,9 @@ export function WhoSection() {
           style={{
             position: 'absolute',
             left: 200,
-            top: 'calc(50% + 432px)',
+            // Track the (now viewport-relative) card bottom with a fixed gap so
+            // the CTA always renders fully inside the section.
+            top: 'calc(50% + min(280px, 28vh) + 40px)',
             display: 'inline-block',
             fontFamily: 'ui-monospace, monospace',
             fontSize: '18px',

@@ -75,27 +75,32 @@ function HeroSection() {
 
   return (
     <section className="relative w-full" style={{ zIndex: 1 }}>
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          paddingTop: 120,
-          paddingBottom: 80,
-          zIndex: 10,
-        }}
-      >
+
+      {/* Ambient teal glow behind the mockup — soft, low-opacity, matches the
+          site accent without becoming a fill. */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
+          transition={{ duration: 2, ease: 'easeOut' }}
+          className="absolute rounded-full blur-3xl"
+          style={{ top: 40, right: 40, width: 640, height: 640, background: `radial-gradient(circle, ${ACCENT}14 0%, transparent 70%)` }}
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
+          transition={{ duration: 2, delay: 0.4, ease: 'easeOut' }}
+          className="absolute rounded-full blur-3xl"
+          style={{ bottom: 80, left: -60, width: 460, height: 460, background: 'radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%)' }}
+        />
+      </div>
+
+      <div className="relative flex" style={{ minHeight: '100vh', paddingTop: 60, paddingBottom: 60, zIndex: 10 }}>
+
+        {/* LEFT — copy column, vertically centered */}
         <div
-          style={{
-            flex: '1 1 480px',
-            minWidth: 0,
-            padding: '0 56px 0 96px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            zIndex: 2,
-          }}
+          className="flex flex-col justify-center relative"
+          style={{ flex: '0 0 52%', padding: '0 56px 0 96px', zIndex: 2 }}
         >
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -139,7 +144,7 @@ function HeroSection() {
               color: '#ffffff',
               margin: '0 0 28px',
               letterSpacing: '-0.04em',
-              maxWidth: 620,
+              maxWidth: 560,
             }}
           >
             {HERO_TITLE}
@@ -151,12 +156,12 @@ function HeroSection() {
             transition={{ duration: 0.7, delay: 0.35, ease: 'easeOut' }}
             style={{
               fontFamily: INTER,
-              fontSize: 'clamp(17px, 1.7vw, 21px)',
+              fontSize: 'clamp(16px, 1.55vw, 20px)',
               fontWeight: 300,
-              color: 'rgba(255,255,255,0.7)',
+              color: 'rgba(255,255,255,0.62)',
               margin: '0 0 36px',
               lineHeight: 1.7,
-              maxWidth: 620,
+              maxWidth: 520,
               letterSpacing: '0.01em',
             }}
           >
@@ -179,20 +184,18 @@ function HeroSection() {
                 alignItems: 'center',
                 gap: 10,
                 fontFamily: INTER,
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: 600,
-                letterSpacing: '0.01em',
-                color: '#06231f',
+                letterSpacing: '0.02em',
+                color: ACCENT_BRIGHT,
                 textDecoration: 'none',
-                background: ctaHovered ? ACCENT_BRIGHT : ACCENT,
-                border: `1px solid ${ACCENT_BRIGHT}`,
+                background: ctaHovered ? 'rgba(45,212,191,0.14)' : 'rgba(45,212,191,0.05)',
+                border: `1px solid ${ctaHovered ? ACCENT : ACCENT + '55'}`,
                 borderRadius: 999,
-                padding: '13px 26px',
-                boxShadow: ctaHovered
-                  ? `0 10px 36px ${ACCENT}55`
-                  : `0 6px 24px ${ACCENT}33`,
+                padding: '12px 22px',
+                boxShadow: ctaHovered ? `0 8px 30px ${ACCENT}26` : 'none',
                 transform: ctaHovered ? 'translateY(-1px)' : 'translateY(0)',
-                transition: 'background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
+                transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
               }}
             >
               Visit the live app
@@ -203,46 +206,48 @@ function HeroSection() {
           </motion.div>
         </div>
 
+        {/* RIGHT — product mockup bleeding in, dissolved into the dot-grid on its
+            top / left / bottom edges (mask-composite intersect), no hard box. */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
+          initial={{ opacity: 0, scale: 1.04 }}
           animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
           transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
           style={{
-            flex: '1 1 420px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '40px 96px 40px 56px',
-            minHeight: 360,
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: '58%',
+            height: '100%',
+            overflow: 'hidden',
+            zIndex: 1,
+            maskImage:
+              'linear-gradient(to bottom, transparent 0%, black 13%, black 86%, transparent 100%), ' +
+              'linear-gradient(to right, transparent 0%, black 14%, black 100%)',
+            maskComposite: 'intersect',
+            WebkitMaskImage:
+              'linear-gradient(to bottom, transparent 0%, black 13%, black 86%, transparent 100%), ' +
+              'linear-gradient(to right, transparent 0%, black 14%, black 100%)',
+            WebkitMaskComposite: 'source-in',
           }}
         >
-          <a
-            href={LIVE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          {/* Left + bottom scrims soften the seam against the copy column. */}
+          <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '20%', background: 'linear-gradient(to right, #000000 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
+          <img
+            src="/front-office.png"
+            alt="Front Office command center — season decisions, league table, and full-season finances"
+            draggable={false}
             style={{
-              display: 'block',
               width: '100%',
-              maxWidth: 640,
-              borderRadius: 16,
-              overflow: 'hidden',
-              border: '1px solid rgba(255,255,255,0.12)',
-              boxShadow: '0 30px 80px rgba(0,0,0,0.6)',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'left center',
+              display: 'block',
+              filter: 'brightness(0.96) contrast(1.03) saturate(1.02)',
             }}
-          >
-            <img
-              src="/front-office.png"
-              alt="Front Office command center — season decisions, league table, and full-season finances"
-              style={{
-                width: '100%',
-                height: 'auto',
-                display: 'block',
-                objectFit: 'cover',
-              }}
-              draggable={false}
-            />
-          </a>
+          />
         </motion.div>
+
       </div>
     </section>
   );
@@ -250,9 +255,9 @@ function HeroSection() {
 
 function WorkSection() {
   return (
-    <section style={{ position: 'relative', zIndex: 1, padding: '40px 0 160px' }}>
+    <section style={{ position: 'relative', zIndex: 1, padding: '20px 0 160px' }}>
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
-        <p style={{ ...EYEBROW, marginBottom: 24 }}>The Work</p>
+        <p style={{ ...EYEBROW, fontSize: 10, letterSpacing: '0.4em', color: 'rgba(255,255,255,0.28)', marginBottom: 24 }}>The Work</p>
         <h2
           style={{
             fontFamily: INTER,
@@ -273,6 +278,7 @@ function WorkSection() {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: 24,
+            perspective: '1200px',
           }}
         >
           {ITEMS.map((item, i) => (
@@ -281,22 +287,43 @@ function WorkSection() {
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.55, delay: i * 0.08, ease: 'easeOut' }}
+              transition={{ duration: 0.55, delay: i * 0.07, ease: 'easeOut' }}
+              whileHover={{
+                rotateX: 6,
+                rotateY: -6,
+                scale: 1.03,
+                transition: { type: 'spring', stiffness: 300, damping: 20 },
+              }}
               style={{
                 padding: 32,
                 borderRadius: 20,
-                border: '1px solid rgba(255,255,255,0.1)',
-                background: '#0d0d10',
+                border: '1px solid rgba(255,255,255,0.10)',
+                background:
+                  'radial-gradient(ellipse at top left, rgba(45,212,191,0.07) 0%, transparent 58%), #0c0c11',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 14,
-                minHeight: 200,
+                minHeight: 210,
+                transformStyle: 'preserve-3d',
+                boxShadow: '0 10px 40px rgba(0,0,0,0.35)',
+                cursor: 'default',
               }}
             >
+              <span
+                style={{
+                  fontFamily: MONO,
+                  fontSize: 11,
+                  letterSpacing: '0.3em',
+                  color: ACCENT,
+                  margin: 0,
+                }}
+              >
+                {String(i + 1).padStart(2, '0')}
+              </span>
               <h3
                 style={{
                   fontFamily: INTER,
-                  fontSize: 22,
+                  fontSize: 21,
                   fontWeight: 600,
                   color: '#ffffff',
                   letterSpacing: '-0.015em',
@@ -309,9 +336,9 @@ function WorkSection() {
               <p
                 style={{
                   fontFamily: INTER,
-                  fontSize: 16,
+                  fontSize: 15.5,
                   fontWeight: 300,
-                  color: 'rgba(255,255,255,0.7)',
+                  color: 'rgba(255,255,255,0.66)',
                   lineHeight: 1.7,
                   margin: 0,
                 }}
