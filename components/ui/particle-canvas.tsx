@@ -681,7 +681,7 @@ export function ParticleCanvas() {
           ctx.stroke();
         }
       } else if (lineAlpha > 0) {
-        ctx.strokeStyle = 'rgba(200, 150, 255, 1)';
+        ctx.strokeStyle = '#ffffff';
         if (sLinesNear.length > 0) {
           ctx.globalAlpha = 0.30 * lineAlpha;
           ctx.beginPath();

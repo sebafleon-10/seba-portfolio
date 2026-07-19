@@ -38,7 +38,7 @@ const cards = [
 const cardRoutes = ['/work/american-airlines', '/work/ghost-fc', '/work/remote-work', '/work/front-office'];
 
 export function WorkSection() {
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(1);
   const [activeHovered, setActiveHovered] = useState(false);
   const router = useRouter();
   const orbLabelRef   = useRef<HTMLParagraphElement>(null);
@@ -195,10 +195,10 @@ export function WorkSection() {
         onClick={prev}
         disabled={!canGoPrev}
         style={{ position: 'absolute', left: 24, top: '50%', transform: 'translateY(-50%)', zIndex: 200 }}
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white hover:text-[#2DD4BF] transition disabled:opacity-30 disabled:cursor-not-allowed"
+        className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Previous"
       >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
           <path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
@@ -208,10 +208,10 @@ export function WorkSection() {
         onClick={next}
         disabled={!canGoNext}
         style={{ position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)', zIndex: 200 }}
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white hover:text-[#2DD4BF] transition disabled:opacity-30 disabled:cursor-not-allowed"
+        className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Next"
       >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
           <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>

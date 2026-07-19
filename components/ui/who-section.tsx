@@ -23,7 +23,6 @@ const marqueeItems = [
   '03× NCAC CHAMPION',
   'TOURNAMENT MVP',
   'DEPAUW CAPTAIN',
-  'GHOST FC CAPTAIN',
   'SEMI-PRO',
 ];
 

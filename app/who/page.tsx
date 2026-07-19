@@ -308,11 +308,6 @@ const ACHIEVEMENTS: Achievement[] = [
     description: 'Team captain. Standard-setter inside the locker room and on the field.',
   },
   {
-    value: 'GHOST FC',
-    label: 'captain',
-    description: 'Captain of Chicago Ghost FC, a semi-pro side in the MWPL, and now the club\'s analyst.',
-  },
-  {
     value: 'SEMI-PRO',
     label: 'usl 2',
     description: 'Chicago Dutch Lions and Chicago City SC in USL League Two.',

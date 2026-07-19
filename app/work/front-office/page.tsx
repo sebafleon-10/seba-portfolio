@@ -10,7 +10,7 @@ const MONO = 'monospace';
 const ACCENT = '#2DD4BF';
 const ACCENT_BRIGHT = '#5EEAD4';
 
-const LIVE_URL = 'https://front-office-cyan.vercel.app';
+const LIVE_URL = 'https://sebafleon-front-office.vercel.app';
 
 const EYEBROW: React.CSSProperties = {
   fontFamily: MONO,
