@@ -1,5 +1,5 @@
 # seba-portfolio, Project Notes
-Last updated: September 12, 2026
+Last updated: September 12, 2026 (accent session)
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -13,6 +13,7 @@ Last updated: September 12, 2026
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- c7cd69a, Sep 12 accent session: detail-page accent moved from teal #2DD4BF to periwinkle (#9D9FFF / #C4C6FF, #5B5FD6 on the white finding card), consolidated in lib/accent.ts with accentAlpha(); remote-work violet card wash retuned to the accent; home page untouched; NOTES documents lib/accent.ts and the front-office page and fixes the stale purple-lines note
 - 9c9491b, Sep 12 session (NOT YET PUSHED at time of writing): /who hero paints instantly (real JPEG, preloaded from home WHO section via react-dom preload, mount fade removed), all 11 photos in public re-encoded from PNG-with-.jpg-extension to real JPEG (home payload ~18 MB to ~2.5 MB), AA hero fade removed, aa-logo.png deleted (was a saved Wikimedia error HTML page), /who hero 100vh with text anchored at left 96px and copy ending ~79% down, home WHO and Work sections toned down ~13% (photo card 435x484, marquee 31px, fan cards 748x452, section labels 22px, hero tagline kept at 25px), LinkedIn card subtitle now Business Analyst @ BTS Consulting
 - 6e01fd7, June 1 session 2: /who copy pass (hero eyebrow to 001, tightened taglines, story reworked around the Peru to Chicago to Rochester to DePauw path with corrected NCAC titles, receipts copy fixed including Ghost FC analyst line, Beyond the Pitch tweaks, snowboard gallery crop fixed), remote-work copy (exact 30,272 and Current Population Survey in hero, collapse module bridged to the subgroup chart, eyebrows and model-card supporting text enlarged, presentation PDF linked), built Ghost FC detail page (hero plus What I'm building section with white-knockout crest), work-section (Ghost FC logo on card, teal removed from VIEW WORK hover and pagination dots), added public/ghost-fc-logo.png and public/remote-work-presentation.pdf
 - aacfbd8, June 1 session: unified dot-grid background across who/AA/ghost-fc detail pages (match remote-work), removed double-stacked AmbientCanvas from those three, blended AA and athlete hero photos into background with bottom+left gradient fade, gated main-page neural intro to first load only via module-level flag (no replay on Back), renamed VIEW PROJECT to VIEW WORK site-wide, set AA work-card count and report headline to 627K, deployed corrected aa-report.pdf
