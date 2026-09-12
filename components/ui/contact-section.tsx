@@ -274,7 +274,12 @@ export function ContactSection() {
                   Business Analyst @ BTS Consulting
                 </p>
               </div>
-              <img src="/depauw.png" style={{ height: '40px', objectFit: 'contain', opacity: 0.85, flexShrink: 0 }} />
+              {/* Affiliations, current employer first, mirroring the LinkedIn header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexShrink: 0 }}>
+                <img src="/bts-logo.svg" alt="BTS" draggable={false} style={{ height: '22px', objectFit: 'contain', display: 'block' }} />
+                <div style={{ width: 1, height: 24, background: 'rgba(0,0,0,0.12)' }} />
+                <img src="/depauw.png" alt="DePauw University" draggable={false} style={{ height: '27px', objectFit: 'contain', opacity: 0.85, display: 'block' }} />
+              </div>
             </div>
           </motion.div>
 
