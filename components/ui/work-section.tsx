@@ -24,7 +24,7 @@ const cards = [
   {
     id: 1,
     title: 'Chicago Ghost FC',
-    tag: 'Python · Excel · API',
+    tag: 'Python · DuckDB · APIs',
     desc: 'Full analytics stack for a semi-pro soccer club',
   },
   {

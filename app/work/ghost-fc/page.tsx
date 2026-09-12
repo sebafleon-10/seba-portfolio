@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
-import { ACCENT, ACCENT_BRIGHT, accentAlpha } from '@/lib/accent';
+import { ACCENT } from '@/lib/accent';
 
 const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
 const MONO = 'monospace';
@@ -18,41 +18,49 @@ const EYEBROW: React.CSSProperties = {
   display: 'block',
 };
 
-const STATUS_PILL: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 10,
+const CARD_INDEX: React.CSSProperties = {
   fontFamily: MONO,
   fontSize: 11,
-  letterSpacing: '0.25em',
-  textTransform: 'uppercase',
-  border: `1px solid ${accentAlpha(0.33)}`,
-  background: accentAlpha(0.08),
-  color: ACCENT_BRIGHT,
-  padding: '6px 14px',
+  letterSpacing: '0.3em',
+  color: ACCENT,
+  margin: 0,
+};
+
+const TAG: React.CSSProperties = {
+  fontFamily: MONO,
+  fontSize: 11,
+  letterSpacing: '0.08em',
+  color: 'rgba(255,255,255,0.55)',
+  border: '1px solid rgba(255,255,255,0.12)',
   borderRadius: 999,
+  padding: '4px 10px',
+  whiteSpace: 'nowrap',
 };
 
 const HERO_TITLE = 'The data behind the club';
-const HERO_INTRO = "Business analyst for Chicago Ghost FC, the semi-pro side I also play for. I'm building the club's analytics from the ground up: match and standings tracking, automated data pipelines, and the KPIs behind its push to grow.";
-const SECTION_HEADING = "What I'm building right now";
+const HERO_INTRO = "Data analyst for Chicago Ghost FC, the semi-pro side I also play for. I built the club's front-office analytics from the ground up: sponsorship prospecting, social media pipelines, match-day KPI dashboards, and conference benchmarking that turned raw data into decisions the club could act on.";
+const SECTION_HEADING = 'What I built';
 
 const ITEMS = [
   {
-    title: 'Match & standings analytics',
-    body: 'An Excel workbook tracking results, the group table, and the points math behind promotion.',
+    title: 'Sponsorship-intelligence command center',
+    body: 'A tool the front office runs to discover local businesses, enrich each one through an agentic web-search loop, score it against a 100-point sponsorship-fit rubric across six dimensions, and auto-draft personalized outreach emails. It surfaced 329 qualified prospects across multiple business categories.',
+    tags: ['Python', 'DuckDB', 'Anthropic API', 'Google Places API'],
   },
   {
-    title: 'Automated data pipelines',
-    body: 'Python scrapers pulling rival standings and social performance into a clean local dataset.',
+    title: 'Ranking evaluation and match-day KPIs',
+    body: 'An evaluation harness with a hand-labeled gold set, rank correlation, and top-15 precision to validate and tune ranking quality, plus match-day KPI dashboards guiding marketing, sponsorship, and revenue decisions.',
+    tags: ['Python', 'Excel'],
   },
   {
-    title: 'Social growth KPIs',
-    body: "Tracking the metrics behind the club's top priority right now, growing its audience.",
+    title: 'Social analytics pipelines',
+    body: "Python pipelines collecting post-level engagement across the club's TikTok and Instagram accounts, more than 700 posts, replacing manual tracking with repeatable reporting.",
+    tags: ['TikTokApi', 'Playwright', 'Instagram Graph API'],
   },
   {
-    title: 'League strategy',
-    body: 'Benchmarking Ghost FC against all 20 MWPL clubs, plus content and marketing plans.',
+    title: 'Conference benchmarking',
+    body: 'Content performance benchmarked against MWPL conference rivals to identify which content types and posting patterns drive reach and follower growth, translated into recommendations for non-technical stakeholders.',
+    tags: ['Python', 'MWPL'],
   },
 ];
 
@@ -90,29 +98,8 @@ function HeroSection() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
             style={{ ...EYEBROW, margin: '0 0 24px' }}
           >
-            Currently · Chicago Ghost FC
+            Jan 2026 to Aug 2026 · Chicago Ghost FC
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-            style={{ margin: '0 0 28px' }}
-          >
-            <span style={STATUS_PILL}>
-              <span
-                aria-hidden
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 999,
-                  background: ACCENT_BRIGHT,
-                  boxShadow: `0 0 12px ${accentAlpha(0.70, 'bright')}`,
-                }}
-              />
-              Live · In progress
-            </span>
-          </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -227,6 +214,7 @@ function WorkSection() {
                 minHeight: 200,
               }}
             >
+              <p style={CARD_INDEX}>{String(i + 1).padStart(2, '0')}</p>
               <h3
                 style={{
                   fontFamily: INTER,
@@ -252,6 +240,11 @@ function WorkSection() {
               >
                 {item.body}
               </p>
+              <div style={{ marginTop: 'auto', paddingTop: 8, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {item.tags.map((tag) => (
+                  <span key={tag} style={TAG}>{tag}</span>
+                ))}
+              </div>
             </motion.div>
           ))}
         </div>

@@ -39,7 +39,7 @@ Everything through 0c325a8 (Sep 12 accent session) is pushed to main and deploye
 - app/layout.tsx, root layout (data-scroll-behavior="smooth" on <html> for Bug 2 fix; renders GatedParticleCanvas instead of ParticleCanvas directly)
 - app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, AmbientCanvas gated off on /work/remote-work via usePathname)
 - app/work/american-airlines/page.tsx, AA detail page, COMPLETE AND DEPLOYED (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
-- app/work/ghost-fc/page.tsx, Ghost FC detail page, built (hero plus "What I'm building right now" section, white-knockout crest on the right) (June 1: unified dot-grid background, AmbientCanvas removed; June 1 session 2: stub replaced with the real hero + work section)
+- app/work/ghost-fc/page.tsx, Ghost FC detail page: hero (eyebrow with Jan 2026 to Aug 2026 dates, title "The data behind the club", past-tense Data analyst intro, white-knockout crest on the right) plus a "What I built" section with four equal cards (sponsorship-intelligence command center, ranking evaluation and match-day KPIs, social analytics pipelines, conference benchmarking), each with a periwinkle 01 to 04 index, title, body, and mono tech tags. Status pill removed Sep 12 (role ended August 2026). Unified dot-grid background since June 1
 - app/work/front-office/page.tsx, Front Office detail page (hero with live-status pill, CTA to the deployed app, product mockup, six decision cards; reachable from work card id 3, the leftmost card in the fan)
 - app/work/remote-work/page.tsx, Remote Work detail page (substantially built, May 28; dot-grid bg, full-width left-aligned layout)
 - app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern)
@@ -257,8 +257,9 @@ export const particleInteraction = {
 - ML Model: https://colab.research.google.com/drive/13JB5oxn4z8e_q8CCXwUyM05fI8vDyjvW?authuser=1
 - Scraping code: PENDING (GitHub repo, not yet created)
 
-### Ghost FC Page
-- Currently a stub, needs same structure as AA page (hero, overview, deliverables)
+### Ghost FC Page (app/work/ghost-fc/page.tsx), REWRITTEN Sep 12
+- Hero: eyebrow "Jan 2026 to Aug 2026 · Chicago Ghost FC", h1 "The data behind the club", past-tense intro (Data analyst, four themes named equally), crest right. No status pill.
+- Work section: eyebrow "The Work", h2 "What I built", 2x2 grid of equal cards. ITEMS entries are { title, body, tags }. Card = periwinkle mono index (CARD_INDEX) + h3 + body + tag row (TAG pills, mono 11px, white 0.55 on a 0.12 border) pinned to the bottom with marginTop auto. The four bullets are deliberately equal; do not turn the sponsorship engine into a feature card.
 
 ### Remote Work Page (app/work/remote-work/page.tsx), SUBSTANTIALLY BUILT (May 28)
 
@@ -377,8 +378,9 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 - The remote-work scatter chart (Does Remote Work Close the Gender Wage Gap?) is likely a STATIC image, it cannot be recolored in code and must be regenerated from the Python plotting source with a periwinkle palette, then re-exported. Audit and flag all static chart images before recoloring.
 - Verify the intro-replay fix holds (Back does not replay, fresh load does), and decide module flag vs sessionStorage for refresh behavior.
 
-### Priority 1: Build Ghost FC detail page, DONE (June 1 session 2)
-- Built as a hero plus a compact "What I'm building right now" section, deliberately NOT a full AA-style case study, since the role is ongoing
+### Priority 1: Build Ghost FC detail page, DONE (June 1 session 2), REWRITTEN Sep 12
+- Sep 12: role ended August 2026, so the page is now past tense (Data analyst, Jan 2026 to Aug 2026), the Live pill is gone, and the four cards carry the real deliverables (sponsorship-intelligence engine with 329 prospects, evaluation harness + match-day KPIs, TikTok/Instagram pipelines over 700+ posts, MWPL benchmarking) with tech tags. Home work-card tag is now Python · DuckDB · APIs
+- Originally built as a hero plus a compact "What I'm building right now" section, deliberately NOT a full AA-style case study, since the role was ongoing at the time
 - Hero is text-left + white-knockout crest right (no container, sits directly on the dark dot-grid), with a "Live · In progress" pill
 - Four work items: match & standings analytics, automated data pipelines, social growth KPIs, league strategy
 - Optional later: expand to a full case study (problem/approach/finding + deliverables), add a hero photo (currently crest only)
