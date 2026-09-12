@@ -1,5 +1,5 @@
 # seba-portfolio, Project Notes
-Last updated: September 12, 2026 (accent session)
+Last updated: September 12, 2026 (pill border session)
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -13,6 +13,7 @@ Last updated: September 12, 2026 (accent session)
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- 10db1ce, Sep 12 pill border session: Visit the live app CTA and both Back buttons (work + who layouts) moved from 1px to 2px borders with padding pulled in 1px so pill sizes are unchanged; who Back button gained the hover lift; Front Office dashboard capture repositioned (wrapper left 15%, width 100%, no translateX, mask fade 16%, scrim 13%) so the Season decisions column is fully readable
 - 4dbdaa1, Sep 12 Front Office hero: eyebrow 2026 · Front Office, Live pill removed, CTA enlarged to 17px, blurry pre-rendered mockup replaced by a flat 2720x2405 capture of the live command center (public/front-office-dashboard.jpg) tilted in CSS (perspective 1600, rotateY 16, rotateX 4, origin right center); capture recipe recorded in Rules
 - e761d4f, Sep 12 Ghost FC rewrite: status pill removed, eyebrow dated Jan 2026 to Aug 2026, intro past tense as Data analyst, work section retitled What I built with four equal cards (sponsorship-intelligence engine, ranking evaluation + match-day KPIs, social pipelines, MWPL benchmarking) each with periwinkle index and mono tech tags; home Ghost FC card tag data updated (field is not rendered)
 - c7cd69a, Sep 12 accent session: detail-page accent moved from teal #2DD4BF to periwinkle (#9D9FFF / #C4C6FF, #5B5FD6 on the white finding card), consolidated in lib/accent.ts with accentAlpha(); remote-work violet card wash retuned to the accent; home page untouched; NOTES documents lib/accent.ts and the front-office page and fixes the stale purple-lines note
@@ -34,17 +35,17 @@ Last updated: September 12, 2026 (accent session)
 - cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
-Everything through the Sep 12 Front Office hero rework (4dbdaa1 plus its notes commit) is pushed to main and deployed on Vercel. The /who page copy is finalized: hero trimmed and tightened, the story reworked around the real Peru to Chicago to Rochester to DePauw path with corrected NCAC title language (back-to-back tournament titles plus last year's regular-season title), receipts copy fixed including a Ghost FC analyst line, Beyond the Pitch tweaked, and the snowboard gallery crop fixed. The remote-work page now uses the exact 30,272 and names the Current Population Survey in the hero, bridges the collapse module to the subgroup chart, has larger eyebrows and model-card supporting text, and links the real presentation PDF. The Ghost FC detail page is now built and no longer a stub: a hero with the white-knockout club crest plus a "What I'm building right now" section. Teal was removed from the Work-section chrome on June 1, and on Sep 12 the detail-page accent itself moved from teal to periwinkle (lib/accent.ts). Decision: the accent lives on detail pages only; the home page and components/ui stay hue-free.
+Everything through the Sep 12 pill border session (10db1ce) is on main. Before that, the Front Office hero rework (4dbdaa1 plus its notes commit) is pushed and deployed on Vercel. The /who page copy is finalized: hero trimmed and tightened, the story reworked around the real Peru to Chicago to Rochester to DePauw path with corrected NCAC title language (back-to-back tournament titles plus last year's regular-season title), receipts copy fixed including a Ghost FC analyst line, Beyond the Pitch tweaked, and the snowboard gallery crop fixed. The remote-work page now uses the exact 30,272 and names the Current Population Survey in the hero, bridges the collapse module to the subgroup chart, has larger eyebrows and model-card supporting text, and links the real presentation PDF. The Ghost FC detail page is now built and no longer a stub: a hero with the white-knockout club crest plus a "What I'm building right now" section. Teal was removed from the Work-section chrome on June 1, and on Sep 12 the detail-page accent itself moved from teal to periwinkle (lib/accent.ts). Decision: the accent lives on detail pages only; the home page and components/ui stay hue-free.
 
 ## File Structure
 - app/page.tsx, main layout, hero, tagline, section order (June 1: hero neural intro gated to first load via module-level flag, does not replay on Back)
 - app/layout.tsx, root layout (data-scroll-behavior="smooth" on <html> for Bug 2 fix; renders GatedParticleCanvas instead of ParticleCanvas directly)
-- app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, AmbientCanvas gated off on /work/remote-work via usePathname)
+- app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, 2px border since Sep 12; no layout-level canvas)
 - app/work/american-airlines/page.tsx, AA detail page, COMPLETE AND DEPLOYED (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
 - app/work/ghost-fc/page.tsx, Ghost FC detail page: hero (eyebrow with Jan 2026 to Aug 2026 dates, title "The data behind the club", past-tense Data analyst intro, white-knockout crest on the right) plus a "What I built" section with four equal cards (sponsorship-intelligence command center, ranking evaluation and match-day KPIs, social analytics pipelines, conference benchmarking), each with a periwinkle 01 to 04 index, title, body, and mono tech tags. Status pill removed Sep 12 (role ended August 2026). Unified dot-grid background since June 1
-- app/work/front-office/page.tsx, Front Office detail page (reachable from work card id 3, the leftmost card in the fan). Hero: eyebrow "2026 · Front Office", title, intro, enlarged periwinkle outline CTA (17px, 16x30 padding) to the live app, and a sharp flat dashboard capture (public/front-office-dashboard.jpg, 2720x2405) tilted in CSS inside the masked bleed container (perspective 1600px; wrapper rotateY 16deg, rotateX 4deg, rotateZ -1deg, origin right center, top 9%, width 112%, soft drop shadow). Status pill removed Sep 12. Below: six decision cards with periwinkle 01 to 06 indices
+- app/work/front-office/page.tsx, Front Office detail page (reachable from work card id 3, the leftmost card in the fan). Hero: eyebrow "2026 · Front Office", title, intro, enlarged periwinkle outline CTA (17px, 2px border at accentAlpha 0.45 rest / ACCENT hover, 15x29 padding) to the live app, and a sharp flat dashboard capture (public/front-office-dashboard.jpg, 2720x2405) tilted in CSS inside the masked bleed container (perspective 1600px; container left mask fade to 16%, left scrim 13%; wrapper rotateY 16deg, rotateX 4deg, rotateZ -1deg, origin right center, top 9%, left 15%, width 100%, no translateX, soft drop shadow). Note: translateX inside the transform chain runs along the rotated axis and barely moves the projected edge, so position the wrapper with left instead. Status pill removed Sep 12. Below: six decision cards with periwinkle 01 to 06 indices
 - app/work/remote-work/page.tsx, Remote Work detail page (substantially built, May 28; dot-grid bg, full-width left-aligned layout)
-- app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern)
+- app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern, including the Sep 12 2px Back button and hover lift; edit both files together)
 - app/who/page.tsx, /who detail page (BUILT, d6fb335): hero (night-match action photo, text over dark-left), story section with featured family photo (who-story.jpg) on the right, receipts editorial hairline list (enlarged mono titles, accent ticks, hover motion), beyond-the-pitch 2x2 with oversized faint accent ghost numbers, six-photo asymmetric gallery (who-1 to who-6) with Peru childhood-surf photo as full-width closer. Note it now contains a local TextScrim element (fixed column-wide gradient that dims particles behind body copy for legibility, page-local, does not touch global AmbientCanvas) (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
 - components/ui/who-section.tsx, WHO athlete section with photo card + vertical marquee composition
 - components/ui/work-section.tsx, Work fan card stack + orb reveal + navigation to detail pages
@@ -194,13 +195,15 @@ export const particleInteraction = {
 ## Work Detail Pages
 
 ### Shared Layout (app/work/layout.tsx)
-- AmbientCanvas rendered behind all work pages
-- Back button: frosted glass pill, fixed top-left
+- No layout-level canvas (pages render DotGridBackground themselves)
+- Back button: frosted glass pill, fixed top-left (identical in app/who/layout.tsx, which links to /#who)
   - fontFamily Inter, fontSize 15, fontWeight 500
   - background rgba(255,255,255,0.08), backdropFilter blur(12px)
-  - border 1px solid rgba(255,255,255,0.14), borderRadius 999
-  - padding 10px 20px, color rgba(255,255,255,0.85)
-  - Hover: background rgba(255,255,255,0.14), border rgba(255,255,255,0.28), color #ffffff
+  - border 2px solid rgba(255,255,255,0.22), borderRadius 999 (Sep 12, was 1px at 0.14)
+  - padding 9px 19px, color rgba(255,255,255,0.85) (padding pulled in 1px so the outer size matches the old 1px pill)
+  - chevron strokeWidth 2
+  - Hover: background rgba(255,255,255,0.14), border rgba(255,255,255,0.45), color #ffffff, translateY(-1px)
+  - Stays hue-free by decision: the CTA is the only periwinkle pill on a hero
   - Links to /#work
 - Background #0a0a0a
 
