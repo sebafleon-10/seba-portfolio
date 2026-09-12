@@ -404,16 +404,16 @@ export function WorkSection() {
                           ? `rgba(255,255,255,${activeHovered ? 0.78 : 0.6})`
                           : `rgba(0,0,0,${activeHovered ? 0.55 : 0.4})`,
                         border: card.id === 2
-                          ? '1px solid rgba(0,0,0,0.10)'
-                          : '1px solid rgba(255,255,255,0.18)',
+                          ? `2px solid rgba(0,0,0,${activeHovered ? 0.28 : 0.14})`
+                          : `2px solid rgba(255,255,255,${activeHovered ? 0.5 : 0.28})`,
                         borderRadius: 999,
-                        padding: '6px 12px',
+                        padding: '5px 11px',
                         backdropFilter: 'blur(8px)',
                         WebkitBackdropFilter: 'blur(8px)',
                         textShadow: card.id === 2
                           ? '0 1px 0 rgba(255,255,255,0.45)'
                           : '0 1px 2px rgba(0,0,0,0.45)',
-                        transition: 'color 220ms ease, background 220ms ease',
+                        transition: 'color 220ms ease, background 220ms ease, border-color 220ms ease',
                         pointerEvents: 'none',
                         zIndex: 11,
                       }}
