@@ -20,21 +20,6 @@ const EYEBROW: React.CSSProperties = {
   display: 'block',
 };
 
-const STATUS_PILL: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 10,
-  fontFamily: MONO,
-  fontSize: 11,
-  letterSpacing: '0.25em',
-  textTransform: 'uppercase',
-  border: `1px solid ${accentAlpha(0.33)}`,
-  background: accentAlpha(0.08),
-  color: ACCENT_BRIGHT,
-  padding: '6px 14px',
-  borderRadius: 999,
-};
-
 const HERO_TITLE = 'Run the club for a season';
 const HERO_INTRO = "An interactive business simulation for a lower-league soccer club. Set six decisions, weight what success means between the table and the books, and watch the league finish, club health, and full-season P&L recompute live off a deterministic causal engine — then have a Claude Opus 4.8 coach write the season debrief.";
 const SECTION_HEADING = 'What it does';
@@ -106,29 +91,8 @@ function HeroSection() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
             style={{ ...EYEBROW, margin: '0 0 24px' }}
           >
-            Shipped · Front Office
+            2026 · Front Office
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
-            style={{ margin: '0 0 28px' }}
-          >
-            <span style={STATUS_PILL}>
-              <span
-                aria-hidden
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 999,
-                  background: ACCENT_BRIGHT,
-                  boxShadow: `0 0 12px ${accentAlpha(0.70, 'bright')}`,
-                }}
-              />
-              Live · Deployed on Vercel
-            </span>
-          </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -180,9 +144,9 @@ function HeroSection() {
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 10,
+                gap: 12,
                 fontFamily: INTER,
-                fontSize: 15,
+                fontSize: 17,
                 fontWeight: 600,
                 letterSpacing: '0.02em',
                 color: ACCENT_BRIGHT,
@@ -190,14 +154,14 @@ function HeroSection() {
                 background: ctaHovered ? accentAlpha(0.14) : accentAlpha(0.05),
                 border: `1px solid ${ctaHovered ? ACCENT : accentAlpha(0.33)}`,
                 borderRadius: 999,
-                padding: '12px 22px',
+                padding: '16px 30px',
                 boxShadow: ctaHovered ? `0 8px 30px ${accentAlpha(0.15)}` : 'none',
                 transform: ctaHovered ? 'translateY(-1px)' : 'translateY(0)',
                 transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
               }}
             >
               Visit the live app
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden>
                 <path d="M4 12L12 4M12 4H6M12 4V10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </a>
@@ -218,6 +182,7 @@ function HeroSection() {
             height: '100%',
             overflow: 'hidden',
             zIndex: 1,
+            perspective: '1600px',
             maskImage:
               'linear-gradient(to bottom, transparent 0%, black 13%, black 86%, transparent 100%), ' +
               'linear-gradient(to right, transparent 0%, black 14%, black 100%)',
@@ -231,19 +196,36 @@ function HeroSection() {
           {/* Left + bottom scrims soften the seam against the copy column. */}
           <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '20%', background: 'linear-gradient(to right, #000000 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
-          <img
-            src="/front-office.png"
-            alt="Front Office command center — season decisions, league table, and full-season finances"
-            draggable={false}
+          {/* Flat 2x capture of the live dashboard, tilted in CSS so the text stays
+              crisp and the angle is tunable. Runs off the right and bottom edges. */}
+          <div
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'left center',
-              display: 'block',
-              filter: 'brightness(0.96) contrast(1.03) saturate(1.02)',
+              position: 'absolute',
+              top: '9%',
+              left: 0,
+              width: '112%',
+              transform: 'rotateY(16deg) rotateX(4deg) rotateZ(-1deg) translateX(2%) scale(1.04)',
+              transformOrigin: 'right center',
+              transformStyle: 'preserve-3d',
+              borderRadius: 18,
+              overflow: 'hidden',
+              boxShadow: '0 60px 120px -30px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.06)',
+              willChange: 'transform',
+              zIndex: 1,
             }}
-          />
+          >
+            <img
+              src="/front-office-dashboard.jpg"
+              alt="Front Office command center. Season decisions, league table, and full-season finances."
+              draggable={false}
+              style={{
+                width: '100%',
+                height: 'auto',
+                display: 'block',
+                filter: 'brightness(0.96)',
+              }}
+            />
+          </div>
         </motion.div>
 
       </div>
