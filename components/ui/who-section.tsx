@@ -193,7 +193,7 @@ export function WhoSection() {
           zIndex:        5,
           pointerEvents: 'none',
           fontFamily:    'monospace',
-          fontSize:      25,
+          fontSize:      22,
           letterSpacing: '0.35em',
           textTransform: 'uppercase',
           color:         'rgba(255,255,255,0.88)',
@@ -246,18 +246,18 @@ export function WhoSection() {
           variants={photoCardVariants}
           style={{
             position: 'absolute',
-            left: 200,
-            // Viewport-relative height (capped at 560px for tall displays) so the
+            left: 232,
+            // Viewport-relative height (capped at 484px for tall displays) so the
             // card fits shorter viewports — keeps clearance below the floating
             // "001 · THE ATHLETE" label and stops the CTA below from being
-            // clipped off the section. The min(280px,28vh) offset is half the
+            // clipped off the section. The min(242px,24vh) offset is half the
             // height, shared with the CTA so both track the card's center.
-            top: 'calc(50% - min(280px, 28vh))',
-            width: 500,
-            height: 'min(560px, 56vh)',
-            borderRadius: 16,
+            top: 'calc(50% - min(242px, 24vh))',
+            width: 435,
+            height: 'min(484px, 48vh)',
+            borderRadius: 14,
             border: '1px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 40px 80px -20px rgba(0,0,0,0.6)',
+            boxShadow: '0 34px 70px -18px rgba(0,0,0,0.6)',
             overflow: 'hidden',
           }}
         >
@@ -295,8 +295,8 @@ export function WhoSection() {
               ref={marqueeRef}
               style={{
                 position: 'relative',
-                height: '70vh',
-                width: 440,
+                height: '61vh',
+                width: 384,
                 maskImage: 'linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)',
                 WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)',
               }}
@@ -321,18 +321,18 @@ export function WhoSection() {
                   the scrim. Without it, the scrim (positioned) would paint
                   over the static-positioned marquee text. */}
               <div style={{ position: 'relative', zIndex: 1, height: '100%' }}>
-                <VerticalMarquee speed={15} className="h-full w-full">
+                <VerticalMarquee speed={13} className="h-full w-full">
                   {marqueeItems.map((item, idx) => (
                     <div
                       key={idx}
                       className="marquee-item"
                       style={{
                         fontFamily: 'Inter, sans-serif',
-                        fontSize: '36px',
+                        fontSize: '31px',
                         fontWeight: 300,
                         letterSpacing: '-0.01em',
                         color: 'rgba(255,255,255,0.95)',
-                        padding: '32px 0',
+                        padding: '28px 0',
                         textAlign: 'right',
                         whiteSpace: 'nowrap',
                         textShadow: '0 0 8px rgba(0,0,0,0.85), 0 0 24px rgba(0,0,0,0.6)',
@@ -353,13 +353,13 @@ export function WhoSection() {
           className="who-cta"
           style={{
             position: 'absolute',
-            left: 200,
+            left: 232,
             // Track the (now viewport-relative) card bottom with a fixed gap so
             // the CTA always renders fully inside the section.
-            top: 'calc(50% + min(280px, 28vh) + 40px)',
+            top: 'calc(50% + min(242px, 24vh) + 36px)',
             display: 'inline-block',
             fontFamily: 'ui-monospace, monospace',
-            fontSize: '18px',
+            fontSize: '16px',
             letterSpacing: '0.35em',
             textTransform: 'uppercase',
             color: 'rgba(255,255,255,0.9)',

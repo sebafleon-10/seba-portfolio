@@ -167,7 +167,7 @@ export function ContactSection() {
           zIndex:        5,
           pointerEvents: 'none',
           fontFamily:    'monospace',
-          fontSize:      25,
+          fontSize:      22,
           letterSpacing: '0.35em',
           textTransform: 'uppercase',
           color:         'rgba(255,255,255,0.88)',

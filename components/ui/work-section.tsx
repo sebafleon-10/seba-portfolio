@@ -176,7 +176,7 @@ export function WorkSection() {
           zIndex:        5,
           pointerEvents: 'none',
           fontFamily:    'monospace',
-          fontSize:      25,
+          fontSize:      22,
           letterSpacing: '0.35em',
           textTransform: 'uppercase',
           color:         'rgba(255,255,255,0.88)',
@@ -217,17 +217,17 @@ export function WorkSection() {
       </button>
 
       {/* Outer wrapper */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28 }}>
 
         {/* Stack row with arrow buttons */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
 
           {/* Card fan */}
           <div style={{
-            perspective: '1100px',
+            perspective: '960px',
             position: 'relative',
-            height: '640px',
-            width: '860px',
+            height: '556px',
+            width: '748px',
             display: 'flex',
             alignItems: 'flex-end',
             justifyContent: 'center',
@@ -236,7 +236,7 @@ export function WorkSection() {
               const off      = i - active;
               const isActive = off === 0;
               const rotateZ  = off * 18;
-              const x        = off * 340;
+              const x        = off * 296;
               const scale    = isActive ? 1.03 : 0.92;
               const rotateX  = isActive ? 0 : 12;
 
@@ -252,11 +252,11 @@ export function WorkSection() {
                   style={{
                     position: 'absolute',
                     bottom: 0,
-                    width: 860,
-                    height: 520,
+                    width: 748,
+                    height: 452,
                     background: card.id === 2 ? '#f8f8f8' : '#1a1a1a',
-                    boxShadow: '0 25px 60px rgba(0,0,0,0.7)',
-                    borderRadius: 16,
+                    boxShadow: '0 22px 52px rgba(0,0,0,0.65)',
+                    borderRadius: 14,
                     zIndex: 100 - Math.abs(off),
                     transformStyle: 'preserve-3d',
                     cursor: 'pointer',
@@ -319,7 +319,7 @@ export function WorkSection() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      padding: '64px 64px 180px',
+                      padding: '56px 56px 156px',
                     }}>
                       <img
                         src="/ghost-fc-logo.png"
@@ -328,7 +328,7 @@ export function WorkSection() {
                         style={{
                           width: '100%',
                           height: '100%',
-                          maxWidth: 380,
+                          maxWidth: 330,
                           objectFit: 'contain',
                           display: 'block',
                         }}
@@ -349,11 +349,11 @@ export function WorkSection() {
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    padding: '120px 36px 36px',
+                    padding: '104px 32px 32px',
                     zIndex: 1,
                   }}>
                     <h2 style={{
-                      fontSize: 22,
+                      fontSize: 20,
                       fontWeight: 700,
                       color: card.id === 2 ? '#111' : '#ffffff',
                       lineHeight: 1.1,
@@ -365,7 +365,7 @@ export function WorkSection() {
                     }}>{card.title}</h2>
 
                     <p style={{
-                      fontSize: 15,
+                      fontSize: 14,
                       color: card.id === 2 ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.7)',
                       lineHeight: 1.6,
                       fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
@@ -391,8 +391,8 @@ export function WorkSection() {
                       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                       style={{
                         position: 'absolute',
-                        top: 16,
-                        right: 16,
+                        top: 14,
+                        right: 14,
                         fontFamily: 'monospace',
                         fontSize: 10,
                         letterSpacing: '0.22em',
@@ -426,8 +426,8 @@ export function WorkSection() {
                   <div style={{
                     position: 'absolute',
                     inset: 0,
-                    borderRadius: 16,
-                    border: '6px solid rgba(255,255,255,0.12)',
+                    borderRadius: 14,
+                    border: '5px solid rgba(255,255,255,0.12)',
                     pointerEvents: 'none',
                     zIndex: 10,
                   }} />
