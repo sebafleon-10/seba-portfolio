@@ -274,11 +274,19 @@ export function ContactSection() {
                   Business Analyst @ BTS Consulting
                 </p>
               </div>
-              {/* Affiliations, current employer first, mirroring the LinkedIn header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 9, flexShrink: 0 }}>
-                <img src="/bts-logo.svg" alt="BTS" draggable={false} style={{ height: '22px', objectFit: 'contain', display: 'block' }} />
-                <div style={{ width: 1, height: 24, background: 'rgba(0,0,0,0.12)' }} />
-                <img src="/depauw.png" alt="DePauw University" draggable={false} style={{ height: '27px', objectFit: 'contain', opacity: 0.85, display: 'block' }} />
+              {/* Affiliations stacked like the LinkedIn header: employer row
+                  above school row, each an icon plus a bold name. depauw.png
+                  already contains icon + name, so the BTS row is built to match it. */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8, flexShrink: 0, opacity: 0.85 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <img src="/bts-logo.svg" alt="" draggable={false} style={{ height: '15px', objectFit: 'contain', display: 'block' }} />
+                  <span style={{
+                    fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
+                    fontWeight: 700, fontSize: 12, lineHeight: 1,
+                    color: '#1a1a1a', letterSpacing: '-0.01em',
+                  }}>BTS</span>
+                </div>
+                <img src="/depauw.png" alt="DePauw University" draggable={false} style={{ height: '27px', objectFit: 'contain', display: 'block' }} />
               </div>
             </div>
           </motion.div>
