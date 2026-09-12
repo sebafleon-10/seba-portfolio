@@ -1,5 +1,5 @@
 # seba-portfolio, Project Notes
-Last updated: June 1, 2026
+Last updated: September 12, 2026
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -13,6 +13,7 @@ Last updated: June 1, 2026
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- 9c9491b, Sep 12 session (NOT YET PUSHED at time of writing): /who hero paints instantly (real JPEG, preloaded from home WHO section via react-dom preload, mount fade removed), all 11 photos in public re-encoded from PNG-with-.jpg-extension to real JPEG (home payload ~18 MB to ~2.5 MB), AA hero fade removed, aa-logo.png deleted (was a saved Wikimedia error HTML page), /who hero 100vh with text anchored at left 96px and copy ending ~79% down, home WHO and Work sections toned down ~13% (photo card 435x484, marquee 31px, fan cards 748x452, section labels 22px, hero tagline kept at 25px), LinkedIn card subtitle now Business Analyst @ BTS Consulting
 - 6e01fd7, June 1 session 2: /who copy pass (hero eyebrow to 001, tightened taglines, story reworked around the Peru to Chicago to Rochester to DePauw path with corrected NCAC titles, receipts copy fixed including Ghost FC analyst line, Beyond the Pitch tweaks, snowboard gallery crop fixed), remote-work copy (exact 30,272 and Current Population Survey in hero, collapse module bridged to the subgroup chart, eyebrows and model-card supporting text enlarged, presentation PDF linked), built Ghost FC detail page (hero plus What I'm building section with white-knockout crest), work-section (Ghost FC logo on card, teal removed from VIEW WORK hover and pagination dots), added public/ghost-fc-logo.png and public/remote-work-presentation.pdf
 - aacfbd8, June 1 session: unified dot-grid background across who/AA/ghost-fc detail pages (match remote-work), removed double-stacked AmbientCanvas from those three, blended AA and athlete hero photos into background with bottom+left gradient fade, gated main-page neural intro to first load only via module-level flag (no replay on Back), renamed VIEW PROJECT to VIEW WORK site-wide, set AA work-card count and report headline to 627K, deployed corrected aa-report.pdf
 - d6fb335, who page full build: hero with night-match photo, story section with family senior-day photo, receipts editorial list with enlarged mono titles + teal ticks + hover, beyond-the-pitch 2x2 with teal ghost numbers, six-photo asymmetric gallery with Peru closer, TextScrim for particle legibility, teal #2DD4BF accent introduced
@@ -30,7 +31,7 @@ Last updated: June 1, 2026
 - cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
-Site is shipped and live (latest deploy 6e01fd7). The /who page copy is finalized: hero trimmed and tightened, the story reworked around the real Peru to Chicago to Rochester to DePauw path with corrected NCAC title language (back-to-back tournament titles plus last year's regular-season title), receipts copy fixed including a Ghost FC analyst line, Beyond the Pitch tweaked, and the snowboard gallery crop fixed. The remote-work page now uses the exact 30,272 and names the Current Population Survey in the hero, bridges the collapse module to the subgroup chart, has larger eyebrows and model-card supporting text, and links the real presentation PDF. The Ghost FC detail page is now built and no longer a stub: a hero with the white-knockout club crest plus a "What I'm building right now" section. Teal has been removed from the Work-section chrome (VIEW WORK hover and pagination dots), partially reversing the planned site-wide teal rollout.
+Site is live at 6e01fd7 plus 8660e3e-era commits; the Sep 12 session's eight commits (through 9c9491b) are committed locally and NOT pushed yet, so Vercel still shows the old /who hero and the larger WHO/Work sizes. The /who page copy is finalized: hero trimmed and tightened, the story reworked around the real Peru to Chicago to Rochester to DePauw path with corrected NCAC title language (back-to-back tournament titles plus last year's regular-season title), receipts copy fixed including a Ghost FC analyst line, Beyond the Pitch tweaked, and the snowboard gallery crop fixed. The remote-work page now uses the exact 30,272 and names the Current Population Survey in the hero, bridges the collapse module to the subgroup chart, has larger eyebrows and model-card supporting text, and links the real presentation PDF. The Ghost FC detail page is now built and no longer a stub: a hero with the white-knockout club crest plus a "What I'm building right now" section. Teal has been removed from the Work-section chrome (VIEW WORK hover and pagination dots), partially reversing the planned site-wide teal rollout.
 
 ## File Structure
 - app/page.tsx, main layout, hero, tagline, section order (June 1: hero neural intro gated to first load via module-level flag, does not replay on Back)
@@ -58,7 +59,7 @@ Site is shipped and live (latest deploy 6e01fd7). The /who page copy is finalize
 - context/parallax-context.tsx, zoomProgressRef
 - CLAUDE.md, imports NOTES.md and CLAUDE_PROMPTING.md
 - CLAUDE_PROMPTING.md, prompting tactics for destructive changes (added May 27)
-- public/, seba-celebrate.jpg, 1-6.jpg, linkedin-profile.jpg, builder.jpg, aa-capstone.jpg, regression.jpg, depauw.png, who-hero.jpg, who-story.jpg, who-1.jpg, who-2.jpg, who-3.jpg, who-4.jpg, who-5.jpg, who-6.jpg, aa-report.pdf, aa-presentation.pdf, aa-logo.png, aa-logo.svg, ghost-fc-logo.png, remote-work-presentation.pdf
+- public/, seba-celebrate.jpg, 1-6.jpg (UNUSED, 22 MB, candidates for deletion), linkedin-profile.jpg, builder.jpg, aa-capstone.jpg, regression.jpg, depauw.png, who-hero.jpg, who-story.jpg, who-1.jpg to who-6.jpg, aa-report.pdf, aa-presentation.pdf, aa-logo.svg, ghost-fc-logo.png, front-office.png, front-office-card.png (unreferenced), remote-work-presentation.pdf. Sep 12: every photo .jpg is now a real JPEG q82 (they were RGBA PNGs with .jpg extensions, 1.5 to 5 MB each); aa-logo.png deleted
 
 ## Main Page Sections (app/page.tsx)
 
@@ -159,27 +160,27 @@ export const particleInteraction = {
 
 ### Photo Card
 - Image: seba-celebrate.jpg (DePauw #11, celebration moment)
-- Width 560 to 620px, height 700 to 760px
-- Rounded corners, frame 1px rgba(255,255,255,0.08)
-- Shadow: 0 40px 80px -20px rgba(0,0,0,0.6)
+- Sep 12: width 435, height min(484px, 48vh), left 232, top calc(50% - min(242px, 24vh)); the half-height is shared with the CTA top and must move with the height
+- Rounded corners 14, frame 1px rgba(255,255,255,0.08)
+- Shadow: 0 34px 70px -18px rgba(0,0,0,0.6)
 - Tilt: rotate(-2deg)
-- Positioned with offset to close middle gap (moved right by 100px from initial left anchor)
+- Positioned with offset to close middle gap; shrunk about its own center in the Sep 12 size pass
 - Fully contained, no bleed off viewport
 
 ### Vertical Marquee (components/ui/vertical-marquee.tsx)
-- Width 440px, positioned 240px from right viewport edge
+- Width 384px, height 61vh, positioned 240px from right viewport edge (Sep 12)
 - Items: 03× NCAC CHAMPION, TOURNAMENT MVP, DEPAUW CAPTAIN, GHOST FC CAPTAIN, SEMI-PRO
-- Font: Inter weight 300, ~36px, uppercase
+- Font: Inter weight 300, 31px, uppercase, item padding 28px 0 (Sep 12, was 36px / 32px)
 - textShadow: '0 0 8px rgba(0,0,0,0.85), 0 0 24px rgba(0,0,0,0.6)' for readability against particles
 - Opacity-from-center via useEffect: opacity = 1 - normalizedDistance * 0.92
 - mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%) for smooth edge fade
-- speed prop: 15
+- speed prop: 13 (Sep 12; scaled with the item pitch so px/s is unchanged)
 
 ### CTA
 - "Explore the story →"
-- 18px, rgba(255,255,255,0.9) at rest
+- 16px, rgba(255,255,255,0.9) at rest (Sep 12, was 18px)
 - Underline animates in on hover, arrow translateX(6px) on hover
-- Positioned ~72px below photo card bottom, left-aligned with photo
+- Positioned 36px below photo card bottom, left-aligned with photo at left 232
 
 ### Click target
 - Whole section composition routes to /who using scroll restoration pattern from work-section.tsx
@@ -314,6 +315,9 @@ Background: #080808
 ```
 
 ## Rules
+- Section orb labels (001/002/003) are 22px mono 0.35em as of Sep 12; the hero tagline stays 25px by choice. Home WHO/Work sizing was toned down ~13% on Sep 12; do not scale it back up.
+- Every photo in public must be a real JPEG. Check with `file` before shipping; a PNG renamed .jpg is 10x the bytes.
+- Detail-page hero photos must not be gated behind a mount fade; they are preloaded (react-dom preload on the home page for /who, cached from the work card for AA) and should paint on the first frame.
 - Never use em dashes in any text or code comments
 - No card borders or container backgrounds on main page sections
 - No light sections on main page (exception: the finding card on /work/remote-work is a deliberate single light surface)
@@ -393,6 +397,8 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 - Decide whether to roll the teal #2DD4BF accent out site-wide
 
 ### Lower priority
+- LinkedIn card: subtitle updated Sep 12 to Business Analyst @ BTS Consulting, but the card still shows only the DePauw wordmark. Add a BTS logo (need the asset from Sebastian) next to or in place of it. Also confirm LINKEDIN_URL still resolves.
+- Delete public/1.jpg to 6.jpg (unused, 22 MB) once confirmed
 - Google AI Essentials cert placement
 - PC rendering issue (deferred, low priority)
 - Fix author on commit 1307879 (Bug 2 fix has wrong git author, would need rebase)
