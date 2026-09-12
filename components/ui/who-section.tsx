@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { preload } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { motion, type Variants } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
@@ -28,6 +29,9 @@ const marqueeItems = [
 
 export function WhoSection() {
   const router = useRouter();
+  // Fetch the /who hero photo while the user is still on the home page so it
+  // is already in cache when they click through.
+  preload('/who-hero.jpg', { as: 'image', fetchPriority: 'high' });
   const sectionRef   = useRef<HTMLElement>(null);
   const cardRef      = useRef<HTMLDivElement>(null);
   const marqueeRef   = useRef<HTMLDivElement>(null);

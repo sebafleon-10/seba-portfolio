@@ -44,6 +44,8 @@ const BODY_TEXT: React.CSSProperties = {
 const HERO_HEIGHT_VH = 82;
 
 function HeroSection() {
+  // Mount flag that drives the text entrance stagger only. The photo does not
+  // wait on it.
   const [isLoaded, setIsLoaded] = useState(false);
   useEffect(() => { setIsLoaded(true); }, []);
 
@@ -56,10 +58,7 @@ function HeroSection() {
         overflow: 'hidden',
       }}
     >
-      <motion.div
-        initial={{ opacity: 0, scale: 1.04 }}
-        animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
-        transition={{ duration: 1.4, ease: 'easeOut' }}
+      <div
         style={{
           position: 'absolute',
           top: 0,
@@ -67,6 +66,9 @@ function HeroSection() {
           width: '63%',
           height: '100%',
           overflow: 'hidden',
+          // No entrance animation and no load gate: the photo is preloaded
+          // from the home page (see who-section.tsx) so it paints on the
+          // first frame of this route.
           // Dark fallback behind the photo so a missing file still reads as a
           // clean dark band instead of a broken-image gap.
           background: '#0c0c0c',
@@ -89,6 +91,8 @@ function HeroSection() {
         <img
           src="/who-hero.jpg"
           alt="Sebastian Leon, night match action"
+          fetchPriority="high"
+          decoding="sync"
           style={{
             width: '100%',
             height: '100%',
@@ -119,7 +123,7 @@ function HeroSection() {
             pointerEvents: 'none',
           }}
         />
-      </motion.div>
+      </div>
 
       <div
         style={{
