@@ -31,7 +31,7 @@ Last updated: September 12, 2026
 - cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
-Site is live at 6e01fd7 plus 8660e3e-era commits; the Sep 12 session's eight commits (through 9c9491b) are committed locally and NOT pushed yet, so Vercel still shows the old /who hero and the larger WHO/Work sizes. The /who page copy is finalized: hero trimmed and tightened, the story reworked around the real Peru to Chicago to Rochester to DePauw path with corrected NCAC title language (back-to-back tournament titles plus last year's regular-season title), receipts copy fixed including a Ghost FC analyst line, Beyond the Pitch tweaked, and the snowboard gallery crop fixed. The remote-work page now uses the exact 30,272 and names the Current Population Survey in the hero, bridges the collapse module to the subgroup chart, has larger eyebrows and model-card supporting text, and links the real presentation PDF. The Ghost FC detail page is now built and no longer a stub: a hero with the white-knockout club crest plus a "What I'm building right now" section. Teal has been removed from the Work-section chrome (VIEW WORK hover and pagination dots), partially reversing the planned site-wide teal rollout.
+Site is live at 6e01fd7 plus 8660e3e-era commits; the Sep 12 session's eight commits (through 9c9491b) are committed locally and NOT pushed yet, so Vercel still shows the old /who hero and the larger WHO/Work sizes. The /who page copy is finalized: hero trimmed and tightened, the story reworked around the real Peru to Chicago to Rochester to DePauw path with corrected NCAC title language (back-to-back tournament titles plus last year's regular-season title), receipts copy fixed including a Ghost FC analyst line, Beyond the Pitch tweaked, and the snowboard gallery crop fixed. The remote-work page now uses the exact 30,272 and names the Current Population Survey in the hero, bridges the collapse module to the subgroup chart, has larger eyebrows and model-card supporting text, and links the real presentation PDF. The Ghost FC detail page is now built and no longer a stub: a hero with the white-knockout club crest plus a "What I'm building right now" section. Teal was removed from the Work-section chrome on June 1, and on Sep 12 the detail-page accent itself moved from teal to periwinkle (lib/accent.ts). Decision: the accent lives on detail pages only; the home page and components/ui stay hue-free.
 
 ## File Structure
 - app/page.tsx, main layout, hero, tagline, section order (June 1: hero neural intro gated to first load via module-level flag, does not replay on Back)
@@ -39,15 +39,16 @@ Site is live at 6e01fd7 plus 8660e3e-era commits; the Sep 12 session's eight com
 - app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, AmbientCanvas gated off on /work/remote-work via usePathname)
 - app/work/american-airlines/page.tsx, AA detail page, COMPLETE AND DEPLOYED (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
 - app/work/ghost-fc/page.tsx, Ghost FC detail page, built (hero plus "What I'm building right now" section, white-knockout crest on the right) (June 1: unified dot-grid background, AmbientCanvas removed; June 1 session 2: stub replaced with the real hero + work section)
+- app/work/front-office/page.tsx, Front Office detail page (hero with live-status pill, CTA to the deployed app, product mockup, six decision cards; reachable from work card id 3, the leftmost card in the fan)
 - app/work/remote-work/page.tsx, Remote Work detail page (substantially built, May 28; dot-grid bg, full-width left-aligned layout)
 - app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern)
-- app/who/page.tsx, /who detail page (BUILT, d6fb335): hero (night-match action photo, text over dark-left), story section with featured family photo (who-story.jpg) on the right, receipts editorial hairline list (enlarged mono titles, teal ticks, hover motion), beyond-the-pitch 2x2 with oversized faint-teal ghost numbers, six-photo asymmetric gallery (who-1 to who-6) with Peru childhood-surf photo as full-width closer. Note it now contains a local TextScrim element (fixed column-wide gradient that dims particles behind body copy for legibility, page-local, does not touch global AmbientCanvas) (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
+- app/who/page.tsx, /who detail page (BUILT, d6fb335): hero (night-match action photo, text over dark-left), story section with featured family photo (who-story.jpg) on the right, receipts editorial hairline list (enlarged mono titles, accent ticks, hover motion), beyond-the-pitch 2x2 with oversized faint accent ghost numbers, six-photo asymmetric gallery (who-1 to who-6) with Peru childhood-surf photo as full-width closer. Note it now contains a local TextScrim element (fixed column-wide gradient that dims particles behind body copy for legibility, page-local, does not touch global AmbientCanvas) (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
 - components/ui/who-section.tsx, WHO athlete section with photo card + vertical marquee composition
 - components/ui/work-section.tsx, Work fan card stack + orb reveal + navigation to detail pages
 - components/ui/contact-section.tsx, Contact floating cards + orb reveal
 - components/ui/vertical-marquee.tsx, vertical marquee primitive (from 21st.dev) with mask-based edge fade
 - components/ui/particle-canvas.tsx, main particle system (~680 lines)
-- components/ui/gated-particle-canvas.tsx, client wrapper: renders ParticleCanvas everywhere EXCEPT /work/remote-work (usePathname gate). Lets root layout stay a Server Component
+- components/ui/gated-particle-canvas.tsx, client wrapper: renders ParticleCanvas everywhere EXCEPT the detail routes listed in NO_PARTICLE_ROUTES (/who and all /work/* pages) (usePathname gate). Lets root layout stay a Server Component
 - components/ui/ambient-canvas.tsx, lightweight ambient-only canvas for work detail pages
 - components/ui/dot-grid-background.tsx, dot-grid shader bg (react-three-fiber) for /work/remote-work only. One-time center-out reveal then faint shimmer, prefers-reduced-motion aware
 - components/ui/neural-text-reveal.tsx, neural network particle animation. Internal positioning: position absolute, top: 8, left: 48
@@ -56,6 +57,7 @@ Site is live at 6e01fd7 plus 8660e3e-era commits; the Sep 12 session's eight com
 - components/ui/card-23.tsx, Card23 component (tag prop now OPTIONAL as of 7b99ab9)
 - components/ui/spotlight.tsx, cursor-following spotlight effect
 - lib/particle-state.ts, shared singleton for cross-component signals
+- lib/accent.ts, detail-page accent tokens (ACCENT, ACCENT_BRIGHT, ACCENT_ON_LIGHT) and the accentAlpha(alpha, tone) helper. Added Sep 12
 - context/parallax-context.tsx, zoomProgressRef
 - CLAUDE.md, imports NOTES.md and CLAUDE_PROMPTING.md
 - CLAUDE_PROMPTING.md, prompting tactics for destructive changes (added May 27)
@@ -74,6 +76,7 @@ Site is live at 6e01fd7 plus 8660e3e-era commits; the Sep 12 session's eight com
 - card 0 → /work/american-airlines
 - card 1 → /work/ghost-fc
 - card 2 → /work/remote-work
+- card 3 → /work/front-office (leftmost card in the fan)
 - Duplicate left section label removed (May 27), only top-center label remains
 
 ### Contact (003 · CONTACT), DONE
@@ -110,7 +113,7 @@ All three sections use:
 - isRunning guard prevents double-fire
 - Labels: "001 · THE ATHLETE", "002 · WORK", "003 · CONTACT"
 
-## Purple Connection Lines + Mouse Hover Overlay (particle-canvas.tsx)
+## Purple Connection Lines + Mouse Hover Overlay (particle-canvas.tsx) (purple tint later reverted to white)
 Added May 27 to bring the purple line aesthetic and white-on-hover overlay from the 21st.dev "aether-flow-hero" component into the existing ParticleCanvas without replacing it.
 
 ### Goal
@@ -125,8 +128,8 @@ All surgical edits to components/ui/particle-canvas.tsx:
 - Added mouseLines bucket alongside existing sLinesNear, sLinesFar, letterLines, clusterLines arrays
 - Reset mouseLines.length to 0 in the connection-line clearing block each frame
 - In static-phase connection logic, after the gravity cluster check, tag lines whose either endpoint is within MOUSE_R pixels of the cursor by pushing to mouseLines
-- Inside the static-phase draw block (else if (lineAlpha > 0)), changed strokeStyle to rgba(200, 150, 255, 1) for a light purple tint applied to all regular static-phase line buckets
-- Added a separate draw pass at the end of the static-phase draw block for mouseLines using strokeStyle white at globalAlpha 1.0, overlaying purple lines under the cursor with bright white
+- Inside the static-phase draw block (else if (lineAlpha > 0)), strokeStyle was set to rgba(200, 150, 255, 1) for a light purple tint at the time; the code has since reverted to '#ffffff' (lines 648, 684, 713 as of Sep 12), so static lines are white today
+- Added a separate draw pass at the end of the static-phase draw block for mouseLines using strokeStyle white at globalAlpha 1.0, overlaying the regular static lines under the cursor with full-alpha white
 - Boosted the static-phase mouse-attract force from 0.3 to 0.6 (both vx and vy terms) so particles within 150px of the cursor visibly pull toward it
 
 ### Tuning journey (tried and reverted)
@@ -310,7 +313,7 @@ INTER = { fontFamily: 'Inter, ui-rounded, system-ui, sans-serif' }
 Section label: monospace 10px letterSpacing 0.4em uppercase rgba(255,255,255,0.22)
 AA red accent: #CC0000
 AA navy accent: rgba(0,71,127,0.22)
-Teal accent: #2DD4BF (introduced on /who only: section eyebrows, receipt tags + hover, faint teal beyond-the-pitch ghost numbers; candidate to roll out site-wide later)
+Detail-page accent (periwinkle), lib/accent.ts: ACCENT #9D9FFF (structural: ticks, borders, labels, bar fills), ACCENT_BRIGHT #C4C6FF (result text, live dots), ACCENT_ON_LIGHT #5B5FD6 (only for the pullquote rule inside the white finding card on /work/remote-work). Translucent uses go through accentAlpha(alpha, tone). Used on /who, /work/remote-work, /work/ghost-fc, /work/front-office. Replaced teal #2DD4BF on Sep 12. Home page and components/ui stay hue-free
 Background: #080808
 ```
 
@@ -325,6 +328,7 @@ Background: #080808
 - Tailwind v4: no tailwind.config file needed
 - Section labels are top-center only (left labels removed May 27)
 - /work/remote-work styling prompts must always end with an instruction not to change data or copy (every number/label is verified correct)
+- Detail-page accent colors come only from lib/accent.ts. No local ACCENT consts, no hex-alpha suffixes like `${ACCENT}55`, no raw accent rgba literals in page files. app/page.tsx and components/ui/* must never import lib/accent.ts
 
 ## Bugs
 
@@ -366,11 +370,10 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 
 ## Next Steps
 
-### Priority: finish detail-page cohesion (teal single accent)
-- ON HOLD (June 1 session 2): teal was REMOVED from the Work-section chrome this session. VIEW WORK hover now brightens to white (full black on the light regression card) and the active pagination dot is now white, not teal. This partially reverses the planned site-wide teal rollout. Reconsider whether teal should still be the single site accent before doing any further teal recoloring. The left/right card-nav arrow hover and the /who eyebrows are still teal.
-- Background unification and hero blend are DONE (June 1). Remaining cohesion work, NOT yet done: make teal (#2DD4BF, currently /who only) the single site accent. Recolor the work-section chrome accents (active pagination dot, VIEW WORK hover, arrow hover, the 002 number) to teal, mirroring /who.
-- Recolor the remote-work page's purple/violet live charts to a teal-anchored two-tone palette (multi-series need teal plus a distinguishable second tone).
-- The remote-work scatter chart (Does Remote Work Close the Gender Wage Gap?) is likely a STATIC image, it cannot be recolored in code and must be regenerated from the Python plotting source with a teal palette, then re-exported. Audit and flag all static chart images before recoloring.
+### Priority: finish detail-page cohesion (periwinkle detail-page accent)
+- DONE (Sep 12): detail-page accent moved from teal to periwinkle and consolidated in lib/accent.ts. Decision: the accent lives on detail pages only; the home page and components/ui stay hue-free (VIEW WORK hover, pagination dots, and card-nav arrows are white, not accent; the earlier note that arrow hover was still teal was stale, grep shows no accent hex in components/). Background unification and hero blend were DONE June 1.
+- Recolor the remote-work page's purple/violet live charts to a periwinkle-anchored two-tone palette (multi-series need the accent plus a distinguishable second tone).
+- The remote-work scatter chart (Does Remote Work Close the Gender Wage Gap?) is likely a STATIC image, it cannot be recolored in code and must be regenerated from the Python plotting source with a periwinkle palette, then re-exported. Audit and flag all static chart images before recoloring.
 - Verify the intro-replay fix holds (Back does not replay, fresh load does), and decide module flag vs sessionStorage for refresh behavior.
 
 ### Priority 1: Build Ghost FC detail page, DONE (June 1 session 2)
@@ -394,11 +397,11 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 ### /who followups (parked)
 - /who builder section: hands-on building and customizing is part of identity and implied in the hero copy but not yet represented on /who; design a section for it later
 - Option to add imagery to /who beyond-the-pitch if it still reads flat
-- Decide whether to roll the teal #2DD4BF accent out site-wide
 
 ### Lower priority
 - LinkedIn card: subtitle updated Sep 12 to Business Analyst @ BTS Consulting, but the card still shows only the DePauw wordmark. Add a BTS logo (need the asset from Sebastian) next to or in place of it. Also confirm LINKEDIN_URL still resolves.
 - Delete public/1.jpg to 6.jpg (unused, 22 MB) once confirmed
 - Google AI Essentials cert placement
 - PC rendering issue (deferred, low priority)
+- Pre-existing em dashes remain in app/work/remote-work/page.tsx and app/work/front-office/page.tsx (some in user-facing copy); sweep them in a copy pass
 - Fix author on commit 1307879 (Bug 2 fix has wrong git author, would need rebase)

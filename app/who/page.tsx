@@ -3,12 +3,10 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
+import { ACCENT, accentAlpha } from '@/lib/accent';
 
 const MONO = { fontFamily: 'monospace' };
 const INTER = { fontFamily: 'Inter, ui-rounded, system-ui, sans-serif' };
-
-// accent color, used sparingly
-const ACCENT = '#2DD4BF';
 
 const SECTION_LABEL: React.CSSProperties = {
   ...MONO,
@@ -335,13 +333,13 @@ function AchievementRow({ item, isLast, index }: { item: Achievement; isLast: bo
       onMouseLeave={() => setHovered(false)}
       style={{
         position: 'relative',
-        // Left padding gives the teal tick room without crowding the title.
+        // Left padding gives the accent tick room without crowding the title.
         padding: '36px 0 36px 28px',
         borderTop: '1px solid rgba(255,255,255,0.10)',
         borderBottom: isLast ? '1px solid rgba(255,255,255,0.10)' : 'none',
       }}
     >
-      {/* Teal tick at the left edge, vertically centered. Animates in on
+      {/* Accent tick at the left edge, vertically centered. Animates in on
           scroll and grows taller on hover. Stays anchored when the content
           shifts right, creating an editorial reveal motion. */}
       <div style={{
@@ -491,10 +489,10 @@ function BeyondBlock({ item, index }: { item: BeyondItem; index: number }) {
           fontSize: 'clamp(90px, 12vw, 150px)',
           fontWeight: 700,
           lineHeight: 1,
-          // Teal-tinted ghost. Subtle opacity bump on hover keeps the
+          // Accent-tinted ghost. Subtle opacity bump on hover keeps the
           // section connected to the page accent without competing with
           // the louder receipts section above.
-          color: hovered ? 'rgba(45,212,191,0.14)' : 'rgba(45,212,191,0.09)',
+          color: hovered ? accentAlpha(0.14) : accentAlpha(0.09),
           letterSpacing: '-0.02em',
           pointerEvents: 'none',
           userSelect: 'none',

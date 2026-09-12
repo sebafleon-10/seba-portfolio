@@ -3,12 +3,10 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
+import { ACCENT, ACCENT_BRIGHT, accentAlpha } from '@/lib/accent';
 
 const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
 const MONO = 'monospace';
-
-const ACCENT = '#2DD4BF';
-const ACCENT_BRIGHT = '#5EEAD4';
 
 const LIVE_URL = 'https://sebafleon-front-office.vercel.app';
 
@@ -30,8 +28,8 @@ const STATUS_PILL: React.CSSProperties = {
   fontSize: 11,
   letterSpacing: '0.25em',
   textTransform: 'uppercase',
-  border: `1px solid ${ACCENT}55`,
-  background: 'rgba(45,212,191,0.08)',
+  border: `1px solid ${accentAlpha(0.33)}`,
+  background: accentAlpha(0.08),
   color: ACCENT_BRIGHT,
   padding: '6px 14px',
   borderRadius: 999,
@@ -76,7 +74,7 @@ function HeroSection() {
   return (
     <section className="relative w-full" style={{ zIndex: 1 }}>
 
-      {/* Ambient teal glow behind the mockup — soft, low-opacity, matches the
+      {/* Ambient accent glow behind the mockup. Soft, low-opacity, matches the
           site accent without becoming a fill. */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -84,7 +82,7 @@ function HeroSection() {
           animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
           transition={{ duration: 2, ease: 'easeOut' }}
           className="absolute rounded-full blur-3xl"
-          style={{ top: 40, right: 40, width: 640, height: 640, background: `radial-gradient(circle, ${ACCENT}14 0%, transparent 70%)` }}
+          style={{ top: 40, right: 40, width: 640, height: 640, background: `radial-gradient(circle, ${accentAlpha(0.08)} 0%, transparent 70%)` }}
         />
         <motion.div
           initial={{ opacity: 0, scale: 0.85 }}
@@ -125,7 +123,7 @@ function HeroSection() {
                   height: 8,
                   borderRadius: 999,
                   background: ACCENT_BRIGHT,
-                  boxShadow: `0 0 12px ${ACCENT_BRIGHT}b3`,
+                  boxShadow: `0 0 12px ${accentAlpha(0.70, 'bright')}`,
                 }}
               />
               Live · Deployed on Vercel
@@ -189,11 +187,11 @@ function HeroSection() {
                 letterSpacing: '0.02em',
                 color: ACCENT_BRIGHT,
                 textDecoration: 'none',
-                background: ctaHovered ? 'rgba(45,212,191,0.14)' : 'rgba(45,212,191,0.05)',
-                border: `1px solid ${ctaHovered ? ACCENT : ACCENT + '55'}`,
+                background: ctaHovered ? accentAlpha(0.14) : accentAlpha(0.05),
+                border: `1px solid ${ctaHovered ? ACCENT : accentAlpha(0.33)}`,
                 borderRadius: 999,
                 padding: '12px 22px',
-                boxShadow: ctaHovered ? `0 8px 30px ${ACCENT}26` : 'none',
+                boxShadow: ctaHovered ? `0 8px 30px ${accentAlpha(0.15)}` : 'none',
                 transform: ctaHovered ? 'translateY(-1px)' : 'translateY(0)',
                 transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
               }}
@@ -299,7 +297,7 @@ function WorkSection() {
                 borderRadius: 20,
                 border: '1px solid rgba(255,255,255,0.10)',
                 background:
-                  'radial-gradient(ellipse at top left, rgba(45,212,191,0.07) 0%, transparent 58%), #0c0c11',
+                  `radial-gradient(ellipse at top left, ${accentAlpha(0.07)} 0%, transparent 58%), #0c0c11`,
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 14,

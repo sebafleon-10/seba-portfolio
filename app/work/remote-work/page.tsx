@@ -3,13 +3,11 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
+import { ACCENT, ACCENT_BRIGHT, ACCENT_ON_LIGHT, accentAlpha } from '@/lib/accent';
 
-// Teal accent for this research page. Matches the site-wide accent defined on /who.
-const ACCENT = '#2DD4BF';
-const ACCENT_BRIGHT = '#5EEAD4';
 const MAX_COEF = 34.6;
 
-// One eyebrow treatment used by every beat on the page. Dim white so teal can stay reserved for the result.
+// One eyebrow treatment used by every beat on the page. Dim white so the accent can stay reserved for the result.
 const EYEBROW: React.CSSProperties = {
   fontFamily: 'monospace',
   fontSize: 14,
@@ -235,7 +233,7 @@ function ModelCard({ m, i, run, prefersReduced }: {
         padding: '48px 40px 56px',
         borderRadius: 20,
         background: isFinal
-          ? 'linear-gradient(rgba(124,92,255,0.10), rgba(124,92,255,0.10)), #0b0b0f'
+          ? `linear-gradient(${accentAlpha(0.10)}, ${accentAlpha(0.10)}), #0b0b0f`
           : '#0d0d10',
         border: isFinal
           ? `1px solid ${ACCENT}`
@@ -672,7 +670,7 @@ export default function RemoteWorkPage() {
 
           {/* Header + body, tight gap to the cards below so the heading reads as the title of the card group. */}
           <div style={{ maxWidth: 880, margin: '0 0 28px' }}>
-            {/* Eyebrow with teal left tick — reuses the same 2px ACCENT left-border device
+            {/* Eyebrow with accent left tick. Reuses the same 2px ACCENT left-border device
                 as the pullquote in The Finding section. */}
             <motion.p
               initial={prefersReduced ? false : { opacity: 0, y: 20 }}
@@ -688,7 +686,7 @@ export default function RemoteWorkPage() {
             >Building the estimate</motion.p>
 
             {/* Climax heading: larger than the other section h2s on the page, with the result word
-                ("collapse") in result-teal. */}
+                ("collapse") in the result accent. */}
             <motion.h2
               initial={prefersReduced ? false : { opacity: 0, y: 20 }}
               whileInView={prefersReduced ? undefined : { opacity: 1, y: 0 }}
@@ -732,7 +730,7 @@ export default function RemoteWorkPage() {
       {/* THE FINDING — eyebrow + heading stay in their dim/white treatment above the card.
           The narrative body + pullquote drop into a floating light card that reuses the
           AA "Project" card vocabulary so the two pages feel like siblings. Monochrome
-          inside, teal stays reserved for the result on this page. */}
+          inside, the accent stays reserved for the result on this page. */}
       <section style={{ position: 'relative', zIndex: 1, padding: '120px 0' }}>
         {/* Left-aligned on the same page spine as every other section. AA's container
             spec (maxWidth 1200, centered with auto margins, 64px horizontal padding) is
@@ -796,7 +794,7 @@ export default function RemoteWorkPage() {
                 </p>
                 <p style={{
                   margin: 0, paddingLeft: 28,
-                  borderLeft: `2px solid ${ACCENT}`,
+                  borderLeft: `2px solid ${ACCENT_ON_LIGHT}`,
                   color: 'rgba(0,0,0,0.95)',
                 }}>
                   The most likely explanation: the Census remote variable captures

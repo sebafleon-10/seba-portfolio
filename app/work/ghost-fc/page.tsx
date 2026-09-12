@@ -3,12 +3,10 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
+import { ACCENT, ACCENT_BRIGHT, accentAlpha } from '@/lib/accent';
 
 const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
 const MONO = 'monospace';
-
-const ACCENT = '#2DD4BF';
-const ACCENT_BRIGHT = '#5EEAD4';
 
 const EYEBROW: React.CSSProperties = {
   fontFamily: MONO,
@@ -28,8 +26,8 @@ const STATUS_PILL: React.CSSProperties = {
   fontSize: 11,
   letterSpacing: '0.25em',
   textTransform: 'uppercase',
-  border: `1px solid ${ACCENT}55`,
-  background: 'rgba(45,212,191,0.08)',
+  border: `1px solid ${accentAlpha(0.33)}`,
+  background: accentAlpha(0.08),
   color: ACCENT_BRIGHT,
   padding: '6px 14px',
   borderRadius: 999,
@@ -109,7 +107,7 @@ function HeroSection() {
                   height: 8,
                   borderRadius: 999,
                   background: ACCENT_BRIGHT,
-                  boxShadow: `0 0 12px ${ACCENT_BRIGHT}b3`,
+                  boxShadow: `0 0 12px ${accentAlpha(0.70, 'bright')}`,
                 }}
               />
               Live · In progress
