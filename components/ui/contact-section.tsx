@@ -277,18 +277,21 @@ export function ContactSection() {
               {/* Affiliations stacked like the LinkedIn header. Both rows share
                   one structure: a fixed-width icon column, then a bold name at
                   the same size, so the two names align on the left. */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10, flexShrink: 0 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                 {[
-                  { src: '/bts-logo.svg', alt: 'BTS', name: 'BTS', iconStyle: { height: 13, width: 'auto' as const } },
-                  { src: '/depauw-icon.png', alt: 'DePauw University', name: 'DePauw University', iconStyle: { height: 22, width: 22, borderRadius: 4 } },
+                  // Icon column is exactly the tile width, and the BTS mark fills
+                  // ~90% of it, matching LinkedIn's proportions so both names sit
+                  // the same distance from their icon.
+                  { src: '/bts-logo.svg', alt: 'BTS', name: 'BTS', iconStyle: { width: 27, height: 'auto' as const } },
+                  { src: '/depauw-icon.png', alt: 'DePauw University', name: 'DePauw University', iconStyle: { width: 30, height: 30, borderRadius: 6 } },
                 ].map((a) => (
-                  <div key={a.name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 40, height: 22, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                  <div key={a.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 30, height: 30, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                       <img src={a.src} alt="" draggable={false} style={{ objectFit: 'contain', display: 'block', ...a.iconStyle }} />
                     </div>
                     <span style={{
                       fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
-                      fontWeight: 700, fontSize: 12, lineHeight: 1,
+                      fontWeight: 700, fontSize: 13, lineHeight: 1,
                       color: '#1a1a1a', letterSpacing: '-0.01em', whiteSpace: 'nowrap',
                     }}>{a.name}</span>
                   </div>
