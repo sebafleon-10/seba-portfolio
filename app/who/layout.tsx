@@ -33,24 +33,26 @@ export default function WhoLayout({ children }: { children: React.ReactNode }) {
             background: 'rgba(255,255,255,0.08)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.14)',
+            border: '2px solid rgba(255,255,255,0.22)',
             borderRadius: 999,
-            padding: '10px 20px',
-            transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease',
+            padding: '9px 19px',
+            transition: 'background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease',
           }}
           onMouseEnter={e => {
             e.currentTarget.style.background = 'rgba(255,255,255,0.14)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)';
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)';
             e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={e => {
             e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)';
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)';
             e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
+            e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Back
         </Link>

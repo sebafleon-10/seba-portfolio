@@ -152,9 +152,9 @@ function HeroSection() {
                 color: ACCENT_BRIGHT,
                 textDecoration: 'none',
                 background: ctaHovered ? accentAlpha(0.14) : accentAlpha(0.05),
-                border: `1px solid ${ctaHovered ? ACCENT : accentAlpha(0.33)}`,
+                border: `2px solid ${ctaHovered ? ACCENT : accentAlpha(0.45)}`,
                 borderRadius: 999,
-                padding: '16px 30px',
+                padding: '15px 29px',
                 boxShadow: ctaHovered ? `0 8px 30px ${accentAlpha(0.15)}` : 'none',
                 transform: ctaHovered ? 'translateY(-1px)' : 'translateY(0)',
                 transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
@@ -185,16 +185,16 @@ function HeroSection() {
             perspective: '1600px',
             maskImage:
               'linear-gradient(to bottom, transparent 0%, black 13%, black 86%, transparent 100%), ' +
-              'linear-gradient(to right, transparent 0%, black 14%, black 100%)',
+              'linear-gradient(to right, transparent 0%, black 16%, black 100%)',
             maskComposite: 'intersect',
             WebkitMaskImage:
               'linear-gradient(to bottom, transparent 0%, black 13%, black 86%, transparent 100%), ' +
-              'linear-gradient(to right, transparent 0%, black 14%, black 100%)',
+              'linear-gradient(to right, transparent 0%, black 16%, black 100%)',
             WebkitMaskComposite: 'source-in',
           }}
         >
           {/* Left + bottom scrims soften the seam against the copy column. */}
-          <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '20%', background: 'linear-gradient(to right, #000000 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '13%', background: 'linear-gradient(to right, #000000 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
           {/* Flat 2x capture of the live dashboard, tilted in CSS so the text stays
               crisp and the angle is tunable. Runs off the right and bottom edges. */}
@@ -202,9 +202,9 @@ function HeroSection() {
             style={{
               position: 'absolute',
               top: '9%',
-              left: 0,
-              width: '112%',
-              transform: 'rotateY(16deg) rotateX(4deg) rotateZ(-1deg) translateX(2%) scale(1.04)',
+              left: '15%',
+              width: '100%',
+              transform: 'rotateY(16deg) rotateX(4deg) rotateZ(-1deg) scale(1.04)',
               transformOrigin: 'right center',
               transformStyle: 'preserve-3d',
               borderRadius: 18,
