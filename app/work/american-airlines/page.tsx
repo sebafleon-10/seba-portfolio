@@ -74,13 +74,13 @@ function HeroSection() {
           </motion.p>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
+        <div
           style={{
             position: 'absolute', top: 0, right: 0, width: '58%', height: '100%',
             overflow: 'hidden', zIndex: 1,
+            // No entrance animation and no load gate: the photo is already
+            // cached from the home-page work card, so it paints on the first
+            // frame of this route.
             // Dissolve the photo (and its overlays) into the page's dot-grid on
             // both the bottom and the left edges, so the hero has no hard seam
             // against the dot-grid. Two gradient mask layers are composited
@@ -101,6 +101,8 @@ function HeroSection() {
           <img
             src="/aa-capstone.jpg"
             alt="Sebastian Leon presenting to American Airlines"
+            fetchPriority="high"
+            decoding="sync"
             style={{
               width: '100%',
               height: '100%',
@@ -110,7 +112,7 @@ function HeroSection() {
               filter: 'brightness(0.82) contrast(1.05) saturate(0.88)',
             }}
           />
-        </motion.div>
+        </div>
 
       </div>
     </section>
