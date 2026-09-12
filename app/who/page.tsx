@@ -41,7 +41,7 @@ const BODY_TEXT: React.CSSProperties = {
 
 // Single source of truth for hero band height. Also used to offset the
 // TextScrim so it does not muddy the photo.
-const HERO_HEIGHT_VH = 82;
+const HERO_HEIGHT_VH = 100;
 
 function HeroSection() {
   // Mount flag that drives the text entrance stagger only. The photo does not
@@ -129,10 +129,12 @@ function HeroSection() {
         style={{
           position: 'relative',
           minHeight: `${HERO_HEIGHT_VH}vh`,
-          padding: '160px 96px 100px',
+          // Anchored to the left edge at 96px like the AA and Ghost FC heroes.
+          // No auto margins: a centered container floats the text inward on
+          // wide displays and breaks the left spine.
+          padding: '160px 96px 96px',
           maxWidth: 1400,
           width: '100%',
-          margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'flex-end',
