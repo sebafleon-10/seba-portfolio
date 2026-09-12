@@ -271,7 +271,7 @@ export function ContactSection() {
                   lineHeight: 1.4,
                   whiteSpace: 'normal',
                 }}>
-                  Student-Athlete | Business Analytics @ DePauw
+                  Business Analyst @ BTS Consulting
                 </p>
               </div>
               <img src="/depauw.png" style={{ height: '40px', objectFit: 'contain', opacity: 0.85, flexShrink: 0 }} />
