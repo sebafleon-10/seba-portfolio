@@ -132,7 +132,10 @@ function HeroSection() {
           // Anchored to the left edge at 96px like the AA and Ghost FC heroes.
           // No auto margins: a centered container floats the text inward on
           // wide displays and breaks the left spine.
-          padding: '160px 96px 96px',
+          // Bottom padding scales with viewport height so the copy ends around
+          // 79% of the screen, matching the AA hero, instead of sitting on the
+          // floor of the section.
+          padding: '160px 96px clamp(120px, 21vh, 200px)',
           maxWidth: 1400,
           width: '100%',
           display: 'flex',
