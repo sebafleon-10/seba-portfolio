@@ -1,5 +1,5 @@
 # seba-portfolio, Project Notes
-Last updated: September 13, 2026 (em dash sweep)
+Last updated: September 13, 2026 (Experience / Projects split)
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -37,24 +37,30 @@ Last updated: September 13, 2026 (em dash sweep)
 - cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
+Sep 13 (later session): the home page now has four sections. 002 · EXPERIENCE is a new hue-free editorial hairline list (components/ui/experience-section.tsx) with three rows, BTS Consulting, 1-800 Radiator, Chicago Ghost FC, each routing to /experience/<slug>. 003 · PROJECTS is the old work fan trimmed to three cards (Front Office, American Airlines, Remote Work). 004 · CONTACT. Ghost FC moved from /work/ghost-fc to /experience/ghost-fc with a permanent redirect in next.config.ts; its copy is unchanged. The three role pages share one skeleton (app/experience/_components/experience-page.tsx). Radiator and BTS ship with PLACEHOLDER copy and their logo files (public/bts-logo.png, public/radiator-logo.png) do not exist yet; the img hides itself until they land. The orb-reveal effect was also deduplicated into lib/use-orb-reveal.tsx before the fourth section was added. NOT YET PUSHED at time of writing.
+
 Everything through the Sep 13 em dash sweep (bb09d36 plus notes) is pushed to main and deployed on Vercel (verified live Sep 13: 2px pills, repositioned Front Office dashboard, zero em dashes on all six routes). The /who page copy is finalized: hero trimmed and tightened, the story reworked around the real Peru to Chicago to Rochester to DePauw path with corrected NCAC title language (back-to-back tournament titles plus last year's regular-season title), receipts copy fixed including a Ghost FC analyst line, Beyond the Pitch tweaked, and the snowboard gallery crop fixed. The remote-work page now uses the exact 30,272 and names the Current Population Survey in the hero, bridges the collapse module to the subgroup chart, has larger eyebrows and model-card supporting text, and links the real presentation PDF. The Ghost FC detail page is now built and no longer a stub: a hero with the white-knockout club crest plus a "What I'm building right now" section. Teal was removed from the Work-section chrome on June 1, and on Sep 12 the detail-page accent itself moved from teal to periwinkle (lib/accent.ts). Decision: the accent lives on detail pages only; the home page and components/ui stay hue-free.
 
 ## File Structure
-- app/page.tsx, main layout, hero, tagline, section order (June 1: hero neural intro gated to first load via module-level flag, does not replay on Back)
+- app/page.tsx, main layout, hero, tagline, section order Who, Experience, Projects (id stays `work`), Contact. NAV_LINKS is 01 to 04 (June 1: hero neural intro gated to first load via module-level flag, does not replay on Back)
 - app/layout.tsx, root layout (data-scroll-behavior="smooth" on <html> for Bug 2 fix; renders GatedParticleCanvas instead of ParticleCanvas directly)
-- app/work/layout.tsx, shared layout for all work detail pages (frosted glass pill back button, 2px border since Sep 12; no layout-level canvas)
+- app/work/layout.tsx, shared layout for all work (project) detail pages (frosted glass pill back button, 2px border since Sep 12; no layout-level canvas). Back links to /#work
 - app/work/american-airlines/page.tsx, AA detail page, COMPLETE AND DEPLOYED (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
-- app/work/ghost-fc/page.tsx, Ghost FC detail page: hero (eyebrow with Jan 2026 to Aug 2026 dates, title "The data behind the club", past-tense Data analyst intro, white-knockout crest on the right) plus a "What I built" section with four equal cards (sponsorship-intelligence command center, ranking evaluation and match-day KPIs, social analytics pipelines, conference benchmarking), each with a periwinkle 01 to 04 index, title, body, and mono tech tags. Status pill removed Sep 12 (role ended August 2026). Unified dot-grid background since June 1
+- app/experience/layout.tsx, shared layout for the three role pages. Byte copy of app/work/layout.tsx with Back linking to /#experience. The three Back buttons (work, who, experience) must be edited together
+- app/experience/_components/experience-page.tsx, the shared role-page skeleton (ExperiencePage): hero (eyebrow, title, intro, logo right with an onError plus mount-time hide for missing assets) and a "The Work" grid of four equal cards with periwinkle CARD_INDEX and mono TAG pills. Props { eyebrow, title, intro, logo, sectionHeading, items }. Lives under app/ so it may import lib/accent.ts
+- app/experience/ghost-fc/page.tsx, Ghost FC role page (moved from app/work/ghost-fc on Sep 13, copy unchanged): eyebrow "Jan 2026 to Aug 2026 · Chicago Ghost FC", title "The data behind the club", past-tense Data analyst intro, crest right, "What I built" with the four equal cards (sponsorship-intelligence command center, ranking evaluation and match-day KPIs, social analytics pipelines, conference benchmarking)
+- app/experience/radiator/page.tsx and app/experience/bts/page.tsx, PLACEHOLDER role pages in the same shape. Every string prefixed PLACEHOLDER must be replaced with the interview copy; logos expected at public/radiator-logo.png and public/bts-logo.png (white on transparent, real PNG or SVG)
 - app/work/front-office/page.tsx, Front Office detail page (reachable from work card id 3, the leftmost card in the fan). Hero: eyebrow "2026 · Front Office", title, intro, enlarged periwinkle outline CTA (17px, 2px border at accentAlpha 0.45 rest / ACCENT hover, 15x29 padding) to the live app, and a sharp flat dashboard capture (public/front-office-dashboard.jpg, 2720x2405) tilted in CSS inside the masked bleed container (perspective 1600px; container left mask fade to 16%, left scrim 13%; wrapper rotateY 16deg, rotateX 4deg, rotateZ -1deg, origin right center, top 9%, left 15%, width 100%, no translateX, soft drop shadow). Note: translateX inside the transform chain runs along the rotated axis and barely moves the projected edge, so position the wrapper with left instead. Status pill removed Sep 12. Below: six decision cards with periwinkle 01 to 06 indices. Sep 13: card surface is hue-free, a white 0.04 radial sheen at top left over #0d0d0d (was a periwinkle accentAlpha 0.07 wash over blue-leaning #0c0c11, which tinted the whole card); the index number is the only accent on a card. Same day, the card black on Ghost FC and remote-work (model cards, deliverable cards) was normalized from blue-leaning #0d0d10 / #101015 hover to neutral #0d0d0d / #111111 so all work pages share one card surface; the remote-work Model 03 result card keeps its periwinkle 0.10 wash and border on purpose
 - app/work/remote-work/page.tsx, Remote Work detail page (substantially built, May 28; dot-grid bg, full-width left-aligned layout)
 - app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern, including the Sep 12 2px Back button and hover lift; edit both files together)
 - app/who/page.tsx, /who detail page (BUILT, d6fb335): hero (night-match action photo, text over dark-left), story section with featured family photo (who-story.jpg) on the right, receipts editorial hairline list (enlarged mono titles, accent ticks, hover motion), beyond-the-pitch 2x2 with oversized faint accent ghost numbers, six-photo asymmetric gallery (who-1 to who-6) with Peru childhood-surf photo as full-width closer. Note it now contains a local TextScrim element (fixed column-wide gradient that dims particles behind body copy for legibility, page-local, does not touch global AmbientCanvas) (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
+- components/ui/experience-section.tsx, 002 · EXPERIENCE home section (Sep 13): hue-free editorial hairline list adapted from the /who receipts row (white tick 32 to 64 on hover, translateX 10 hover, whileInView stagger), ROLES array (slug, company, role, dates, oneLine, logo) most recent first, each row a click target to /experience/<slug>, logos preloaded via react-dom, row text carries the marquee text shadow for legibility over the particles, mobile media query collapses the grid to one column
 - components/ui/who-section.tsx, WHO athlete section with photo card + vertical marquee composition
-- components/ui/work-section.tsx, Work fan card stack + orb reveal + navigation to detail pages
+- components/ui/work-section.tsx, 003 · PROJECTS fan card stack (three cards since Sep 13: Front Office, American Airlines, Remote Work) + navigation to /work/* detail pages. cardRoutes is a Record keyed by card id, not by fan position
 - components/ui/contact-section.tsx, Contact floating cards + orb reveal
 - components/ui/vertical-marquee.tsx, vertical marquee primitive (from 21st.dev) with mask-based edge fade
 - components/ui/particle-canvas.tsx, main particle system (~680 lines)
-- components/ui/gated-particle-canvas.tsx, client wrapper: renders ParticleCanvas everywhere EXCEPT the detail routes listed in NO_PARTICLE_ROUTES (/who and all /work/* pages) (usePathname gate). Lets root layout stay a Server Component
+- components/ui/gated-particle-canvas.tsx, client wrapper: renders ParticleCanvas everywhere EXCEPT the detail routes listed in NO_PARTICLE_ROUTES (/who, all /work/* pages, and the /experience prefix) (usePathname prefix match). Lets root layout stay a Server Component
 - components/ui/ambient-canvas.tsx, lightweight ambient-only canvas for work detail pages
 - components/ui/dot-grid-background.tsx, dot-grid shader bg (react-three-fiber) for /work/remote-work only. One-time center-out reveal then faint shimmer, prefers-reduced-motion aware
 - components/ui/neural-text-reveal.tsx, neural network particle animation. Internal positioning: position absolute, top: 8, left: 48
@@ -63,6 +69,8 @@ Everything through the Sep 13 em dash sweep (bb09d36 plus notes) is pushed to ma
 - components/ui/card-23.tsx, Card23 component (tag prop now OPTIONAL as of 7b99ab9)
 - components/ui/spotlight.tsx, cursor-following spotlight effect
 - lib/particle-state.ts, shared singleton for cross-component signals
+- lib/use-orb-reveal.tsx, useOrbReveal(sectionRef) returns the label ref and owns the shipped scroll choreography (fire at 75% viewport, 900ms converge, scatter, fade math, re-arm out of view), plus the OrbLabel element. All four home sections use it since Sep 13; tune thresholds here only
+- next.config.ts, redirects(): /work/ghost-fc to /experience/ghost-fc (permanent, 308)
 - lib/accent.ts, detail-page accent tokens (ACCENT, ACCENT_BRIGHT, ACCENT_ON_LIGHT) and the accentAlpha(alpha, tone) helper. Added Sep 12
 - context/parallax-context.tsx, zoomProgressRef
 - CLAUDE.md, imports NOTES.md and CLAUDE_PROMPTING.md
@@ -78,14 +86,19 @@ Everything through the Sep 13 em dash sweep (bb09d36 plus notes) is pushed to ma
 - "Explore the story →" CTA below photo card, left-aligned, ~72px gap
 - Whole composition is one click target routing to /who
 
-### Work (002 · WORK), DONE
-- card 0 → /work/american-airlines
-- card 1 → /work/ghost-fc
+### Experience (002 · EXPERIENCE), DONE (Sep 13)
+- Editorial hairline list, three rows most recent first: BTS Consulting (/experience/bts), 1-800 Radiator (/experience/radiator), Chicago Ghost FC (/experience/ghost-fc)
+- Hue-free, no container, orb reveal via the shared hook
+- BTS and Radiator rows carry PLACEHOLDER copy until the interview output lands
+
+### Projects (003 · PROJECTS, section id stays `work`), DONE
+- card 0 → /work/american-airlines (middle card, active on load)
 - card 2 → /work/remote-work
 - card 3 → /work/front-office (leftmost card in the fan)
+- card 1 (Ghost FC) removed from the fan Sep 13; lives in Experience now. cardRoutes is keyed by id so removing a card never shifts routes
 - Duplicate left section label removed (May 27), only top-center label remains
 
-### Contact (003 · CONTACT), DONE
+### Contact (004 · CONTACT), DONE
 - Duplicate left section label removed (May 27), only top-center label remains
 
 ## Particle System
@@ -117,7 +130,8 @@ All three sections use:
 - Fire: rect.top < window.innerHeight * 0.75 && rect.bottom > 0
 - Reset: rect.top > window.innerHeight * 1.5 || rect.bottom < 0
 - isRunning guard prevents double-fire
-- Labels: "001 · THE ATHLETE", "002 · WORK", "003 · CONTACT"
+- Labels: "001 · THE ATHLETE", "002 · EXPERIENCE", "003 · PROJECTS", "004 · CONTACT"
+- Implemented once in lib/use-orb-reveal.tsx (useOrbReveal + OrbLabel) since Sep 13; the sections no longer carry their own copies
 
 ## Purple Connection Lines + Mouse Hover Overlay (particle-canvas.tsx) (purple tint later reverted to white)
 Added May 27 to bring the purple line aesthetic and white-on-hover overlay from the 21st.dev "aether-flow-hero" component into the existing ParticleCanvas without replacing it.
@@ -264,7 +278,7 @@ export const particleInteraction = {
 - ML Model: https://colab.research.google.com/drive/13JB5oxn4z8e_q8CCXwUyM05fI8vDyjvW?authuser=1
 - Scraping code: PENDING (GitHub repo, not yet created)
 
-### Ghost FC Page (app/work/ghost-fc/page.tsx), REWRITTEN Sep 12
+### Ghost FC Page (app/experience/ghost-fc/page.tsx, moved from app/work/ghost-fc on Sep 13), REWRITTEN Sep 12
 - Hero: eyebrow "Jan 2026 to Aug 2026 · Chicago Ghost FC", h1 "The data behind the club", past-tense intro (Data analyst, four themes named equally), crest right. No status pill.
 - Work section: eyebrow "The Work", h2 "What I built", 2x2 grid of equal cards. ITEMS entries are { title, body, tags }. Card = periwinkle mono index (CARD_INDEX) + h3 + body + tag row (TAG pills, mono 11px, white 0.55 on a 0.12 border) pinned to the bottom with marginTop auto. The four bullets are deliberately equal; do not turn the sponsorship engine into a feature card.
 
@@ -339,6 +353,8 @@ Background: #080808
 - Pill buttons site-wide use a 2px border since Sep 12 (Back buttons, the Front Office CTA, the work-card VIEW WORK pill). When adding a new pill, match 2px and keep padding 1px tighter than a 1px pill would use
 - /work/remote-work styling prompts must always end with an instruction not to change data or copy (every number/label is verified correct)
 - Product mockups are flat captures tilted in CSS (perspective on the container, rotate on a wrapper), never pre-rendered perspective PNGs. Capture at an effective DPR of 2 and at least 2400px wide. Recipe used Sep 12: Playwright MCP at a 3200x2800 viewport with document.documentElement.style.zoom = 2, wrap the target blocks in a div, hide the rest, element screenshot with scale device, then sips to JPEG q85.
+- Placeholder convention: unfinished copy is prefixed PLACEHOLDER: so `grep -rn PLACEHOLDER app components` lists every open slot. Nothing with PLACEHOLDER in it should be pushed to main without a conscious decision
+- Role pages live under /experience/<slug> on the shared ExperiencePage skeleton; project pages live under /work/<slug>. New roles: add a ROLES entry in components/ui/experience-section.tsx plus an app/experience/<slug>/page.tsx. New projects: add a card in components/ui/work-section.tsx (with a cardRoutes entry keyed by id) plus an app/work/<slug>/page.tsx
 - Detail-page accent colors come only from lib/accent.ts. No local ACCENT consts, no hex-alpha suffixes like `${ACCENT}55`, no raw accent rgba literals in page files. app/page.tsx and components/ui/* must never import lib/accent.ts
 
 ## Bugs
@@ -380,6 +396,13 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 - A Server Component root layout cannot use usePathname. Wrap the conditional client logic in a small 'use client' component and render that, rather than converting the whole root layout to a client component.
 
 ## Next Steps
+
+### Priority 0: finish the Experience section (Sep 13)
+- Replace every PLACEHOLDER string in app/experience/radiator/page.tsx, app/experience/bts/page.tsx, and the ROLES entries in components/ui/experience-section.tsx with the interview output (prompt given to Sebastian on Sep 13: interview per role, then HOME ROW + DETAIL PAGE blocks). Reorder ROLES by real dates
+- Add public/bts-logo.png and public/radiator-logo.png (white on transparent; run `file` to confirm real PNG or SVG). Rename the src paths if the filenames differ
+- Ghost FC row oneLine is a trimmed version of the page intro; revisit once the other two rows have real copy so the three read at the same weight
+- Push and verify on Vercel: /work/ghost-fc must 308 to /experience/ghost-fc
+
 
 ### Priority: finish detail-page cohesion (periwinkle detail-page accent)
 - DONE (Sep 12): detail-page accent moved from teal to periwinkle and consolidated in lib/accent.ts. Decision: the accent lives on detail pages only; the home page and components/ui stay hue-free (VIEW WORK hover, pagination dots, and card-nav arrows are white, not accent; the earlier note that arrow hover was still teal was stale, grep shows no accent hex in components/). Background unification and hero blend were DONE June 1.

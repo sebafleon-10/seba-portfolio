@@ -23,12 +23,6 @@ const cards = [
     desc: "RoBERTa sentiment pipeline across 627K Reddit posts",
   },
   {
-    id: 1,
-    title: 'Chicago Ghost FC',
-    tag: 'Python · DuckDB · APIs',
-    desc: 'Full analytics stack for a semi-pro soccer club',
-  },
-  {
     id: 2,
     title: 'Remote Work & the Gender Wage Gap',
     tag: 'Regression · IPUMS · Labor Economics',
@@ -36,7 +30,13 @@ const cards = [
   },
 ];
 
-const cardRoutes = ['/work/american-airlines', '/work/ghost-fc', '/work/remote-work', '/work/front-office'];
+// Keyed by card id, not fan position. Ghost FC (id 1) moved to the
+// Experience section on Sep 13 2026 and lives at /experience/ghost-fc.
+const cardRoutes: Record<number, string> = {
+  0: '/work/american-airlines',
+  2: '/work/remote-work',
+  3: '/work/front-office',
+};
 
 export function WorkSection() {
   const [active, setActive] = useState(1);
@@ -97,7 +97,7 @@ export function WorkSection() {
         zIndex: 1,
       }}
     >
-      <OrbLabel labelRef={orbLabelRef}>002 · WORK</OrbLabel>
+      <OrbLabel labelRef={orbLabelRef}>003 · PROJECTS</OrbLabel>
 
       {/* Left Arrow */}
       <button
@@ -218,31 +218,6 @@ export function WorkSection() {
                         display: 'block',
                       }}
                     />
-                  )}
-
-                  {card.id === 1 && (
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: 'linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #111 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '56px 56px 156px',
-                    }}>
-                      <img
-                        src="/ghost-fc-logo.png"
-                        alt="Chicago Ghost FC crest"
-                        draggable={false}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          maxWidth: 330,
-                          objectFit: 'contain',
-                          display: 'block',
-                        }}
-                      />
-                    </div>
                   )}
 
                   {/* Gradient overlay */}

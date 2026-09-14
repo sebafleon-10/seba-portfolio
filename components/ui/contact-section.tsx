@@ -88,7 +88,7 @@ export function ContactSection() {
         zIndex: 1,
       }}
     >
-      <OrbLabel labelRef={orbLabelRef}>003 · CONTACT</OrbLabel>
+      <OrbLabel labelRef={orbLabelRef}>004 · CONTACT</OrbLabel>
 
       <div ref={triggerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 48 }}>
 

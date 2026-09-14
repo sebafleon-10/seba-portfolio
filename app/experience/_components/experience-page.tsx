@@ -1,9 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
 import { ACCENT } from '@/lib/accent';
+
+// Shared skeleton for every /experience/<slug> page: hero (eyebrow, title,
+// intro, logo on the right) plus a grid of four equal work cards. Extracted
+// from the Ghost FC page so the three role pages share one layout and only
+// carry their own copy. Do not turn one card into a feature card; the four
+// are deliberately equal.
 
 const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
 const MONO = 'monospace';
@@ -37,36 +43,32 @@ const TAG: React.CSSProperties = {
   whiteSpace: 'nowrap',
 };
 
-const HERO_TITLE = 'The data behind the club';
-const HERO_INTRO = "Data analyst for Chicago Ghost FC, the semi-pro side I also play for. I built the club's front-office analytics from the ground up: sponsorship prospecting, social media pipelines, match-day KPI dashboards, and conference benchmarking that turned raw data into decisions the club could act on.";
-const SECTION_HEADING = 'What I built';
+export type ExperienceItem = {
+  title: string;
+  body: string;
+  tags: string[];
+};
 
-const ITEMS = [
-  {
-    title: 'Sponsorship-intelligence command center',
-    body: 'A tool the front office runs to discover local businesses, enrich each one through an agentic web-search loop, score it against a 100-point sponsorship-fit rubric across six dimensions, and auto-draft personalized outreach emails. It surfaced 329 qualified prospects across multiple business categories.',
-    tags: ['Python', 'DuckDB', 'Anthropic API', 'Google Places API'],
-  },
-  {
-    title: 'Ranking evaluation and match-day KPIs',
-    body: 'An evaluation harness with a hand-labeled gold set, rank correlation, and top-15 precision to validate and tune ranking quality, plus match-day KPI dashboards guiding marketing, sponsorship, and revenue decisions.',
-    tags: ['Python', 'Excel'],
-  },
-  {
-    title: 'Social analytics pipelines',
-    body: "Python pipelines collecting post-level engagement across the club's TikTok and Instagram accounts, more than 700 posts, replacing manual tracking with repeatable reporting.",
-    tags: ['TikTokApi', 'Playwright', 'Instagram Graph API'],
-  },
-  {
-    title: 'Conference benchmarking',
-    body: 'Content performance benchmarked against MWPL conference rivals to identify which content types and posting patterns drive reach and follower growth, translated into recommendations for non-technical stakeholders.',
-    tags: ['Python', 'MWPL'],
-  },
-];
+export type ExperiencePageProps = {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  logo: { src: string; alt: string; maxWidth?: number };
+  sectionHeading: string;
+  items: ExperienceItem[];
+};
 
-function HeroSection() {
+function HeroSection({ eyebrow, title, intro, logo }: Omit<ExperiencePageProps, 'sectionHeading' | 'items'>) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const logoRef = useRef<HTMLImageElement>(null);
   useEffect(() => { setIsLoaded(true); }, []);
+
+  // A missing logo 404s before hydration, so onError never fires for it.
+  // Check the already-settled state once on mount and hide the box.
+  useEffect(() => {
+    const img = logoRef.current;
+    if (img && img.complete && img.naturalWidth === 0) img.style.visibility = 'hidden';
+  }, []);
 
   return (
     <section className="relative w-full" style={{ zIndex: 1 }}>
@@ -98,7 +100,7 @@ function HeroSection() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
             style={{ ...EYEBROW, margin: '0 0 24px' }}
           >
-            Jan 2026 to Aug 2026 · Chicago Ghost FC
+            {eyebrow}
           </motion.p>
 
           <motion.h1
@@ -116,7 +118,7 @@ function HeroSection() {
               maxWidth: 620,
             }}
           >
-            {HERO_TITLE}
+            {title}
           </motion.h1>
 
           <motion.p
@@ -134,7 +136,7 @@ function HeroSection() {
               letterSpacing: '0.01em',
             }}
           >
-            {HERO_INTRO}
+            {intro}
           </motion.p>
         </div>
 
@@ -152,11 +154,13 @@ function HeroSection() {
           }}
         >
           <img
-            src="/ghost-fc-logo.png"
-            alt="Chicago Ghost FC crest"
+            ref={logoRef}
+            src={logo.src}
+            alt={logo.alt}
+            onError={e => { e.currentTarget.style.visibility = 'hidden'; }}
             style={{
               width: '100%',
-              maxWidth: 380,
+              maxWidth: logo.maxWidth ?? 380,
               height: 'auto',
               display: 'block',
               objectFit: 'contain',
@@ -169,7 +173,7 @@ function HeroSection() {
   );
 }
 
-function WorkSection() {
+function WorkSection({ sectionHeading, items }: Pick<ExperiencePageProps, 'sectionHeading' | 'items'>) {
   return (
     <section style={{ position: 'relative', zIndex: 1, padding: '40px 0 160px' }}>
       <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
@@ -186,7 +190,7 @@ function WorkSection() {
             maxWidth: 760,
           }}
         >
-          {SECTION_HEADING}
+          {sectionHeading}
         </h2>
 
         <div
@@ -196,7 +200,7 @@ function WorkSection() {
             gap: 24,
           }}
         >
-          {ITEMS.map((item, i) => (
+          {items.map((item, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 24 }}
@@ -253,12 +257,12 @@ function WorkSection() {
   );
 }
 
-export default function GhostFCPage() {
+export function ExperiencePage(props: ExperiencePageProps) {
   return (
     <div style={{ minHeight: '100vh' }}>
       <DotGridBackground />
-      <HeroSection />
-      <WorkSection />
+      <HeroSection eyebrow={props.eyebrow} title={props.title} intro={props.intro} logo={props.logo} />
+      <WorkSection sectionHeading={props.sectionHeading} items={props.items} />
     </div>
   );
 }

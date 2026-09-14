@@ -3,13 +3,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { WhoSection }     from '@/components/ui/who-section';
+import { ExperienceSection } from '@/components/ui/experience-section';
 import { WorkSection }    from '@/components/ui/work-section';
 import { ContactSection } from '@/components/ui/contact-section';
 
 const NAV_LINKS = [
-  { num: '01', label: 'Who',     href: '#who',     id: 'who'     },
-  { num: '02', label: 'Work',    href: '#work',    id: 'work'    },
-  { num: '03', label: 'Contact', href: '#contact', id: 'contact' },
+  { num: '01', label: 'Who',        href: '#who',        id: 'who'        },
+  { num: '02', label: 'Experience', href: '#experience', id: 'experience' },
+  { num: '03', label: 'Projects',   href: '#work',       id: 'work'       },
+  { num: '04', label: 'Contact',    href: '#contact',    id: 'contact'    },
 ] as const;
 
 // Module-level intro gate: tagline + nav-link reveal should only play on a
@@ -282,7 +284,10 @@ export default function Home() {
       {/* ── Who ────────────────────────────────────────────────────────────── */}
       <WhoSection />
 
-      {/* ── Work ───────────────────────────────────────────────────────────── */}
+      {/* ── Experience ─────────────────────────────────────────────────────── */}
+      <ExperienceSection />
+
+      {/* ── Projects ───────────────────────────────────────────────────────── */}
       <WorkSection />
 
       {/* ── Contact ────────────────────────────────────────────────────────── */}
