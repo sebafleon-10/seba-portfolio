@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
+import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
 
 const LINKEDIN_URL = 'https://linkedin.com/in/sebastian-leon-b4015b3a9';
 const EMAIL        = 'sebafleon@gmail.com';
@@ -19,81 +20,11 @@ function LinkedInIcon({ size = 16 }: { size?: number }) {
 
 export function ContactSection() {
   const sectionRef   = useRef<HTMLElement>(null);
+  const orbLabelRef = useOrbReveal(sectionRef);
   const triggerRef   = useRef<HTMLDivElement>(null);
   const linkedinRef  = useRef<HTMLDivElement>(null);
   const emailRef     = useRef<HTMLDivElement>(null);
-  const orbLabelRef  = useRef<HTMLParagraphElement>(null);
-  const hasTriggered = useRef(false);
-  const hasScattered = useRef(false);
-  const isRunning    = useRef(false);
   const [hovered, setHovered] = useState<'linkedin' | 'email' | null>(null);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const run = () => {
-      if (isRunning.current) return;
-      isRunning.current = true;
-      hasTriggered.current = true;
-      particleInteraction.gravityTarget.active = true;
-      particleInteraction.gravityTarget.x      = window.innerWidth  / 2;
-      particleInteraction.gravityTarget.y      = window.innerHeight / 2;
-      particleInteraction.gravityBoost         = true;
-
-      setTimeout(() => {
-        particleInteraction.gravityTarget.active = false;
-        particleInteraction.gravityBoost         = false;
-        particleInteraction.scatterTrigger       = Date.now();
-        hasScattered.current = true;
-        const r = section.getBoundingClientRect();
-        const entryFade = r.top > 0
-          ? Math.max(0, 1 - r.top / (window.innerHeight * 0.35)) : 1;
-        const exitFade = Math.max(0, 1 - Math.max(0, -r.top) / 350);
-        if (orbLabelRef.current)
-          orbLabelRef.current.style.opacity =
-            String(Math.max(0, Math.min(entryFade, exitFade)));
-        isRunning.current = false;
-      }, 900);
-    };
-
-    const handleScroll = () => {
-      const rect    = section.getBoundingClientRect();
-      const targetY = Math.min(
-        window.innerHeight * 0.78,
-        rect.top * 0.90 + window.innerHeight * 0.05,
-      );
-      if (orbLabelRef.current)
-        orbLabelRef.current.style.transform =
-          `translateX(-50%) translateY(${targetY}px)`;
-
-      if (rect.top < window.innerHeight * 0.75 &&
-          rect.bottom > 0 && !hasTriggered.current) run();
-
-      if (hasScattered.current && orbLabelRef.current) {
-        const entryFade = rect.top > 0
-          ? Math.max(0, 1 - rect.top / (window.innerHeight * 0.35)) : 1;
-        const exitFade = Math.max(0, 1 - Math.max(0, -rect.top) / 350);
-        orbLabelRef.current.style.opacity =
-          String(Math.max(0, Math.min(entryFade, exitFade)));
-      }
-
-      if ((rect.top > window.innerHeight * 1.5 || rect.bottom < 0)
-          && !isRunning.current) {
-        hasTriggered.current = false;
-        hasScattered.current = false;
-        if (orbLabelRef.current) orbLabelRef.current.style.opacity = '0';
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      particleInteraction.gravityBoost         = false;
-      particleInteraction.gravityTarget.active = false;
-    };
-  }, []);
 
   useEffect(() => {
     let raf: number;
@@ -157,29 +88,7 @@ export function ContactSection() {
         zIndex: 1,
       }}
     >
-      <p
-        ref={orbLabelRef}
-        style={{
-          position:      'fixed',
-          top:           0,
-          left:          '50%',
-          transform:     'translateX(-50%) translateY(-9999px)',
-          zIndex:        5,
-          pointerEvents: 'none',
-          fontFamily:    'monospace',
-          fontSize:      22,
-          letterSpacing: '0.35em',
-          textTransform: 'uppercase',
-          color:         'rgba(255,255,255,0.88)',
-          margin:        0,
-          opacity:       0,
-          transition:    'opacity 0.8s ease, transform 0.08s linear',
-          textShadow:    '0 0 40px rgba(255,255,255,0.15)',
-          whiteSpace:    'nowrap',
-        }}
-      >
-        003 · CONTACT
-      </p>
+      <OrbLabel labelRef={orbLabelRef}>003 · CONTACT</OrbLabel>
 
       <div ref={triggerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 48 }}>
 
