@@ -207,7 +207,7 @@ function WorkSection() {
                 padding: 32,
                 borderRadius: 20,
                 border: '1px solid rgba(255,255,255,0.1)',
-                background: '#0d0d10',
+                background: '#0d0d0d',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 14,

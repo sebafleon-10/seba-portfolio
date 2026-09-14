@@ -234,7 +234,7 @@ function ModelCard({ m, i, run, prefersReduced }: {
         borderRadius: 20,
         background: isFinal
           ? `linear-gradient(${accentAlpha(0.10)}, ${accentAlpha(0.10)}), #0b0b0f`
-          : '#0d0d10',
+          : '#0d0d0d',
         border: isFinal
           ? `1px solid ${ACCENT}`
           : '1px solid rgba(255,255,255,0.08)',
@@ -516,12 +516,12 @@ const cardVariants = {
   rest: {
     y: 0,
     borderColor: 'rgba(255,255,255,0.1)',
-    backgroundColor: '#0d0d10',
+    backgroundColor: '#0d0d0d',
   },
   hover: {
     y: -2,
     borderColor: 'rgba(255,255,255,0.24)',
-    backgroundColor: '#101015',
+    backgroundColor: '#111111',
   },
 };
 
@@ -553,7 +553,7 @@ function DeliverableCard({ item, i, prefersReduced }: {
         textDecoration: 'none',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#0d0d10',
+        backgroundColor: '#0d0d0d',
         borderWidth: 1,
         borderStyle: 'solid',
         borderColor: 'rgba(255,255,255,0.1)',
