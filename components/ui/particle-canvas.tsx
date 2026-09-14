@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { particleInteraction } from '@/lib/particle-state';
 import { useParallax } from '@/context/parallax-context';
 
-// ── Seeded PRNG (mulberry32) — deterministic particle spawn positions ─────────
+// ── Seeded PRNG (mulberry32), deterministic particle spawn positions ─────────
 function mulberry32(seed: number) {
   return function() {
     seed |= 0; seed = seed + 0x6D2B79F5 | 0;
@@ -25,7 +25,7 @@ const CONN_R        = 48;   // ambient background connection radius
 const LETTER_CONN_R = 22;   // tighter radius inside letter formation
 const CELL          = CONN_R;
 
-// ── Text sampling — single line, 2px grid ─────────────────────────────────────
+// ── Text sampling, single line, 2px grid ─────────────────────────────────────
 function sampleText(W: number, H: number): Float32Array {
   const ref = document.createElement('canvas').getContext('2d')!;
   ref.font  = `900 100px Arial, "Helvetica Neue", sans-serif`;
@@ -282,7 +282,7 @@ export function ParticleCanvas() {
           p.springK       = 0.03 + Math.random() * 0.12;
           p.startDist     = -1;
           p.confused      = Math.random() < 0.20;
-          // Assign buzz personality now — used later in static phase
+          // Assign buzz personality now, used later in static phase
           p.buzzPhaseX    = Math.random() * Math.PI * 2;
           p.buzzPhaseY    = Math.random() * Math.PI * 2;
           p.buzzFreq      = 2 + Math.random() * 4;    // 2–6 rad/s
@@ -434,7 +434,7 @@ export function ParticleCanvas() {
           }
 
         } else if (phase === 'hold') {
-          // Name stays perfectly still — crisp, no buzz
+          // Name stays perfectly still, crisp, no buzz
           if (p.tx >= 0) {
             formed.push(p.x, p.y);
           } else {
@@ -456,7 +456,7 @@ export function ParticleCanvas() {
           }
 
         } else {
-          // ── Static phase — ambient drift, always-on across the full page ────
+          // ── Static phase, ambient drift, always-on across the full page ────
 
           const t        = (now - staticStart) / 1000;
           const buzzRamp = Math.min(1, (now - staticStart) / 700);
@@ -482,7 +482,7 @@ export function ParticleCanvas() {
             }
           }
 
-          // Text repulsion zone — keeps particles clear of "ATHLETE. ANALYST. BUILDER."
+          // Text repulsion zone, keeps particles clear of "ATHLETE. ANALYST. BUILDER."
           {
             const repX = window.innerWidth * 0.42;
             const repY = window.innerHeight * 0.50;
@@ -522,7 +522,7 @@ export function ParticleCanvas() {
             }
           }
 
-          // Zoom parallax scroll forces — center clearing (suppress past 95% so particles settle)
+          // Zoom parallax scroll forces, center clearing (suppress past 95% so particles settle)
           const zp = zoomProgressRef.current;
           if (zp > 0.02 && zp < 0.95) {
             const dxC  = p.x - W / 2;

@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 type Uniforms = { [key: string]: { value: number[] | number[][] | number; type: string } };
 
-// Fixed full-viewport background layer wrapping CanvasRevealEffect — drop this once at the
+// Fixed full-viewport background layer wrapping CanvasRevealEffect, drop this once at the
 // page level, behind all content. zIndex 0 + pointer-events none so it doesn't intercept clicks.
 export const DotGridBackground = () => (
   <div
@@ -175,7 +175,7 @@ const ShaderMaterial = ({ source, uniforms, maxFps = 30 }: ShaderProps) => {
     const t = clock.getElapsedTime();
     const material: any = ref.current.material;
     const REVEAL_DURATION = 2.0;  // seconds of real time for the intro reveal
-    const HOLD_VALUE = 6.0;       // u_time at rest — safely past every dot's timing_offset + 0.1
+    const HOLD_VALUE = 6.0;       // u_time at rest, safely past every dot's timing_offset + 0.1
     const SHIMMER_AMP = 0.15;     // barely-perceptible oscillation around HOLD_VALUE
     let effective: number;
     if (prefersReducedRef.current) {

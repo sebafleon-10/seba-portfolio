@@ -1,4 +1,4 @@
-// Shared mutable state — cross-component signals to the particle canvas.
+// Shared mutable state, cross-component signals to the particle canvas.
 // Both modules run client-side and share the same singleton.
 
 export const particleInteraction = {

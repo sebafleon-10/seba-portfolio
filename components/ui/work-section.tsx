@@ -279,7 +279,7 @@ export function WorkSection() {
                     />
                   )}
 
-                  {/* Front Office card image — dashboard cover on dark bg */}
+                  {/* Front Office card image, dashboard cover on dark bg */}
                   {card.id === 3 && (
                     <img
                       src="/front-office.png"
@@ -295,7 +295,7 @@ export function WorkSection() {
                     />
                   )}
 
-                  {/* Regression card image — light bg, no dark overlay */}
+                  {/* Regression card image, light bg, no dark overlay */}
                   {card.id === 2 && (
                     <img
                       src="/regression.jpg"
@@ -379,7 +379,7 @@ export function WorkSection() {
                     }}>{card.desc}</p>
                   </div>
 
-                  {/* VIEW PROJECT label — active card only.
+                  {/* VIEW PROJECT label, active card only.
                       Frosted pill (matches the work detail back-button chrome)
                       keeps the label legible over any image. Light variant for
                       the light regression card, dark variant for the rest.

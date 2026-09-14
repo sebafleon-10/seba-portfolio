@@ -314,7 +314,7 @@ function ModelCard({ m, i, run, prefersReduced }: {
 function ModelWalk() {
   // motion.div + onViewportEnter so the collapse-card reveal reliably fires when the card
   // group scrolls into view. Switched from useInView-on-plain-div which was missing in some
-  // viewports — the motion-prop API is wired into the component lifecycle and is more reliable.
+  // viewports, the motion-prop API is wired into the component lifecycle and is more reliable.
   const [started, setStarted] = useState(false);
   const prefersReduced = usePrefersReducedMotion();
 
@@ -374,7 +374,7 @@ function HeroSection() {
           zIndex: 10,
         }}
       >
-        {/* Title block — widened so the hero breathes the full container width
+        {/* Title block, widened so the hero breathes the full container width
             instead of being cramped into the left ~60%. Left-aligned on the page spine. */}
         <div style={{ maxWidth: 1000 }}>
           <motion.p
@@ -657,14 +657,14 @@ export default function RemoteWorkPage() {
   return (
     <div style={{ minHeight: '100vh' }}>
 
-      {/* Quiet dot-grid background — replaces the particle network on this page only.
+      {/* Quiet dot-grid background, replaces the particle network on this page only.
           Fixed full-viewport, behind all content (zIndex 0, pointer-events none). The
           shared AmbientCanvas is skipped for this route by app/work/layout.tsx. */}
       <DotGridBackground />
 
       <HeroSection />
 
-      {/* BUILDING THE ESTIMATE — unified collapse module: header + cards bound as one block. */}
+      {/* BUILDING THE ESTIMATE, unified collapse module: header + cards bound as one block. */}
       <section style={{ position: 'relative', zIndex: 1, padding: '120px 0' }}>
         <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
 
@@ -727,7 +727,7 @@ export default function RemoteWorkPage() {
         </div>
       </section>
 
-      {/* THE FINDING — eyebrow + heading stay in their dim/white treatment above the card.
+      {/* THE FINDING, eyebrow + heading stay in their dim/white treatment above the card.
           The narrative body + pullquote drop into a floating light card that reuses the
           AA "Project" card vocabulary so the two pages feel like siblings. Monochrome
           inside, the accent stays reserved for the result on this page. */}

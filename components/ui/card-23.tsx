@@ -58,7 +58,7 @@ export function Card23({ tag, pills, title, description, imageSrc, location, onC
         cursor: onClick ? 'pointer' : 'default',
       }}
     >
-      {/* ── Top section — p-6 ──────────────────────────────────────────────── */}
+      {/* ── Top section, p-6 ──────────────────────────────────────────────── */}
       <div style={{ padding: 24 }}>
 
         {/* Pills row */}
@@ -103,7 +103,7 @@ export function Card23({ tag, pills, title, description, imageSrc, location, onC
           </div>
         )}
 
-        {/* Title — text-2xl font-bold tracking-tight */}
+        {/* Title, text-2xl font-bold tracking-tight */}
         <h2 style={{
           fontFamily: '-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif',
           fontWeight: 700,
@@ -116,7 +116,7 @@ export function Card23({ tag, pills, title, description, imageSrc, location, onC
           {title}
         </h2>
 
-        {/* Description — text-sm text-muted-foreground */}
+        {/* Description, text-sm text-muted-foreground */}
         <p style={{
           fontFamily: '-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif',
           fontSize: 14,
@@ -128,7 +128,7 @@ export function Card23({ tag, pills, title, description, imageSrc, location, onC
         </p>
       </div>
 
-      {/* ── Image section — aspect-[16/10] overflow-hidden rounded-b-2xl ───── */}
+      {/* ── Image section, aspect-[16/10] overflow-hidden rounded-b-2xl ───── */}
       <div style={{ aspectRatio: '16/11', overflow: 'hidden', position: 'relative' }}>
         <motion.img
           variants={imageVariants}
@@ -144,7 +144,7 @@ export function Card23({ tag, pills, title, description, imageSrc, location, onC
           }}
         />
 
-        {/* Gradient overlay — from-black/60 via-black/20 to-transparent */}
+        {/* Gradient overlay, from-black/60 via-black/20 to-transparent */}
         <div style={{
           position: 'absolute',
           inset: 0,
@@ -152,7 +152,7 @@ export function Card23({ tag, pills, title, description, imageSrc, location, onC
           pointerEvents: 'none',
         }} />
 
-        {/* Location — bottom-left with MapPin */}
+        {/* Location, bottom-left with MapPin */}
         {location && (
           <div style={{
             position: 'absolute',

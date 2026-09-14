@@ -241,14 +241,14 @@ export function WhoSection() {
           cursor: 'pointer',
         }}
       >
-        {/* Photo card — floating, contained within viewport, scaled up from contact-section pattern */}
+        {/* Photo card, floating, contained within viewport, scaled up from contact-section pattern */}
         <motion.div
           variants={photoCardVariants}
           style={{
             position: 'absolute',
             left: 232,
             // Viewport-relative height (capped at 484px for tall displays) so the
-            // card fits shorter viewports — keeps clearance below the floating
+            // card fits shorter viewports, keeps clearance below the floating
             // "001 · THE ATHLETE" label and stops the CTA below from being
             // clipped off the section. The min(242px,24vh) offset is half the
             // height, shared with the CTA so both track the card's center.
@@ -275,7 +275,7 @@ export function WhoSection() {
           />
         </motion.div>
 
-        {/* Right zone — vertical marquee, anchored 240px from the right viewport edge */}
+        {/* Right zone, vertical marquee, anchored 240px from the right viewport edge */}
         <div style={{
           position: 'absolute',
           left: '32vw',
@@ -301,7 +301,7 @@ export function WhoSection() {
                 WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)',
               }}
             >
-              {/* Page-local text scrim — mirrors the /who TextScrim pattern,
+              {/* Page-local text scrim, mirrors the /who TextScrim pattern,
                   scoped to this marquee column. Dims the global particles
                   behind the achievements without touching the global canvas
                   or its repulsion zones. The parent maskImage above already
@@ -348,7 +348,7 @@ export function WhoSection() {
           </div>
         </div>
 
-        {/* CTA — anchored below the photo card, left-aligned with it */}
+        {/* CTA, anchored below the photo card, left-aligned with it */}
         <div
           className="who-cta"
           style={{

@@ -21,13 +21,13 @@ const EYEBROW: React.CSSProperties = {
 };
 
 const HERO_TITLE = 'Run the club for a season';
-const HERO_INTRO = "An interactive business simulation for a lower-league soccer club. Set six decisions, weight what success means between the table and the books, and watch the league finish, club health, and full-season P&L recompute live off a deterministic causal engine — then have a Claude Opus 4.8 coach write the season debrief.";
+const HERO_INTRO = "An interactive business simulation for a lower-league soccer club. Set six decisions, weight what success means between the table and the books, and watch the league finish, club health, and full-season P&L recompute live off a deterministic causal engine. Then have a Claude Opus 4.8 coach write the season debrief.";
 const SECTION_HEADING = 'What it does';
 
 const ITEMS = [
   {
     title: 'Six season levers',
-    body: 'Player wages, academy, marketing, facilities, commercial, and ticket price — every decision feeds the model the moment you move it.',
+    body: 'Player wages, academy, marketing, facilities, commercial, and ticket price. Every decision feeds the model the moment you move it.',
   },
   {
     title: 'Deterministic causal engine',
@@ -80,7 +80,7 @@ function HeroSection() {
 
       <div className="relative flex" style={{ minHeight: '100vh', paddingTop: 60, paddingBottom: 60, zIndex: 10 }}>
 
-        {/* LEFT — copy column, vertically centered */}
+        {/* LEFT, copy column, vertically centered */}
         <div
           className="flex flex-col justify-center relative"
           style={{ flex: '0 0 52%', padding: '0 56px 0 96px', zIndex: 2 }}
@@ -168,7 +168,7 @@ function HeroSection() {
           </motion.div>
         </div>
 
-        {/* RIGHT — product mockup bleeding in, dissolved into the dot-grid on its
+        {/* RIGHT, product mockup bleeding in, dissolved into the dot-grid on its
             top / left / bottom edges (mask-composite intersect), no hard box. */}
         <motion.div
           initial={{ opacity: 0, scale: 1.04 }}
