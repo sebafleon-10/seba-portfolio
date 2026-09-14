@@ -13,6 +13,8 @@ Last updated: September 13, 2026 (Experience / Projects split)
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- e0758a6, Sep 13 Experience / Projects split: home page has four sections (002 · EXPERIENCE hairline list, 003 · PROJECTS three-card fan, 004 · CONTACT), /experience/* role pages on a shared ExperiencePage skeleton, Ghost FC moved to /experience/ghost-fc with a 308 from /work/ghost-fc, Radiator and BTS pages hold PLACEHOLDER copy
+- 08d8132, Sep 13 orb-reveal dedupe: the triplicated scroll effect and fixed label moved into lib/use-orb-reveal.tsx (useOrbReveal + OrbLabel), behavior unchanged, all home sections call it
 - bb09d36, Sep 13 em dash sweep: zero em dashes left in source (two Front Office copy strings split into sentences, the rest comments and AGENTS.md). NOTES.md and CLAUDE_PROMPTING.md were already clean
 - 3d8b734, Sep 12 pill border session part 2: home work-card VIEW WORK pill (components/ui/work-section.tsx) moved to a 2px border on both variants (white 0.28 rest / 0.5 on card hover for photo cards, black 0.14 / 0.28 on the light regression card), padding 5x11 so the size is unchanged, border-color added to the transition. Still hue-free
 - 10db1ce, Sep 12 pill border session: Visit the live app CTA and both Back buttons (work + who layouts) moved from 1px to 2px borders with padding pulled in 1px so pill sizes are unchanged; who Back button gained the hover lift; Front Office dashboard capture repositioned (wrapper left 15%, width 100%, no translateX, mask fade 16%, scrim 13%) so the Season decisions column is fully readable
