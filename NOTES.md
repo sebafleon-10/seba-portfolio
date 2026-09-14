@@ -1,5 +1,5 @@
 # seba-portfolio, Project Notes
-Last updated: September 12, 2026 (pill border session)
+Last updated: September 13, 2026 (em dash sweep)
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -13,6 +13,7 @@ Last updated: September 12, 2026 (pill border session)
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- bb09d36, Sep 13 em dash sweep: zero em dashes left in source (two Front Office copy strings split into sentences, the rest comments and AGENTS.md). NOTES.md and CLAUDE_PROMPTING.md were already clean
 - 3d8b734, Sep 12 pill border session part 2: home work-card VIEW WORK pill (components/ui/work-section.tsx) moved to a 2px border on both variants (white 0.28 rest / 0.5 on card hover for photo cards, black 0.14 / 0.28 on the light regression card), padding 5x11 so the size is unchanged, border-color added to the transition. Still hue-free
 - 10db1ce, Sep 12 pill border session: Visit the live app CTA and both Back buttons (work + who layouts) moved from 1px to 2px borders with padding pulled in 1px so pill sizes are unchanged; who Back button gained the hover lift; Front Office dashboard capture repositioned (wrapper left 15%, width 100%, no translateX, mask fade 16%, scrim 13%) so the Season decisions column is fully readable
 - 4dbdaa1, Sep 12 Front Office hero: eyebrow 2026 · Front Office, Live pill removed, CTA enlarged to 17px, blurry pre-rendered mockup replaced by a flat 2720x2405 capture of the live command center (public/front-office-dashboard.jpg) tilted in CSS (perspective 1600, rotateY 16, rotateX 4, origin right center); capture recipe recorded in Rules
@@ -414,5 +415,4 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 - Delete public/1.jpg to 6.jpg (unused, 22 MB) once confirmed
 - Google AI Essentials cert placement
 - PC rendering issue (deferred, low priority)
-- Pre-existing em dashes remain in app/work/remote-work/page.tsx and app/work/front-office/page.tsx (some in user-facing copy); sweep them in a copy pass
 - Fix author on commit 1307879 (Bug 2 fix has wrong git author, would need rebase)
