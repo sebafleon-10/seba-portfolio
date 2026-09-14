@@ -279,7 +279,7 @@ function WorkSection() {
                 borderRadius: 20,
                 border: '1px solid rgba(255,255,255,0.10)',
                 background:
-                  `radial-gradient(ellipse at top left, ${accentAlpha(0.07)} 0%, transparent 58%), #0c0c11`,
+                  'radial-gradient(ellipse at top left, rgba(255,255,255,0.04) 0%, transparent 58%), #0d0d0d',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 14,
