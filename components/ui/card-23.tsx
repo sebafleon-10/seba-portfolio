@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, type Variants } from 'framer-motion';
+import { MONO } from '@/lib/fonts';
 import { MapPin } from 'lucide-react';
 
 // ── Shared motion variants ────────────────────────────────────────────────────
@@ -71,7 +72,7 @@ export function Card23({ tag, pills, title, description, imageSrc, location, onC
           }}>
             {tag ? (
               <span style={{
-                fontFamily: 'monospace',
+                fontFamily: MONO,
                 fontSize: 12,
                 padding: '4px 12px',
                 borderRadius: 9999,
@@ -165,7 +166,7 @@ export function Card23({ tag, pills, title, description, imageSrc, location, onC
             pointerEvents: 'none',
           }}>
             <MapPin size={12} />
-            <span style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.05em' }}>
+            <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '0.05em' }}>
               {location}
             </span>
           </div>

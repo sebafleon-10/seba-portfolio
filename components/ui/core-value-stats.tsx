@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import { MONO } from '@/lib/fonts';
 import Image from 'next/image';
 
 export interface CoreStat {
@@ -25,7 +26,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
         <div className="space-y-4 mb-12">
           {subtitle && (
             <p style={{
-              fontFamily: 'monospace', fontSize: 10,
+              fontFamily: MONO, fontSize: 10,
               letterSpacing: '0.4em', textTransform: 'uppercase' as const,
               color: 'rgba(255,255,255,0.22)', margin: 0,
             }}>{subtitle}</p>
@@ -74,10 +75,10 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                     <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)' }} />
                     <div style={{ position: 'absolute', inset: 0, padding: 24,
                       display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                      <p style={{ fontSize: 28, fontWeight: 700, color: '#fff', margin: '0 0 6px', fontFamily: 'monospace', letterSpacing: '0.06em' }}>{item.value}</p>
+                      <p style={{ fontSize: 28, fontWeight: 700, color: '#fff', margin: '0 0 6px', fontFamily: MONO, letterSpacing: '0.06em' }}>{item.value}</p>
                       <span style={{
                         display: 'inline-block',
-                        fontFamily: 'monospace',
+                        fontFamily: MONO,
                         fontSize: 12,
                         letterSpacing: '0.2em',
                         textTransform: 'uppercase' as const,
@@ -88,7 +89,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                         marginBottom: 12,
                       }}>{item.label}</span>
                       <p style={{ fontSize: 20, color: 'rgba(255,255,255,0.8)', lineHeight: 1.75, margin: '0 0 8px' }}>{item.description}</p>
-                      <span style={{ fontFamily: 'monospace', fontSize: 13,
+                      <span style={{ fontFamily: MONO, fontSize: 13,
                         letterSpacing: '0.2em', textTransform: 'uppercase' as const,
                         color: 'rgba(255,255,255,0.9)', marginTop: 12, display: 'block', fontWeight: 600 }}>
                         {item.type || 'Open'} →
@@ -128,14 +129,14 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                   <p style={{
                     color: '#ffffff',
                     fontSize: 28,
-                    fontFamily: 'monospace',
+                    fontFamily: MONO,
                     letterSpacing: '0.08em',
                     fontWeight: 700,
                     marginBottom: 6,
                   }}>{item.value}</p>
                   <span style={{
                     display: 'inline-block',
-                    fontFamily: 'monospace',
+                    fontFamily: MONO,
                     fontSize: 12,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase' as const,
@@ -151,7 +152,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                     lineHeight: 1.75,
                     margin: 0,
                   }}>{item.description}</p>
-                  <span style={{ fontFamily: 'monospace', fontSize: 13,
+                  <span style={{ fontFamily: MONO, fontSize: 13,
                     letterSpacing: '0.2em', textTransform: 'uppercase' as const,
                     color: 'rgba(255,255,255,0.9)', marginTop: 12, display: 'block', fontWeight: 600 }}>
                     {item.type || 'Open'} →

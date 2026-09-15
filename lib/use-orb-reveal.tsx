@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type CSSProperties, type ReactNode, type RefObject } from 'react';
+import { MONO } from '@/lib/fonts';
 import { particleInteraction } from '@/lib/particle-state';
 
 // Shared orb-reveal choreography for the home page sections.
@@ -98,7 +99,7 @@ const ORB_LABEL_STYLE: CSSProperties = {
   transform:     'translateX(-50%) translateY(-9999px)',
   zIndex:        5,
   pointerEvents: 'none',
-  fontFamily:    'monospace',
+  fontFamily:    MONO,
   fontSize:      22,
   letterSpacing: '0.35em',
   textTransform: 'uppercase',

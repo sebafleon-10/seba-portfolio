@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { MONO } from '@/lib/fonts';
 import { preload } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { motion, type Variants } from 'framer-motion';
@@ -267,7 +268,7 @@ export function WhoSection() {
             // the CTA always renders fully inside the section.
             top: 'calc(50% + min(242px, 24vh) + 36px)',
             display: 'inline-block',
-            fontFamily: 'ui-monospace, monospace',
+            fontFamily: MONO,
             fontSize: '16px',
             letterSpacing: '0.35em',
             textTransform: 'uppercase',

@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 
 interface P {
   x: number; y: number;
@@ -22,6 +23,20 @@ export function NeuralTextReveal() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // The offscreen text mask is sampled once, so wait for the mono face
+    // to be available or the particles would settle on fallback glyphs
+    // while the visible labels render in the real font.
+    let cancelled = false;
+    let stop: (() => void) | undefined;
+    document.fonts.load(`600 11px ${MONO}`).catch(() => undefined).then(() => {
+      if (!cancelled) stop = start(canvas);
+    });
+    return () => {
+      cancelled = true;
+      stop?.();
+    };
+
+    function start(canvas: HTMLCanvasElement) {
     const CW = 580, CH = 130;
     const dpr = window.devicePixelRatio || 1;
     canvas.width  = CW * dpr;
@@ -38,7 +53,7 @@ export function NeuralTextReveal() {
     offscreen.height = CH;
     const octx = offscreen.getContext('2d', { willReadFrequently: true })!;
     octx.fillStyle = '#fff';
-    octx.font = '600 11px monospace';
+    octx.font = `600 11px ${MONO}`;
     octx.letterSpacing = '0.3em';
     octx.textAlign    = 'left';
     octx.textBaseline = 'middle';
@@ -210,6 +225,7 @@ export function NeuralTextReveal() {
       cancelAnimationFrame(raf);
       clearTimeout(splitTimer);
     };
+    }
   }, []);
 
   return (
@@ -243,7 +259,7 @@ export function NeuralTextReveal() {
         transition: 'opacity 1.8s ease, transform 1.8s ease',
       }}>
         <p style={{
-          fontFamily:    'monospace',
+          fontFamily:    MONO,
           fontSize:       12,
           letterSpacing: '0.35em',
           textTransform: 'uppercase' as const,
@@ -251,7 +267,7 @@ export function NeuralTextReveal() {
           margin:        '0 0 10px',
         }}>In partnership with</p>
         <p style={{
-          fontFamily:    'monospace',
+          fontFamily:    MONO,
           fontSize:       20,
           letterSpacing: '0.2em',
           textTransform: 'uppercase' as const,

@@ -11,22 +11,18 @@ const ITEMS = [
   {
     title: 'Discovery and experience design',
     body: 'Discovery interviews with client stakeholders to understand the strategy, the tradeoffs, and the decisions that actually move their business. That input becomes the design of the simulation experience, co-created with the client so the case, the dilemmas, and the results reflect what matters in their world rather than a generic exercise.',
-    tags: ['Claude', 'Excel'],
   },
   {
     title: 'Simulation model builds',
     body: "The financial and business model underneath each simulation, built in Excel and VBA with Python where it helps, along with the participant-facing experience on BTS's Pulse platform. The job is to simplify a complex business into a realistic model with tradeoffs that matter, so a team's decisions ripple through revenue, margin, and cash as they would in the real company.",
-    tags: ['Excel', 'VBA', 'Python', 'Pulse'],
   },
   {
     title: 'Facilitation and delivery',
     body: 'Delivering and presenting the finished experience to client teams, from front-line managers up to the C-suite, and facilitating the sessions where they run the business. Afterwards, analyzing the simulation data and bringing real-world insight back to the client, so the workshop ends with a clear picture of how the team thinks and where the strategy needs alignment.',
-    tags: ['Pulse', 'Excel'],
   },
   {
     title: 'AI inside the experience',
     body: 'Building the AI layer of each experience, from bespoke chatbots and custom agents inside the simulation to live working sessions where client teams map their own workflows and build agents around them. Part of the work is training clients on the tools BTS leaves behind, so the tools keep paying off after the engagement ends.',
-    tags: ['Claude', 'Python'],
   },
 ];
 

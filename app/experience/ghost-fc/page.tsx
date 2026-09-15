@@ -11,22 +11,18 @@ const ITEMS = [
   {
     title: 'Sponsorship-intelligence command center',
     body: 'A tool the front office runs to discover local businesses, enrich each one through an agentic web-search loop, score it against a 100-point sponsorship-fit rubric across six dimensions, and auto-draft personalized outreach emails. It surfaced 329 qualified prospects across multiple business categories.',
-    tags: ['Python', 'DuckDB', 'Anthropic API', 'Google Places API'],
   },
   {
     title: 'Ranking evaluation and match-day KPIs',
     body: 'An evaluation harness with a hand-labeled gold set, rank correlation, and top-15 precision to validate and tune ranking quality, plus match-day KPI dashboards guiding marketing, sponsorship, and revenue decisions.',
-    tags: ['Python', 'Excel'],
   },
   {
     title: 'Social analytics pipelines',
     body: "Python pipelines collecting post-level engagement across the club's TikTok and Instagram accounts, more than 700 posts, replacing manual tracking with repeatable reporting.",
-    tags: ['TikTokApi', 'Playwright', 'Instagram Graph API'],
   },
   {
     title: 'Conference benchmarking',
     body: 'Content performance benchmarked against MWPL conference rivals to identify which content types and posting patterns drive reach and follower growth, translated into recommendations for non-technical stakeholders.',
-    tags: ['Python', 'MWPL'],
   },
 ];
 

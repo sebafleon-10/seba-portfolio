@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
 import { ACCENT, ACCENT_BRIGHT, accentAlpha } from '@/lib/accent';
 
 const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
-const MONO = 'monospace';
 
 const LIVE_URL = 'https://sebafleon-front-office.vercel.app';
 
