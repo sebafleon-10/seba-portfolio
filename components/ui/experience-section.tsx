@@ -22,6 +22,9 @@ type Role = {
   dates: string;
   oneLine: string;
   logo: { src: string; alt: string; style?: React.CSSProperties };
+  // Long company names drop to a smaller mono size so the row stays two
+  // lines at most instead of towering over the copy.
+  compact?: boolean;
   // Hero photo on the detail page, preloaded from here so it paints on the
   // first frame after click-through (same idea as the /who hero preload).
   heroImage?: string;
@@ -42,6 +45,7 @@ const ROLES: Role[] = [
     // Tag: Python · Excel · Qlik. Location: Chicago, IL (Remote).
     slug: 'radiator',
     company: '1‑800 Radiator & A/C',
+    compact: true,
     role: 'Data & Analytics Consultant (Contract)',
     dates: 'Jun 2026 to Aug 2026',
     oneLine: 'Built a four-warehouse delivery cost-to-serve model and the monthly pipeline that keeps it running.',
@@ -139,7 +143,7 @@ function RoleRow({ item, index, isLast, onOpen }: {
         <div>
           <p style={{
             fontFamily: MONO,
-            fontSize: 'clamp(28px, 3vw, 44px)',
+            fontSize: item.compact ? 'clamp(22px, 2.3vw, 34px)' : 'clamp(28px, 3vw, 44px)',
             fontWeight: 700,
             letterSpacing: '0.04em',
             lineHeight: 1,
