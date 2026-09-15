@@ -13,6 +13,7 @@ Last updated: September 15, 2026 (Experience copy, logos, generated heroes)
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- ed30e61, Sep 15 Experience content: real Radiator and BTS copy on the role pages and home rows (8264181), white BTS SVG plus grayscale Radiator badge, Higgsfield monochrome hero photos through the new ExperiencePage heroImage prop (3dfe10b), compact row size for long company names (ed30e61). Ghost FC page untouched. Not pushed
 - e0758a6, Sep 13 Experience / Projects split: home page has four sections (002 · EXPERIENCE hairline list, 003 · PROJECTS three-card fan, 004 · CONTACT), /experience/* role pages on a shared ExperiencePage skeleton, Ghost FC moved to /experience/ghost-fc with a 308 from /work/ghost-fc, Radiator and BTS pages hold PLACEHOLDER copy
 - 08d8132, Sep 13 orb-reveal dedupe: the triplicated scroll effect and fixed label moved into lib/use-orb-reveal.tsx (useOrbReveal + OrbLabel), behavior unchanged, all home sections call it
 - bb09d36, Sep 13 em dash sweep: zero em dashes left in source (two Front Office copy strings split into sentences, the rest comments and AGENTS.md). NOTES.md and CLAUDE_PROMPTING.md were already clean
