@@ -53,12 +53,17 @@ export type ExperiencePageProps = {
   eyebrow: string;
   title: string;
   intro: string;
-  logo: { src: string; alt: string; maxWidth?: number };
+  logo: { src: string; alt: string; maxWidth?: number; style?: React.CSSProperties };
+  // Optional monochrome hero photo. When set, it fills the right side of the
+  // hero and dissolves into the dot grid (same mask recipe as the AA hero),
+  // and the logo becomes a small mark above the eyebrow instead of the
+  // right-column crest.
+  heroImage?: { src: string; alt: string; objectPosition?: string };
   sectionHeading: string;
   items: ExperienceItem[];
 };
 
-function HeroSection({ eyebrow, title, intro, logo }: Omit<ExperiencePageProps, 'sectionHeading' | 'items'>) {
+function HeroSection({ eyebrow, title, intro, logo, heroImage }: Omit<ExperiencePageProps, 'sectionHeading' | 'items'>) {
   const [isLoaded, setIsLoaded] = useState(false);
   const logoRef = useRef<HTMLImageElement>(null);
   useEffect(() => { setIsLoaded(true); }, []);
@@ -72,8 +77,14 @@ function HeroSection({ eyebrow, title, intro, logo }: Omit<ExperiencePageProps, 
 
   return (
     <section className="relative w-full" style={{ zIndex: 1 }}>
+      <style>{`
+        @media (max-width: 767px) {
+          .exp-hero-photo { width: 100% !important; height: 46% !important; }
+        }
+      `}</style>
       <div
         style={{
+          position: 'relative',
           minHeight: '100vh',
           display: 'flex',
           flexWrap: 'wrap',
@@ -85,7 +96,8 @@ function HeroSection({ eyebrow, title, intro, logo }: Omit<ExperiencePageProps, 
       >
         <div
           style={{
-            flex: '1 1 520px',
+            flex: heroImage ? '0 0 52%' : '1 1 520px',
+            maxWidth: heroImage ? 720 : undefined,
             minWidth: 0,
             padding: '0 56px 0 96px',
             display: 'flex',
@@ -94,6 +106,28 @@ function HeroSection({ eyebrow, title, intro, logo }: Omit<ExperiencePageProps, 
             zIndex: 2,
           }}
         >
+          {heroImage && (
+            <motion.img
+              ref={logoRef}
+              src={logo.src}
+              alt={logo.alt}
+              draggable={false}
+              initial={{ opacity: 0, y: 20 }}
+              animate={isLoaded ? { opacity: 0.85, y: 0 } : {}}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+              onError={e => { e.currentTarget.style.visibility = 'hidden'; }}
+              style={{
+                display: 'block',
+                height: 28,
+                width: 'auto',
+                maxWidth: 200,
+                objectFit: 'contain',
+                margin: '0 0 28px',
+                ...logo.style,
+              }}
+            />
+          )}
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
@@ -140,34 +174,81 @@ function HeroSection({ eyebrow, title, intro, logo }: Omit<ExperiencePageProps, 
           </motion.p>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
-          style={{
-            flex: '1 1 360px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '40px 96px 40px 56px',
-            minHeight: 360,
-          }}
-        >
-          <img
-            ref={logoRef}
-            src={logo.src}
-            alt={logo.alt}
-            onError={e => { e.currentTarget.style.visibility = 'hidden'; }}
+        {heroImage ? (
+          // Photo bleed, no entrance fade and no load gate: it is preloaded
+          // from the home Experience row so it paints on the first frame.
+          // Two gradient masks composited with intersect dissolve the photo
+          // into the dot grid on the bottom and left edges (AA hero recipe).
+          <div
+            className="exp-hero-photo"
+            aria-hidden={false}
             style={{
-              width: '100%',
-              maxWidth: logo.maxWidth ?? 380,
-              height: 'auto',
-              display: 'block',
-              objectFit: 'contain',
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: '58%',
+              height: '100%',
+              overflow: 'hidden',
+              zIndex: 1,
+              maskImage:
+                'linear-gradient(to bottom, black 0%, black 76%, transparent 100%), ' +
+                'linear-gradient(to right, transparent 0%, black 18%, black 100%)',
+              maskComposite: 'intersect',
+              WebkitMaskImage:
+                'linear-gradient(to bottom, black 0%, black 76%, transparent 100%), ' +
+                'linear-gradient(to right, transparent 0%, black 18%, black 100%)',
+              WebkitMaskComposite: 'source-in',
             }}
-            draggable={false}
-          />
-        </motion.div>
+          >
+            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '22%', background: 'linear-gradient(to right, #000000 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'linear-gradient(to top, transparent 0%, rgba(0,0,0,0.55) 50%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
+            <img
+              src={heroImage.src}
+              alt={heroImage.alt}
+              fetchPriority="high"
+              decoding="sync"
+              draggable={false}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: heroImage.objectPosition ?? 'center',
+                display: 'block',
+                filter: 'brightness(0.82) contrast(1.05) saturate(0)',
+              }}
+            />
+          </div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 1.2, delay: 0.3, ease: 'easeOut' }}
+            style={{
+              flex: '1 1 360px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '40px 96px 40px 56px',
+              minHeight: 360,
+            }}
+          >
+            <img
+              ref={logoRef}
+              src={logo.src}
+              alt={logo.alt}
+              onError={e => { e.currentTarget.style.visibility = 'hidden'; }}
+              style={{
+                width: '100%',
+                maxWidth: logo.maxWidth ?? 380,
+                height: 'auto',
+                display: 'block',
+                objectFit: 'contain',
+                ...logo.style,
+              }}
+              draggable={false}
+            />
+          </motion.div>
+        )}
       </div>
     </section>
   );
@@ -261,7 +342,7 @@ export function ExperiencePage(props: ExperiencePageProps) {
   return (
     <div style={{ minHeight: '100vh' }}>
       <DotGridBackground />
-      <HeroSection eyebrow={props.eyebrow} title={props.title} intro={props.intro} logo={props.logo} />
+      <HeroSection eyebrow={props.eyebrow} title={props.title} intro={props.intro} logo={props.logo} heroImage={props.heroImage} />
       <WorkSection sectionHeading={props.sectionHeading} items={props.items} />
     </div>
   );
