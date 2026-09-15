@@ -11,34 +11,48 @@ const MONO  = 'monospace';
 // Same shadow the WHO marquee uses so copy stays legible over the particles.
 const TEXT_SHADOW = '0 0 8px rgba(0,0,0,0.85), 0 0 24px rgba(0,0,0,0.6)';
 
-// Most recent role first. Every string prefixed PLACEHOLDER is waiting on
-// real copy from the role interview; grep PLACEHOLDER to find every slot.
-// The slug doubles as the /experience/<slug> route.
+// Most recent role first. The slug doubles as the /experience/<slug> route.
+// Copy for BTS and Radiator comes from the Sep 15 2026 role interviews; the
+// tag and location fields from that interview are kept in comments since
+// the row does not render them.
 type Role = {
   slug: string;
   company: string;
   role: string;
   dates: string;
   oneLine: string;
-  logo: { src: string; alt: string };
+  logo: { src: string; alt: string; style?: React.CSSProperties };
+  // Hero photo on the detail page, preloaded from here so it paints on the
+  // first frame after click-through (same idea as the /who hero preload).
+  heroImage?: string;
 };
 
 const ROLES: Role[] = [
   {
+    // Tag: Excel · Python · Claude. Location: Chicago, IL (Hybrid).
     slug: 'bts',
-    company: 'BTS Consulting',
-    role: 'Business Analyst',
-    dates: 'PLACEHOLDER: 2026 to Present',
-    oneLine: 'PLACEHOLDER: one line on what I do at BTS Consulting.',
-    logo: { src: '/bts-logo.png', alt: 'BTS Consulting logo' },
+    company: 'BTS',
+    role: 'Business Analyst, Strategy and Business Modeling',
+    dates: 'Sep 2026 to Present',
+    oneLine: 'Building business simulations and the AI tools inside them for leadership teams at large companies.',
+    logo: { src: '/bts-logo-white.svg', alt: 'BTS logo' },
+    heroImage: '/bts-hero.jpg',
   },
   {
+    // Tag: Python · Excel · Qlik. Location: Chicago, IL (Remote).
     slug: 'radiator',
-    company: '1-800 Radiator',
-    role: 'PLACEHOLDER: Role title',
-    dates: 'PLACEHOLDER: 2026',
-    oneLine: 'PLACEHOLDER: one line on what I did at 1-800 Radiator.',
-    logo: { src: '/radiator-logo.png', alt: '1-800 Radiator logo' },
+    company: '1‑800 Radiator & A/C',
+    role: 'Data & Analytics Consultant (Contract)',
+    dates: 'Jun 2026 to Aug 2026',
+    oneLine: 'Built a four-warehouse delivery cost-to-serve model and the monthly pipeline that keeps it running.',
+    // The only logo the brand publishes is a red badge; grayscale keeps the
+    // home page hue-free. 250x72 source, never upscaled.
+    logo: {
+      src: '/radiator-logo.png',
+      alt: '1-800 Radiator & A/C logo',
+      style: { filter: 'grayscale(1) brightness(1.35) contrast(1.1)', height: 36 },
+    },
+    heroImage: '/radiator-hero.jpg',
   },
   {
     slug: 'ghost-fc',
@@ -147,6 +161,7 @@ function RoleRow({ item, index, isLast, onOpen }: {
               marginTop: 14,
               opacity: hovered ? 1 : 0.85,
               transition: 'opacity 0.25s ease',
+              ...item.logo.style,
             }}
           />
         </div>
@@ -194,8 +209,12 @@ export function ExperienceSection() {
   const sectionRef  = useRef<HTMLElement>(null);
   const orbLabelRef = useOrbReveal(sectionRef);
 
-  // Warm the role logos so the detail heroes paint on their first frame.
-  for (const r of ROLES) preload(r.logo.src, { as: 'image' });
+  // Warm the role logos and hero photos so the detail heroes paint on their
+  // first frame.
+  for (const r of ROLES) {
+    preload(r.logo.src, { as: 'image' });
+    if (r.heroImage) preload(r.heroImage, { as: 'image' });
+  }
 
   return (
     <section
