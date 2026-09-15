@@ -1,5 +1,5 @@
 # seba-portfolio, Project Notes
-Last updated: September 15, 2026 (Experience content, Geist Mono site-wide)
+Last updated: September 15, 2026 (Experience gallery wall, clearZone physics)
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -13,6 +13,7 @@ Last updated: September 15, 2026 (Experience content, Geist Mono site-wide)
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- Sep 15 gallery wall session: 002 · EXPERIENCE rebuilt as the gallery wall (ledger + 3:4 photo panel, hover select, logos in the caption, no text shadows), clearZone physics in particle-canvas plus lib/use-particle-anchor.ts, mobile sticky strip with scroll selection, html-only overflow-x guard. Branch experience-gallery-wall merged to main
 - ed30e61, Sep 15 Experience content: real Radiator and BTS copy on the role pages and home rows (8264181), white BTS SVG plus grayscale Radiator badge, Higgsfield monochrome hero photos through the new ExperiencePage heroImage prop (3dfe10b), compact row size for long company names (ed30e61). Ghost FC page untouched. Not pushed
 - Sep 15 Geist Mono session: every monospace literal (about 45 across 14 files) replaced by the MONO token from the new lib/fonts.ts, which is Geist Mono via next/font (already loaded by the root layout, never consumed before). Root layout imports geistMono from lib/fonts.ts. The AA neural text canvas waits for the face via document.fonts.load before sampling its mask. Same session: experience-card tech-tag pills deleted (4a6a66a)
 - e0758a6, Sep 13 Experience / Projects split: home page has four sections (002 · EXPERIENCE hairline list, 003 · PROJECTS three-card fan, 004 · CONTACT), /experience/* role pages on a shared ExperiencePage skeleton, Ghost FC moved to /experience/ghost-fc with a 308 from /work/ghost-fc, Radiator and BTS pages hold PLACEHOLDER copy
@@ -41,6 +42,8 @@ Last updated: September 15, 2026 (Experience content, Geist Mono site-wide)
 - cccdfff, purple connection lines and mouse-reactive white hover overlay added to particle network, MOUSE_R set to 45 and static-phase mouse-attract force boosted from 0.3 to 0.6
 
 ## Current Status
+Sep 15 (gallery wall session): 002 · EXPERIENCE was rebuilt as the gallery wall because the hairline list floated straight on the particle network and was unreadable (particle clusters sat under the 11px role line; text shadows did nothing). Diagnosis: every home section that reads cleanly has an opaque anchor object plus a gravity target; Experience had neither. Now: ledger of pure typography on the left (52%), one 3:4 photo panel on the right (about 70vh) showing the selected role's hero photo with the role-page treatment, BTS selected on entry, hover selects, click opens. Ghost FC's panel is a flat #0d0d0d title card with the white crest. Logos moved from the rows into the panel caption. Physics: the panel is the gravity anchor (lib/use-particle-anchor.ts useGravityAnchor) and the ledger publishes a clearZone (useClearZone, 40px pad) that the canvas keeps particles out of. Mobile: sticky landscape strip above the list, the row nearest the viewport center is selected on scroll. Side fix: html/body overflow-x guard moved to html only so position: sticky works. Branch experience-gallery-wall, merged to main.
+
 Sep 15: the Radiator and BTS role pages and home rows now carry the real interview copy (no PLACEHOLDER strings remain). Logos: public/bts-logo-white.svg (fills of the existing bts-logo.svg swapped to white) and public/radiator-logo.png (the brand's 250x72 header badge, rendered grayscale). Both new pages use the new ExperiencePage heroImage prop: a Higgsfield-generated monochrome photo (public/radiator-hero.jpg, public/bts-hero.jpg, 2752x1536 JPEG q82) bleeds on the hero's right and dissolves into the dot grid with the AA mask recipe, and the logo becomes a small mark above the eyebrow. Ghost FC keeps the crest-right hero. NOT YET PUSHED.
 
 Sep 13 (later session): the home page now has four sections. 002 · EXPERIENCE is a new hue-free editorial hairline list (components/ui/experience-section.tsx) with three rows, BTS Consulting, 1-800 Radiator, Chicago Ghost FC, each routing to /experience/<slug>. 003 · PROJECTS is the old work fan trimmed to three cards (Front Office, American Airlines, Remote Work). 004 · CONTACT. Ghost FC moved from /work/ghost-fc to /experience/ghost-fc with a permanent redirect in next.config.ts; its copy is unchanged. The three role pages share one skeleton (app/experience/_components/experience-page.tsx). Radiator and BTS ship with PLACEHOLDER copy and their logo files (public/bts-logo.png, public/radiator-logo.png) do not exist yet; the img hides itself until they land. The orb-reveal effect was also deduplicated into lib/use-orb-reveal.tsx before the fourth section was added. NOT YET PUSHED at time of writing.
@@ -61,7 +64,7 @@ Everything through the Sep 13 em dash sweep (bb09d36 plus notes) is pushed to ma
 - app/work/remote-work/page.tsx, Remote Work detail page (substantially built, May 28; dot-grid bg, full-width left-aligned layout)
 - app/who/layout.tsx, shared layout for /who detail page (mirrors app/work/layout.tsx pattern, including the Sep 12 2px Back button and hover lift; edit both files together)
 - app/who/page.tsx, /who detail page (BUILT, d6fb335): hero (night-match action photo, text over dark-left), story section with featured family photo (who-story.jpg) on the right, receipts editorial hairline list (enlarged mono titles, accent ticks, hover motion), beyond-the-pitch 2x2 with oversized faint accent ghost numbers, six-photo asymmetric gallery (who-1 to who-6) with Peru childhood-surf photo as full-width closer. Note it now contains a local TextScrim element (fixed column-wide gradient that dims particles behind body copy for legibility, page-local, does not touch global AmbientCanvas) (June 1: unified dot-grid background, AmbientCanvas removed, hero photo blends into bg via bottom+left gradient fade)
-- components/ui/experience-section.tsx, 002 · EXPERIENCE home section (Sep 13): hue-free editorial hairline list adapted from the /who receipts row (white tick 32 to 64 on hover, translateX 10 hover, whileInView stagger), ROLES array (slug, company, role, dates, oneLine, logo) most recent first, each row a click target to /experience/<slug>, logos preloaded via react-dom, row text carries the marquee text shadow for legibility over the particles, mobile media query collapses the grid to one column
+- components/ui/experience-section.tsx, 002 · EXPERIENCE home section, the gallery wall (Sep 15): .exp-wall grid 52% ledger / photo panel, max 1100, gap 64. ROLES (slug, company, role, dates, oneLine, logo, compact?, panel) most recent first; panel is { kind: 'photo', src, alt, objectPosition } (BTS 42% center, Radiator 58% center, same brightness 0.82 contrast 1.05 saturate 0 as the role pages) or { kind: 'crest', src } (Ghost FC, flat #0d0d0d, crest 46% wide). RoleRow is pure typography (company mono clamp 26 to 38, compact 20 to 30; role line 11px mono; body 17px Inter 300 max 460), white tick 32 to 64 and translateX 10 when selected, hover and focus select, click and Enter open /experience/<slug>. WallPanel: width min(100%, 70vh*0.75), aspect 3/4, radius 14, WHO card shadow and 1px frame, every role layer stays mounted and crossfades 0.4s (scale 1.03 to 1), bottom 38% gradient, caption with the 24px logo mark and COMPANY · DATES 10px mono. useGravityAnchor(panelRef) and useClearZone(ledgerRef, 40). No text shadows anywhere in the section. Mobile (< 768): .exp-wall becomes a flex column with 88px top padding, .exp-panel-cell order -1 and position sticky top 0, strip 16/7 max 220 tall, caption logo hidden, scroll listener selects the row nearest the viewport center, arrow hidden
 - components/ui/who-section.tsx, WHO athlete section with photo card + vertical marquee composition
 - components/ui/work-section.tsx, 003 · PROJECTS fan card stack (three cards since Sep 13: Front Office, American Airlines, Remote Work) + navigation to /work/* detail pages. cardRoutes is a Record keyed by card id, not by fan position
 - components/ui/contact-section.tsx, Contact floating cards + orb reveal
@@ -75,7 +78,8 @@ Everything through the Sep 13 em dash sweep (bb09d36 plus notes) is pushed to ma
 - components/ui/core-value-stats.tsx, deliverables card grid
 - components/ui/card-23.tsx, Card23 component (tag prop now OPTIONAL as of 7b99ab9)
 - components/ui/spotlight.tsx, cursor-following spotlight effect
-- lib/particle-state.ts, shared singleton for cross-component signals
+- lib/particle-state.ts, shared singleton for cross-component signals (Sep 15: clearZone { x, y, w, h, active } in viewport coordinates)
+- lib/use-particle-anchor.ts, section hooks that drive the canvas (Sep 15): useGravityAnchor(ref) sets gravityTarget to the element center while its center is on screen (guarded by gravityBoost like the who/work loops, which still carry their own copies), useClearZone(ref, pad) publishes the element rect plus pad as clearZone while on screen. Both run one rAF loop each and clear their state on unmount
 - lib/use-orb-reveal.tsx, useOrbReveal(sectionRef) returns the label ref and owns the shipped scroll choreography (fire at 75% viewport, 900ms converge, scatter, fade math, re-arm out of view), plus the OrbLabel element. All four home sections use it since Sep 13; tune thresholds here only
 - next.config.ts, redirects(): /work/ghost-fc to /experience/ghost-fc (permanent, 308)
 - lib/fonts.ts, site-wide font tokens (Sep 15): geistMono (next/font Geist_Mono, variable --font-geist-mono) and MONO = geistMono.style.fontFamily, the only source of the mono face. Unlike lib/accent.ts it may be imported anywhere, including app/page.tsx and components/ui
@@ -133,6 +137,12 @@ When scatterTrigger fires in static phase:
 - isBlastingFrame: 900ms window for connection drawing
 - lastScatterTime initialized to -99999 (prevents false blast on load)
 
+## Clear Zone (particle-canvas.tsx, Sep 15)
+Three static-phase edits, nothing else in the canvas changed:
+- `cz` is read once per frame next to `gt`
+- In the per-particle force block after the hero text repulsion zone: while `cz.active` and not blasting, particles inside the rect or within a 60px margin band get an outward push along the nearest edge, force (1 - outsideDist / 60) * 2.5. Particles whose rest point lies inside the rect relocate their rest once to a jittered spot 60 to 260px past the nearest edge whose target stays on screen (candidates sorted by edge distance). A force alone only wins about 60px against the 0.04 rest spring; stepping rest points to the edge piled the network into a bright seam along the border, which is why the relocation is jittered
+- Scatter cluster centers reject positions inside the active zone padded by 120px; if every attempt is rejected (a zone covering most of a phone viewport) a single fallback center is pushed so the loop never indexes an empty array (this crashed the rAF loop once during development)
+
 ## Orb Reveal Trigger Thresholds
 All three sections use:
 - Fire: rect.top < window.innerHeight * 0.75 && rect.bottom > 0
@@ -184,6 +194,7 @@ export const particleInteraction = {
   orbReveal: { phase: 'idle' | 'converging' | 'holding' | 'scattering' },
   scatterTrigger: 0,
   gravityBoost: false,
+  clearZone: { x: -9999, y: -9999, w: 0, h: 0, active: false },
 };
 ```
 
@@ -352,6 +363,8 @@ Background: #080808
 - Section orb labels (001/002/003) are 22px mono 0.35em as of Sep 12; the hero tagline stays 25px by choice. Home WHO/Work sizing was toned down ~13% on Sep 12; do not scale it back up.
 - Every photo in public must be a real JPEG. Check with `file` before shipping; a PNG renamed .jpg is 10x the bytes.
 - Detail-page hero photos must not be gated behind a mount fade; they are preloaded (react-dom preload on the home page for /who, cached from the work card for AA) and should paint on the first frame.
+- Copy on the home page never sits directly on the network. A section needs an opaque anchor with a gravity target (useGravityAnchor), and if it carries body copy with no surface under it, a clearZone over the copy (useClearZone). Text shadows and translucent scrims are not a legibility tool here; they have failed on this project three times
+- The horizontal overflow guard lives on html only (app/globals.css). Never add overflow-x to body as well: with both set, body becomes its own scroll container and position: sticky silently stops working (the mobile Experience strip)
 - Never use em dashes in any text or code comments
 - No card borders or container backgrounds on main page sections
 - No light sections on main page (exception: the finding card on /work/remote-work is a deliberate single light surface)
@@ -408,6 +421,8 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 ## Next Steps
 
 ### Priority 0: ship the Experience section (Sep 15)
+- DONE (Sep 15, later session): the gallery wall replaced the floating hairline list. Optional cleanup: migrate the who-section and work-section gravity rAF loops to useGravityAnchor in lib/use-particle-anchor.ts (same semantics, they still carry their own copies)
+- Known pre-existing bug, unrelated: the root particle canvas throws `getImageData ... The source width is 0` and the page fails to load when the tab first opens at a very small pane size (seen at 800x600 in the desktop-app preview). sampleText samples a zero-width canvas; guard W/H before sampling
 - Copy, logos, and hero photos are in (Sep 15). Remaining: push and verify on Vercel that /work/ghost-fc 308s to /experience/ghost-fc and that the two hero JPEGs (1.1 and 1.5 MB) are acceptable on the home preload
 - Optional: give Ghost FC a hero photo too so all three role pages match (needs a real match-day or club photo, not a generated one, since the club is real and photographed)
 - Optional: swap either generated hero for the other candidate from the Sep 15 run if Sebastian prefers it

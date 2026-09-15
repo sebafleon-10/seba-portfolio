@@ -133,6 +133,13 @@
 html, body {
   background-color: #080808 !important;
   scroll-behavior: smooth;
+}
+
+/* On html only, never on body as well: with both set, body becomes its own
+   scroll container and position: sticky stops working (the mobile
+   Experience strip). On html alone the value propagates to the viewport,
+   and unlike body-only it also blocks touch panning on iOS Safari. */
+html {
   overflow-x: hidden;
 }
 
