@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 import { particleInteraction } from '@/lib/particle-state';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -64,7 +65,7 @@ function DefaultFanCard({ item, width, height }: { item: CardStackItem; width: n
       </div>
       <div style={{ padding: '16px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <p style={{
-          fontFamily: 'monospace', fontSize: 9, letterSpacing: '0.28em',
+          fontFamily: MONO, fontSize: 9, letterSpacing: '0.28em',
           textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)',
           margin: '0 0 8px',
         }}>

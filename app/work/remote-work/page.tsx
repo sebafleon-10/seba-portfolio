@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
 import { ACCENT, ACCENT_BRIGHT, ACCENT_ON_LIGHT, accentAlpha } from '@/lib/accent';
@@ -9,7 +10,7 @@ const MAX_COEF = 34.6;
 
 // One eyebrow treatment used by every beat on the page. Dim white so the accent can stay reserved for the result.
 const EYEBROW: React.CSSProperties = {
-  fontFamily: 'monospace',
+  fontFamily: MONO,
   fontSize: 14,
   letterSpacing: '0.4em',
   textTransform: 'uppercase' as const,
@@ -131,7 +132,7 @@ function BarRow({ d, i, run, prefersReduced }: {
       </div>
 
       <span style={{
-        fontFamily: 'monospace',
+        fontFamily: MONO,
         fontSize: d.emphasis ? 'clamp(24px, 2.6vw, 34px)' : 'clamp(20px, 2.1vw, 28px)',
         fontWeight: d.emphasis ? 600 : 400,
         textAlign: 'right',
@@ -246,12 +247,12 @@ function ModelCard({ m, i, run, prefersReduced }: {
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 20 }}>
         <span style={{
-          fontFamily: 'monospace', fontSize: 13,
+          fontFamily: MONO, fontSize: 13,
           letterSpacing: '0.3em', textTransform: 'uppercase',
           color: isFinal ? ACCENT_BRIGHT : 'rgba(255,255,255,0.35)',
         }}>Model {m.n}</span>
         <span style={{
-          fontFamily: 'monospace', fontSize: 13,
+          fontFamily: MONO, fontSize: 13,
           letterSpacing: '0.2em', textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.3)',
         }}>R² {m.r2.toFixed(2)}</span>
@@ -273,12 +274,12 @@ function ModelCard({ m, i, run, prefersReduced }: {
 
       <div style={{ marginTop: 32 }}>
         <p style={{
-          fontFamily: 'monospace', fontSize: 12,
+          fontFamily: MONO, fontSize: 12,
           letterSpacing: '0.3em', textTransform: 'uppercase',
           color: 'rgba(255,255,255,0.3)', margin: '0 0 6px',
         }}>Remote premium</p>
         <span style={{
-          fontFamily: 'monospace',
+          fontFamily: MONO,
           fontSize: coefSize,
           fontWeight: isFinal ? 600 : 400,
           lineHeight: 1,
@@ -432,7 +433,7 @@ function HeroSection() {
           style={{ width: '100%' }}
         >
           <p style={{
-            fontFamily: 'monospace', fontSize: 13,
+            fontFamily: MONO, fontSize: 13,
             letterSpacing: '0.35em', textTransform: 'uppercase',
             color: 'rgba(255,255,255,0.55)', margin: '0 0 12px',
           }}>Remote wage premium by subgroup</p>
@@ -456,7 +457,7 @@ function HeroSection() {
               }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
               style={{
-                fontFamily: 'monospace', fontSize: 14,
+                fontFamily: MONO, fontSize: 14,
                 padding: '10px 22px', borderRadius: 999,
                 borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.2)',
                 backgroundColor: 'transparent',
@@ -564,7 +565,7 @@ function DeliverableCard({ item, i, prefersReduced }: {
       }}
     >
       <span style={{
-        fontFamily: 'monospace',
+        fontFamily: MONO,
         fontSize: 11,
         letterSpacing: '0.3em',
         textTransform: 'uppercase' as const,
@@ -593,7 +594,7 @@ function DeliverableCard({ item, i, prefersReduced }: {
       }}>{item.description}</p>
 
       <span style={{
-        fontFamily: 'monospace',
+        fontFamily: MONO,
         fontSize: 12,
         letterSpacing: '0.2em',
         textTransform: 'uppercase' as const,

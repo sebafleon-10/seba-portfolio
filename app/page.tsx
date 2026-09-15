@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { MONO } from '@/lib/fonts';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { WhoSection }     from '@/components/ui/who-section';
 import { ExperienceSection } from '@/components/ui/experience-section';
@@ -89,7 +90,7 @@ function MagneticNavLink({
         style={{
           x: sx, y: sy,
           display: 'inline-flex', alignItems: 'baseline',
-          fontFamily: 'monospace', fontSize: 18, letterSpacing: '0.10em',
+          fontFamily: MONO, fontSize: 18, letterSpacing: '0.10em',
           color: litColor,
           textDecoration: 'none',
           transition: 'color 250ms ease',
@@ -232,7 +233,7 @@ export default function Home() {
         >
           <p
             style={{
-              fontFamily: 'monospace', fontSize: 25, letterSpacing: '0.35em',
+              fontFamily: MONO, fontSize: 25, letterSpacing: '0.35em',
               textTransform: 'uppercase', color: 'rgba(255,255,255,0.88)',
               margin: 0,
               opacity: tagline ? 1 : 0,
@@ -260,7 +261,7 @@ export default function Home() {
         >
           <p
             style={{
-              fontFamily: 'monospace',
+              fontFamily: MONO,
               fontSize: 14,
               letterSpacing: '0.4em',
               color: 'rgba(255,255,255,0.5)',

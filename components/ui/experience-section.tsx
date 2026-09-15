@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 import { preload } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
 
 const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
-const MONO  = 'monospace';
 // Same shadow the WHO marquee uses so copy stays legible over the particles.
 const TEXT_SHADOW = '0 0 8px rgba(0,0,0,0.85), 0 0 24px rgba(0,0,0,0.6)';
 

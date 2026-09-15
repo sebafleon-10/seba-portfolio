@@ -1,5 +1,5 @@
 # seba-portfolio, Project Notes
-Last updated: September 13, 2026 (Experience / Projects split)
+Last updated: September 15, 2026 (Geist Mono site-wide)
 
 ## Stack
 - Next.js 16.2.6 + Tailwind CSS v4 + shadcn
@@ -13,6 +13,7 @@ Last updated: September 13, 2026 (Experience / Projects split)
 - Local git identity: Sebastian Leon <sebafleon@gmail.com> (set May 27, 2026)
 
 ## Git Restore Points
+- Sep 15 Geist Mono session: every monospace literal (about 45 across 14 files) replaced by the MONO token from the new lib/fonts.ts, which is Geist Mono via next/font (already loaded by the root layout, never consumed before). Root layout imports geistMono from lib/fonts.ts. The AA neural text canvas waits for the face via document.fonts.load before sampling its mask. Same session: experience-card tech-tag pills deleted (4a6a66a)
 - e0758a6, Sep 13 Experience / Projects split: home page has four sections (002 · EXPERIENCE hairline list, 003 · PROJECTS three-card fan, 004 · CONTACT), /experience/* role pages on a shared ExperiencePage skeleton, Ghost FC moved to /experience/ghost-fc with a 308 from /work/ghost-fc, Radiator and BTS pages hold PLACEHOLDER copy
 - 08d8132, Sep 13 orb-reveal dedupe: the triplicated scroll effect and fixed label moved into lib/use-orb-reveal.tsx (useOrbReveal + OrbLabel), behavior unchanged, all home sections call it
 - bb09d36, Sep 13 em dash sweep: zero em dashes left in source (two Front Office copy strings split into sentences, the rest comments and AGENTS.md). NOTES.md and CLAUDE_PROMPTING.md were already clean
@@ -73,6 +74,7 @@ Everything through the Sep 13 em dash sweep (bb09d36 plus notes) is pushed to ma
 - lib/particle-state.ts, shared singleton for cross-component signals
 - lib/use-orb-reveal.tsx, useOrbReveal(sectionRef) returns the label ref and owns the shipped scroll choreography (fire at 75% viewport, 900ms converge, scatter, fade math, re-arm out of view), plus the OrbLabel element. All four home sections use it since Sep 13; tune thresholds here only
 - next.config.ts, redirects(): /work/ghost-fc to /experience/ghost-fc (permanent, 308)
+- lib/fonts.ts, site-wide font tokens (Sep 15): geistMono (next/font Geist_Mono, variable --font-geist-mono) and MONO = geistMono.style.fontFamily, the only source of the mono face. Unlike lib/accent.ts it may be imported anywhere, including app/page.tsx and components/ui
 - lib/accent.ts, detail-page accent tokens (ACCENT, ACCENT_BRIGHT, ACCENT_ON_LIGHT) and the accentAlpha(alpha, tone) helper. Added Sep 12
 - context/parallax-context.tsx, zoomProgressRef
 - CLAUDE.md, imports NOTES.md and CLAUDE_PROMPTING.md
@@ -333,7 +335,7 @@ Design direction: editorial, Lusion-style. Full-width, left-aligned, single vert
 
 ## Style Tokens
 ```
-MONO = { fontFamily: 'monospace' }
+MONO = Geist Mono, imported from lib/fonts.ts (Sep 15; was the bare monospace fallback, Courier on Safari and Menlo on Chrome)
 INTER = { fontFamily: 'Inter, ui-rounded, system-ui, sans-serif' }
 Section label: monospace 10px letterSpacing 0.4em uppercase rgba(255,255,255,0.22)
 AA red accent: #CC0000
@@ -357,6 +359,7 @@ Background: #080808
 - Product mockups are flat captures tilted in CSS (perspective on the container, rotate on a wrapper), never pre-rendered perspective PNGs. Capture at an effective DPR of 2 and at least 2400px wide. Recipe used Sep 12: Playwright MCP at a 3200x2800 viewport with document.documentElement.style.zoom = 2, wrap the target blocks in a div, hide the rest, element screenshot with scale device, then sips to JPEG q85.
 - Placeholder convention: unfinished copy is prefixed PLACEHOLDER: so `grep -rn PLACEHOLDER app components` lists every open slot. Nothing with PLACEHOLDER in it should be pushed to main without a conscious decision
 - Role pages live under /experience/<slug> on the shared ExperiencePage skeleton; project pages live under /work/<slug>. New roles: add a ROLES entry in components/ui/experience-section.tsx plus an app/experience/<slug>/page.tsx. New projects: add a card in components/ui/work-section.tsx (with a cardRoutes entry keyed by id) plus an app/work/<slug>/page.tsx
+- The mono font comes only from lib/fonts.ts (MONO). No 'monospace' or 'ui-monospace' literals in app, components, or lib; `grep -rn monospace app components lib` must return only lib/fonts.ts. Canvas font strings use a template with MONO
 - Detail-page accent colors come only from lib/accent.ts. No local ACCENT consts, no hex-alpha suffixes like `${ACCENT}55`, no raw accent rgba literals in page files. app/page.tsx and components/ui/* must never import lib/accent.ts
 
 ## Bugs
@@ -438,6 +441,7 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 ### Lower priority
 - LinkedIn card: subtitle updated Sep 12 to Business Analyst @ BTS Consulting, but the card still shows only the DePauw wordmark. Add a BTS logo (need the asset from Sebastian) next to or in place of it. Also confirm LINKEDIN_URL still resolves.
 - Delete public/1.jpg to 6.jpg (unused, 22 MB) once confirmed
+- Inter is named in about 30 fontFamily strings but is never loaded (no next/font, no link tag), so it silently falls back to ui-rounded / system-ui. Same fix pattern as lib/fonts.ts MONO if it should be real Inter
 - Google AI Essentials cert placement
 - PC rendering issue (deferred, low priority)
 - Fix author on commit 1307879 (Bug 2 fix has wrong git author, would need rebase)

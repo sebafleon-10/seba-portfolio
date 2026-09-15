@@ -1,15 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
 import { ACCENT, accentAlpha } from '@/lib/accent';
 
-const MONO = { fontFamily: 'monospace' };
 const INTER = { fontFamily: 'Inter, ui-rounded, system-ui, sans-serif' };
 
 const SECTION_LABEL: React.CSSProperties = {
-  ...MONO,
+  fontFamily: MONO,
   fontSize: 10,
   letterSpacing: '0.4em',
   textTransform: 'uppercase',
@@ -147,7 +147,7 @@ function HeroSection() {
           animate={isLoaded ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, ease: 'easeOut' }}
           style={{
-            ...MONO,
+            fontFamily: MONO,
             fontSize: 11,
             letterSpacing: '0.4em',
             textTransform: 'uppercase' as const,
@@ -379,7 +379,7 @@ function AchievementRow({ item, isLast, index }: { item: Achievement; isLast: bo
         transition: 'transform 0.3s ease',
       }}>
         <p style={{
-          ...MONO,
+          fontFamily: MONO,
           fontSize: 'clamp(34px, 4vw, 52px)',
           fontWeight: 700,
           letterSpacing: '0.04em',
@@ -391,7 +391,7 @@ function AchievementRow({ item, isLast, index }: { item: Achievement; isLast: bo
 
         <div>
           <p style={{
-            ...MONO,
+            fontFamily: MONO,
             fontSize: 11,
             letterSpacing: '0.3em',
             textTransform: 'uppercase' as const,
@@ -482,7 +482,7 @@ function BeyondBlock({ item, index }: { item: BeyondItem; index: number }) {
       <span
         aria-hidden
         style={{
-          ...MONO,
+          fontFamily: MONO,
           position: 'absolute',
           top: -28,
           left: -12,
@@ -617,7 +617,7 @@ function GallerySection() {
                 position: 'absolute',
                 left: 16,
                 bottom: 14,
-                ...MONO,
+                fontFamily: MONO,
                 fontSize: 11,
                 letterSpacing: '0.3em',
                 textTransform: 'uppercase' as const,

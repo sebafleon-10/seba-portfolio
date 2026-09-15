@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 import { motion } from 'framer-motion';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
 import { ACCENT } from '@/lib/accent';
@@ -12,7 +13,6 @@ import { ACCENT } from '@/lib/accent';
 // are deliberately equal.
 
 const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
-const MONO = 'monospace';
 
 const EYEBROW: React.CSSProperties = {
   fontFamily: MONO,

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
@@ -277,7 +278,7 @@ export function WorkSection() {
                         position: 'absolute',
                         top: 14,
                         right: 14,
-                        fontFamily: 'monospace',
+                        fontFamily: MONO,
                         fontSize: 10,
                         letterSpacing: '0.22em',
                         textTransform: 'uppercase',

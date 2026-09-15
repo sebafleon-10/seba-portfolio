@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 import { motion } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
@@ -146,7 +147,7 @@ export function ContactSection() {
                 }}
               >
                 <p style={{
-                  fontFamily: 'monospace', fontSize: 10,
+                  fontFamily: MONO, fontSize: 10,
                   letterSpacing: '0.18em', textTransform: 'uppercase',
                   color: '#0A66C2', margin: 0,
                 }}>
@@ -251,7 +252,7 @@ export function ContactSection() {
                 {EMAIL}
               </p>
               <p style={{
-                fontFamily: 'monospace', fontSize: 11,
+                fontFamily: MONO, fontSize: 11,
                 letterSpacing: '0.12em', textTransform: 'uppercase',
                 color: 'rgba(255,255,255,0.4)', margin: 0,
               }}>
@@ -263,7 +264,7 @@ export function ContactSection() {
         </div>
 
         <p style={{
-          fontFamily: 'monospace', fontSize: 11,
+          fontFamily: MONO, fontSize: 11,
           letterSpacing: '0.14em',
           color: 'rgba(255,255,255,0.20)',
           margin: 0,

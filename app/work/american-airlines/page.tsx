@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { MONO } from '@/lib/fonts';
 import { motion } from 'framer-motion';
 import { NeuralTextReveal } from '@/components/ui/neural-text-reveal';
 import CoreValueStats from '@/components/ui/core-value-stats';
@@ -134,7 +135,7 @@ export default function AmericanAirlinesPage() {
         <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
 
           <p style={{
-            fontFamily: 'monospace', fontSize: 10,
+            fontFamily: MONO, fontSize: 10,
             letterSpacing: '0.4em', textTransform: 'uppercase' as const,
             color: 'rgba(255,255,255,0.22)',
             marginBottom: 80, display: 'block',
@@ -183,7 +184,7 @@ export default function AmericanAirlinesPage() {
                 }}
               >
                 <p style={{
-                  fontFamily: 'monospace', fontSize: 11,
+                  fontFamily: MONO, fontSize: 11,
                   letterSpacing: '0.3em', textTransform: 'uppercase' as const,
                   color: 'rgba(0,0,0,0.3)', margin: '0 0 20px',
                 }}>{col.number}</p>
@@ -208,7 +209,7 @@ export default function AmericanAirlinesPage() {
       <section style={{ position: 'relative', zIndex: 1, padding: '140px 0 120px' }}>
         <div style={{ maxWidth: 1400, width: '100%', margin: '0 auto', padding: '0 64px' }}>
           <p style={{
-            fontFamily: 'monospace', fontSize: 10,
+            fontFamily: MONO, fontSize: 10,
             letterSpacing: '0.4em', textTransform: 'uppercase' as const,
             color: 'rgba(255,255,255,0.22)', display: 'block', marginBottom: 12,
           }}>Deliverables</p>
