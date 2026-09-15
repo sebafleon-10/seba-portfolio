@@ -12,22 +12,18 @@ const ITEMS = [
   {
     title: 'PLACEHOLDER: Deliverable one',
     body: 'PLACEHOLDER: 40 to 60 words on one concrete deliverable, with a number, who used it, and what changed.',
-    tags: ['PLACEHOLDER'],
   },
   {
     title: 'PLACEHOLDER: Deliverable two',
     body: 'PLACEHOLDER: 40 to 60 words on one concrete deliverable, with a number, who used it, and what changed.',
-    tags: ['PLACEHOLDER'],
   },
   {
     title: 'PLACEHOLDER: Deliverable three',
     body: 'PLACEHOLDER: 40 to 60 words on one concrete deliverable, with a number, who used it, and what changed.',
-    tags: ['PLACEHOLDER'],
   },
   {
     title: 'PLACEHOLDER: Deliverable four',
     body: 'PLACEHOLDER: 40 to 60 words on one concrete deliverable, with a number, who used it, and what changed.',
-    tags: ['PLACEHOLDER'],
   },
 ];
 

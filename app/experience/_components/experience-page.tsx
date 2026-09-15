@@ -32,21 +32,9 @@ const CARD_INDEX: React.CSSProperties = {
   margin: 0,
 };
 
-const TAG: React.CSSProperties = {
-  fontFamily: MONO,
-  fontSize: 11,
-  letterSpacing: '0.08em',
-  color: 'rgba(255,255,255,0.55)',
-  border: '1px solid rgba(255,255,255,0.12)',
-  borderRadius: 999,
-  padding: '4px 10px',
-  whiteSpace: 'nowrap',
-};
-
 export type ExperienceItem = {
   title: string;
   body: string;
-  tags: string[];
 };
 
 export type ExperiencePageProps = {
@@ -244,11 +232,6 @@ function WorkSection({ sectionHeading, items }: Pick<ExperiencePageProps, 'secti
               >
                 {item.body}
               </p>
-              <div style={{ marginTop: 'auto', paddingTop: 8, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {item.tags.map((tag) => (
-                  <span key={tag} style={TAG}>{tag}</span>
-                ))}
-              </div>
             </motion.div>
           ))}
         </div>
