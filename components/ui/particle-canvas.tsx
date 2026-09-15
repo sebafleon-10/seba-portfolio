@@ -265,6 +265,7 @@ export function ParticleCanvas() {
 
       // Smooth gravity target (lerp so stat-to-stat migration feels like ~0.8s ease)
       const gt = particleInteraction.gravityTarget;
+      const cz = particleInteraction.clearZone;
       if (gt.active) {
         if (!smoothGInit) { smoothGX = gt.x; smoothGY = gt.y; smoothGInit = true; }
         else { smoothGX += (gt.x - smoothGX) * 0.06; smoothGY += (gt.y - smoothGY) * 0.06; }
@@ -358,11 +359,18 @@ export function ParticleCanvas() {
         for (let attempt = 0; attempt < 500 && centers.length < numClusters; attempt++) {
           const cx = margin + Math.random() * (W - margin * 2);
           const cy = margin + Math.random() * (H - margin * 2);
+          const inClearZone = cz.active &&
+            cx > cz.x - 120 && cx < cz.x + cz.w + 120 &&
+            cy > cz.y - 120 && cy < cz.y + cz.h + 120;
           if (
+            !inClearZone &&
             centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
             Math.hypot(cx - W / 2, cy - H / 2) > 260
           ) centers.push({ x: cx, y: cy });
         }
+        // A zone that covers most of the viewport can reject every attempt;
+        // never let the loop below index an empty array.
+        if (centers.length === 0) centers.push({ x: W / 2, y: margin });
 
         const TRAVEL = 1 / (1 - 0.97);
         for (const p of ps) {
@@ -496,9 +504,52 @@ export function ParticleCanvas() {
             }
           }
 
-          // Spring toward rest + buzz
           const sinceScatter = now - lastScatterTime;
           const isBlasting   = sinceScatter < 900;
+
+          // Clearing zone (home Experience ledger). A soft outward push near
+          // and inside the rect, plus rest-point migration so the rest spring
+          // stops dragging particles back under the copy. A force alone only
+          // wins about 60px against the 0.04 spring.
+          if (cz.active && !isBlasting) {
+            const M = 60;
+            const dl = p.x - cz.x, dr = cz.x + cz.w - p.x;
+            const dt = p.y - cz.y, db = cz.y + cz.h - p.y;
+            const sdf = Math.min(dl, dr, dt, db); // >0 inside, <0 outside (edge distance)
+            if (sdf > -M) {
+              // Outward normal along the nearest edge
+              let nx = 0, ny = 0;
+              const m = Math.min(dl, dr, dt, db);
+              if (m === dl) nx = -1; else if (m === dr) nx = 1;
+              else if (m === dt) ny = -1; else ny = 1;
+              const force = (1 - Math.max(0, -sdf) / M) * 2.5;
+              p.vx += nx * force;
+              p.vy += ny * force;
+            }
+            // Rest points inside the zone relocate once to a jittered spot
+            // 60 to 260px past the nearest edge; the spring glides the
+            // particle there. Stepping them to the edge instead piles the
+            // network into a seam along the border.
+            const rl = p.restX - cz.x, rr = cz.x + cz.w - p.restX;
+            const rt = p.restY - cz.y, rb = cz.y + cz.h - p.restY;
+            if (rl > 0 && rr > 0 && rt > 0 && rb > 0) {
+              const out = 60 + Math.random() * 200;
+              const cands: [number, number, number][] = [
+                [rl, cz.x - out,          p.restY],
+                [rr, cz.x + cz.w + out,   p.restY],
+                [rt, p.restX,             cz.y - out],
+                [rb, p.restX,             cz.y + cz.h + out],
+              ];
+              cands.sort((a, b) => a[0] - b[0]);
+              for (const [, nx, ny] of cands) {
+                if (nx >= 10 && nx <= W - 10 && ny >= 10 && ny <= H - 10) {
+                  p.restX = nx; p.restY = ny; break;
+                }
+              }
+            }
+          }
+
+          // Spring toward rest + buzz
           if (!particleInteraction.gravityBoost && !isBlasting) {
             p.vx += (p.restX + bx - p.x) * 0.04;
             p.vy += (p.restY + by - p.y) * 0.04;
