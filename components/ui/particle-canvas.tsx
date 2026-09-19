@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { particleInteraction } from '@/lib/particle-state';
+import { particleInteraction, FORMATION_PULSE_MS } from '@/lib/particle-state';
 import { useParallax } from '@/context/parallax-context';
 
 // ── Seeded PRNG (mulberry32), deterministic particle spawn positions ─────────
@@ -15,6 +15,9 @@ function mulberry32(seed: number) {
 }
 
 const rand = mulberry32(42);
+// Formation slots draw from their own stream so the spawn sequence above
+// stays exactly what it was.
+const frand = mulberry32(7);
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const TEXT          = 'SEBASTIAN LEON';
@@ -84,6 +87,12 @@ type P = {
   buzzFreq:   number;
   buzzAmp:    number;
   group:      number;
+  // Formation (see particleInteraction.formation). fsel picks who joins,
+  // fu/fv is the slot in body space (u along the axis or around the ring,
+  // v across it), fring puts the slot on the ring when the shape has one,
+  // fm is how far the particle has morphed in (0 ambient, 1 formed).
+  fsel: number; fu: number; fv: number; fring: boolean;
+  fph: number; fw: number; fdelay: number; fm: number;
 };
 
 function makeP(x: number, y: number, tx = -1, ty = -1): P {
@@ -104,6 +113,19 @@ function makeP(x: number, y: number, tx = -1, ty = -1): P {
     restX: x, restY: y,
     buzzPhaseX: 0, buzzPhaseY: 0, buzzFreq: 0, buzzAmp: 0,
     group: 0,
+    ...makeSlot(),
+  };
+}
+
+// Slots are spread so the spindle has even density (more slots where it is
+// tall) with a denser core across it.
+function makeSlot() {
+  let fu = frand();
+  for (let k = 0; k < 8 && frand() > 0.1 + 0.9 * Math.pow(Math.sin(Math.PI * fu), 0.7); k++) fu = frand();
+  const side = frand() < 0.5 ? -1 : 1;
+  return {
+    fsel: frand(), fu, fv: side * Math.pow(frand(), 1.1), fring: frand() < 0.68,
+    fph: frand() * Math.PI * 2, fw: 0.35 + frand() * 0.5, fdelay: 0, fm: 0,
   };
 }
 
@@ -175,6 +197,17 @@ export function ParticleCanvas() {
 
     const ambient: number[] = [];
     const formed:  number[] = [];
+    // Formation buffers: body dots (x, y, r, lit), faded non-members, lines.
+    const orgDots:     number[] = [];
+    const otherDots:   number[] = [];
+    const orgLines:    number[] = [];
+    const litLines:    number[] = [];
+    const otherLines:  number[] = [];
+    const fM   = new Float32Array(N_TOTAL);
+    const fLit = new Float32Array(N_TOTAL);
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let formWas = false, formClock = 0, formLive = false, formGlobal = 0;
+    let formStep = 0, formLean = 1, formKick = false, lastFrame = performance.now();
 
     // ── Input tracking ─────────────────────────────────────────────────────────
     const mouse = { x: -9999, y: -9999 };
@@ -349,6 +382,38 @@ export function ParticleCanvas() {
         }
       }
 
+      // ── Formation edges ────────────────────────────────────────────────────
+      const fo = particleInteraction.formation;
+      const dtFrame = Math.min(50, now - lastFrame);
+      lastFrame = now;
+      if (phase === 'static') {
+        if (fo.active && !formWas) {
+          // Morph in: nearer particles leave first so it reads as streams.
+          formClock = 0;
+          const cx = (fo.ax + fo.bx) / 2, cy = (fo.ay + fo.by) / 2;
+          for (const p of ps) p.fdelay = still ? -1200 : Math.hypot(p.x - cx, p.y - cy) / W * 1100 + Math.random() * 250;
+        } else if (!fo.active && formWas && !still &&
+                   !particleInteraction.gravityBoost && now - lastScatterTime > 900) {
+          // Morph out: the body leaves as a blast back into the ambient flow.
+          particleInteraction.scatterTrigger = Date.now();
+        }
+        formWas = fo.active;
+        // The morph waits for an orb reveal to finish: it is the third beat.
+        if (fo.active && !particleInteraction.gravityBoost && now - lastScatterTime > 900) formClock += dtFrame;
+        formGlobal += ((fo.active ? 1 : 0) - formGlobal) * 0.06;
+        if (formGlobal < 0.001) formGlobal = 0;
+        formKick = fo.active && fo.step !== formStep && !still;
+        formStep = fo.step;
+        formLean += ([1, 0.78, 1.28][fo.step % 3] - formLean) * 0.04;
+      }
+      const othersFade = fo.share < 1 ? formGlobal : 0;
+      // Brightness front, -0.1 to 1.1 along the axis while a pulse runs.
+      const pulseK = fo.pulseAt > 0 ? (now - fo.pulseAt) / FORMATION_PULSE_MS : -1;
+      const front  = pulseK >= 0 && pulseK <= 1 ? -0.1 + 1.2 * pulseK * pulseK * (3 - 2 * pulseK) : -9;
+      const tForm  = now / 1000;
+      const breath = 1 + 0.07 * Math.sin(tForm * 0.9);
+      let formAny = false;
+
       if (phase === 'static' && particleInteraction.scatterTrigger !== lastScatterTrigger) {
         lastScatterTrigger = particleInteraction.scatterTrigger;
         lastScatterTime = now;
@@ -392,6 +457,8 @@ export function ParticleCanvas() {
       // ── Clear draw buffers ─────────────────────────────────────────────────
       ambient.length = 0;
       formed.length  = 0;
+      orgDots.length = 0;
+      otherDots.length = 0;
 
       // ── Update particles ───────────────────────────────────────────────────
       for (let i = 0; i < N_TOTAL; i++) {
@@ -472,6 +539,71 @@ export function ParticleCanvas() {
           const bx = Math.sin(t * p.buzzFreq       + p.buzzPhaseX) * p.buzzAmp * buzzRamp;
           const by = Math.sin(t * p.buzzFreq * 1.3 + p.buzzPhaseY) * p.buzzAmp * buzzRamp;
 
+          // Formation: m is how far this particle has morphed into the body,
+          // (slotX, slotY) where it lives there. Everything below is scaled
+          // by m, so with no formation the frame is what it always was.
+          let m = 0, slotX = 0, slotY = 0, lit = 0;
+          const member = p.fsel < fo.share;
+          if ((fo.active || formLive) && member) {
+            if (fo.active) {
+              const k = (formClock - p.fdelay) / 1200;
+              m = k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k);
+            } else {
+              m = p.fm * 0.86;
+              if (m < 0.002) m = 0;
+            }
+            p.fm = m;
+            if (m > 0) {
+              formAny = true;
+              const span = fo.bx - fo.ax;
+              if (fo.shape === 'ring' && p.fring) {
+                // A band orbiting the stage content, drifting round it.
+                // Walk a rounded rectangle at uniform speed so the band has
+                // even density (fph doubles as a uniform perimeter seed).
+                const hw = fo.box.w / 2 + 64 + p.fv * 30, hh = fo.box.h / 2 + 92 + p.fv * 30;
+                const cr = Math.min(hw, hh) * 0.8;
+                const sx = 2 * (hw - cr), sy = 2 * (hh - cr), arc = Math.PI * cr / 2;
+                const per = 2 * sx + 2 * sy + 4 * arc;
+                let d = ((p.fph / (Math.PI * 2) + tForm * 0.004 * (p.fv > 0 ? 1 : 0.6)) % 1) * per;
+                let qx = 0, qy = 0;
+                // top edge, then each corner and edge clockwise
+                const corner = (ccx: number, ccy: number, a0: number, dd: number) => {
+                  const a = a0 + dd / cr; qx = ccx + Math.cos(a) * cr; qy = ccy + Math.sin(a) * cr;
+                };
+                if (d < sx) { qx = -hw + cr + d; qy = -hh; }
+                else if ((d -= sx) < arc) corner(hw - cr, -hh + cr, -Math.PI / 2, d);
+                else if ((d -= arc) < sy) { qx = hw; qy = -hh + cr + d; }
+                else if ((d -= sy) < arc) corner(hw - cr, hh - cr, 0, d);
+                else if ((d -= arc) < sx) { qx = hw - cr - d; qy = hh; }
+                else if ((d -= sx) < arc) corner(-hw + cr, hh - cr, Math.PI / 2, d);
+                else if ((d -= arc) < sy) { qx = -hw; qy = hh - cr - d; }
+                else corner(-hw + cr, -hh + cr, Math.PI, d - sy);
+                slotX = fo.box.x + fo.box.w / 2 + qx;
+                slotY = fo.box.y + fo.box.h / 2 + qy;
+              } else {
+                const u = Math.pow(p.fu, formLean);
+                const bulge = Math.pow(Math.sin(Math.PI * u), 0.7);
+                const d = u - front;
+                lit = d > -0.09 && d < 0.09 ? (1 - Math.abs(d) / 0.09) * m : 0;
+                slotX = fo.ax + span * u + Math.sin(tForm * p.fw + p.fph) * 5;
+                slotY = fo.ay + (fo.by - fo.ay) * u
+                      + p.fv * bulge * fo.hmax * breath * (1 + lit * 0.22)
+                      + Math.cos(tForm * p.fw * 0.8 + p.fph) * 6;
+              }
+              if (formKick && m > 0.5) {
+                // A step convulses the body: a swirl the slot spring reins in.
+                const cx = (fo.ax + fo.bx) / 2, cy = (fo.ay + fo.by) / 2;
+                const dx = p.x - cx, dy = p.y - cy;
+                const d = Math.hypot(dx, dy) || 1;
+                const a = 3 + Math.random() * 5;
+                p.vx += (-dy / d) * a + (dx / d) * 2;
+                p.vy += ( dx / d) * a + (dy / d) * 2;
+              }
+            }
+          }
+          fM[i] = m; fLit[i] = lit;
+          const free = 1 - m;
+
           // Mouse: repulse (work section hover) or attract (hero)
           if (particleInteraction.repulse) {
             const dxM = mouse.x - p.x, dyM = mouse.y - p.y;
@@ -499,7 +631,7 @@ export function ParticleCanvas() {
             const dyR  = p.y - repY;
             const dist = Math.sqrt(dxR * dxR + dyR * dyR);
             if (dist < 280 && dist > 0) {
-              const force = (280 - dist) / 280 * 3.0;
+              const force = (280 - dist) / 280 * 3.0 * free;
               p.vx += (dxR / dist) * force;
               p.vy += (dyR / dist) * force;
             }
@@ -515,7 +647,7 @@ export function ParticleCanvas() {
           // Gravity eases off within 140px of a zone so an anchor that is also
           // a zone (the Experience mark) gets a loose halo, not a packed seam.
           let zoneEase = 1;
-          if (!isBlasting) for (const cz of zones) {
+          if (!isBlasting && m < 0.5) for (const cz of zones) {
             if (!cz.active) continue;
             const M = 60;
             const dl = p.x - cz.x, dr = cz.x + cz.w - p.x;
@@ -557,8 +689,8 @@ export function ParticleCanvas() {
 
           // Spring toward rest + buzz
           if (!particleInteraction.gravityBoost && !isBlasting) {
-            p.vx += (p.restX + bx - p.x) * 0.04;
-            p.vy += (p.restY + by - p.y) * 0.04;
+            p.vx += (p.restX * free + slotX * m + bx - p.x) * 0.04;
+            p.vy += (p.restY * free + slotY * m + by - p.y) * 0.04;
           }
 
           // Direct gravity pull toward active target
@@ -568,7 +700,7 @@ export function ParticleCanvas() {
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist > 0) {
               const t     = Math.max(0, 1 - dist / 1200);
-              const force = t * t * (particleInteraction.gravityBoost ? 20.0 : 4.0 * zoneEase);
+              const force = t * t * (particleInteraction.gravityBoost ? 20.0 : 4.0 * zoneEase * free);
               p.vx += (dx / dist) * force;
               p.vy += (dy / dist) * force;
               p.vx *= 0.96;
@@ -603,9 +735,12 @@ export function ParticleCanvas() {
           if (p.y < 0)  p.y += H;
           if (p.y > H)  p.y -= H;
 
-          ambient.push(p.x, p.y, p.r);
+          if (m > 0.15) orgDots.push(p.x, p.y, p.r, lit);
+          else if (!member && othersFade > 0) otherDots.push(p.x, p.y, p.r);
+          else ambient.push(p.x, p.y, p.r);
         }
       }
+      formLive = formAny;
 
       // ── Connection lines (spatial hash) ────────────────────────────────────
       for (const c of cells) c.length = 0;
@@ -615,6 +750,9 @@ export function ParticleCanvas() {
       letterLines.length  = 0;
       clusterLines.length = 0;
       mouseLines.length   = 0;
+      orgLines.length     = 0;
+      litLines.length     = 0;
+      otherLines.length   = 0;
       for (const b of linesB) b.length = 0;
       connCount.fill(0);
 
@@ -664,6 +802,16 @@ export function ParticleCanvas() {
                 } else {
                   sLines.push(a.x, a.y, b.x, b.y);
                 }
+              } else if (fM[i] > 0.6 && fM[j] > 0.6) {
+                // Inside the body the mesh is fine: short links only.
+                if (d2 >= 38 * 38 || connCount[i] >= 4 || connCount[j] >= 4) continue;
+                connCount[i]++; connCount[j]++;
+                if (fLit[i] + fLit[j] > 0.5) litLines.push(a.x, a.y, b.x, b.y);
+                else                         orgLines.push(a.x, a.y, b.x, b.y);
+              } else if (othersFade > 0 && (ps[i].fsel >= fo.share || ps[j].fsel >= fo.share)) {
+                if (othersFade > 0.97 || connCount[i] >= 3 || connCount[j] >= 3) continue;
+                connCount[i]++; connCount[j]++;
+                otherLines.push(a.x, a.y, b.x, b.y);
               } else {
                 const blastCap = isBlastingFrame ? 5 : 3;
                 if (connCount[i] >= blastCap || connCount[j] >= blastCap) continue;
@@ -769,6 +917,19 @@ export function ParticleCanvas() {
           }
           ctx.stroke();
         }
+        const lineSets: [number[], number][] = [
+          [orgLines, 0.2], [litLines, 0.95], [otherLines, 0.2 * (1 - othersFade)],
+        ];
+        for (const [buf, alpha] of lineSets) {
+          if (buf.length === 0) continue;
+          ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          for (let k = 0; k < buf.length; k += 4) {
+            ctx.moveTo(buf[k], buf[k + 1]);
+            ctx.lineTo(buf[k + 2], buf[k + 3]);
+          }
+          ctx.stroke();
+        }
         if (mouseLines.length > 0) {
           ctx.strokeStyle = '#ffffff';
           ctx.globalAlpha = 1.0;
@@ -806,6 +967,40 @@ export function ParticleCanvas() {
         }
       }
       ctx.fill();
+
+      if (otherDots.length > 0) {
+        ctx.shadowBlur  = 0;
+        ctx.globalAlpha = 0.72 * (1 - othersFade);
+        ctx.beginPath();
+        for (let k = 0; k < otherDots.length; k += 3) {
+          ctx.moveTo(otherDots[k] + otherDots[k + 2], otherDots[k + 1]);
+          ctx.arc(otherDots[k], otherDots[k + 1], otherDots[k + 2], 0, Math.PI * 2);
+        }
+        ctx.fill();
+      }
+      if (orgDots.length > 0) {
+        // The body: crisp dots, then the pulse front on top.
+        ctx.shadowBlur  = 3;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        for (let k = 0; k < orgDots.length; k += 4) {
+          const r = orgDots[k + 2] * 0.62;
+          ctx.moveTo(orgDots[k] + r, orgDots[k + 1]);
+          ctx.arc(orgDots[k], orgDots[k + 1], r, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        ctx.shadowBlur  = 14;
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        for (let k = 0; k < orgDots.length; k += 4) {
+          const l = orgDots[k + 3];
+          if (l <= 0.05) continue;
+          const r = orgDots[k + 2] * (0.62 + l * 0.9);
+          ctx.moveTo(orgDots[k] + r, orgDots[k + 1]);
+          ctx.arc(orgDots[k], orgDots[k + 1], r, 0, Math.PI * 2);
+        }
+        ctx.fill();
+      }
 
       if (formed.length > 0) {
         ctx.shadowBlur  = 4;

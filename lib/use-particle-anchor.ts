@@ -108,3 +108,51 @@ export function useClearZone(ref: RefObject<HTMLElement | null>, pad = 40) {
     };
   }, [ref, pad]);
 }
+
+// useFormation: while the section is pinned (from just before its top meets
+// the viewport top until `exitAt` of its scroll range; the last role sits at
+// exactly 1, so the default lets the stage lift a little first), the network morphs
+// into a body between the two anchors `measure` returns. Leaving either way
+// releases it; the canvas turns the release into a scatter blast. Desktop
+// only: under 768 the gap between the anchors does not exist.
+export type FormationGeometry = {
+  ax: number; ay: number; bx: number; by: number;
+  box: { x: number; y: number; w: number; h: number };
+};
+
+export function useFormation(
+  sectionRef: RefObject<HTMLElement | null>,
+  measure: () => FormationGeometry | null,
+  opts: { shape: 'spindle' | 'ring'; share: number; hmax: number },
+  step: number,
+  exitAt = 1.04,
+) {
+  const { shape, share, hmax } = opts;
+  useEffect(() => { particleInteraction.formation.step = step; }, [step]);
+  useEffect(() => {
+    let raf = 0;
+    const fo = particleInteraction.formation;
+    const loop = () => {
+      raf = requestAnimationFrame(loop);
+      const s = sectionRef.current;
+      if (!s) return;
+      const vh = window.innerHeight;
+      const r = s.getBoundingClientRect();
+      const range = r.height - vh;
+      const progress = range > 0 ? -r.top / range : 0;
+      const g = window.innerWidth >= 768 && r.top <= vh * 0.08 && progress < exitAt ? measure() : null;
+      if (g && g.bx - g.ax > 40) {
+        fo.shape = shape; fo.share = share; fo.hmax = hmax;
+        fo.ax = g.ax; fo.ay = g.ay; fo.bx = g.bx; fo.by = g.by;
+        fo.box.x = g.box.x; fo.box.y = g.box.y; fo.box.w = g.box.w; fo.box.h = g.box.h;
+        fo.active = true;
+      } else {
+        fo.active = false;
+      }
+    };
+    raf = requestAnimationFrame(loop);
+    return () => { cancelAnimationFrame(raf); fo.active = false; };
+    // measure reads refs only, so it is stable enough to leave out.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionRef, shape, share, hmax, exitAt]);
+}
