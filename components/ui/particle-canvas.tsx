@@ -407,9 +407,11 @@ export function ParticleCanvas() {
         formLean += ([1, 0.78, 1.28][fo.step % 3] - formLean) * 0.04;
       }
       const othersFade = fo.share < 1 ? formGlobal : 0;
-      // Brightness front, -0.1 to 1.1 along the axis while a pulse runs.
+      // Brightness front, -0.1 to 1.1 along the axis while a pulse runs
+      // (1.1 to -0.1 when the pulse runs b to a).
       const pulseK = fo.pulseAt > 0 ? (now - fo.pulseAt) / FORMATION_PULSE_MS : -1;
-      const front  = pulseK >= 0 && pulseK <= 1 ? -0.1 + 1.2 * pulseK * pulseK * (3 - 2 * pulseK) : -9;
+      const frontAB = pulseK >= 0 && pulseK <= 1 ? -0.1 + 1.2 * pulseK * pulseK * (3 - 2 * pulseK) : -9;
+      const front   = frontAB === -9 ? -9 : fo.pulseDir === -1 ? 1 - frontAB : frontAB;
       const tForm  = now / 1000;
       const breath = 1 + 0.07 * Math.sin(tForm * 0.9);
       let formAny = false;
