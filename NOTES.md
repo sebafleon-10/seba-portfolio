@@ -424,7 +424,10 @@ CLAUDE_PROMPTING.md is auto-loaded by Claude Code via `@CLAUDE_PROMPTING.md` lin
 
 ## Next Steps
 
-### Priority 0: ship the Experience section (Sep 15)
+### Priority 0: Experience logos in color, freed from the plate (Sep 18, next session)
+- Handoff with the asset inventory, the three decisions to settle, and the code map: docs/handoffs/2026-09-18-experience-color-logos.md. Read it first
+
+### Priority 0 (done): ship the Experience section (Sep 15)
 - DONE (Sep 15, later session): the gallery wall replaced the floating hairline list. Optional cleanup: migrate the who-section and work-section gravity rAF loops to useGravityAnchor in lib/use-particle-anchor.ts (same semantics, they still carry their own copies)
 - Known pre-existing bug, unrelated: the root particle canvas throws `getImageData ... The source width is 0` and the page fails to load when the tab first opens at a very small pane size (seen at 800x600 in the desktop-app preview). sampleText samples a zero-width canvas; guard W/H before sampling
 - Copy, logos, and hero photos are in (Sep 15). Remaining: push and verify on Vercel that /work/ghost-fc 308s to /experience/ghost-fc and that the two hero JPEGs (1.1 and 1.5 MB) are acceptable on the home preload
