@@ -93,6 +93,7 @@ type P = {
   // fm is how far the particle has morphed in (0 ambient, 1 formed).
   fsel: number; fu: number; fv: number; fring: boolean;
   fph: number; fw: number; fdelay: number; fm: number;
+  odelay: number;
 };
 
 function makeP(x: number, y: number, tx = -1, ty = -1): P {
@@ -126,6 +127,7 @@ function makeSlot() {
   return {
     fsel: frand(), fu, fv: side * Math.pow(frand(), 1.1), fring: frand() < 0.68,
     fph: frand() * Math.PI * 2, fw: 0.35 + frand() * 0.5, fdelay: 0, fm: 0,
+    odelay: 0,
   };
 }
 
@@ -207,6 +209,7 @@ export function ParticleCanvas() {
     const fLit = new Float32Array(N_TOTAL);
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let formWas = false, formClock = 0, formLive = false, formGlobal = 0;
+    let orbWas = false, orbClock = 0;
     let formStep = 0, formLean = 1, formKick = false, lastFrame = performance.now();
 
     // ── Input tracking ─────────────────────────────────────────────────────────
@@ -406,6 +409,19 @@ export function ParticleCanvas() {
         formStep = fo.step;
         formLean += ([1, 0.78, 1.28][fo.step % 3] - formLean) * 0.04;
       }
+      // Orb reveal converge (gravityBoost): the network gathers into a slowly
+      // turning globe at the viewport center. Same machinery as the formation:
+      // every particle has its own slot, nearer particles leave first, and the
+      // ramp runs on the clock so it reads the same at 60 and 120Hz. The
+      // canvas owns the target here; gravityTarget belongs to the sections.
+      const boost = phase === 'static' && particleInteraction.gravityBoost;
+      if (boost && !orbWas) {
+        orbClock = 0;
+        for (const p of ps) p.odelay = Math.hypot(p.x - W / 2, p.y - H / 2) / (W * 0.6) * 220 + Math.random() * 50;
+      }
+      if (boost) orbClock += dtFrame;
+      orbWas = boost;
+      const orbR = Math.min(W, H) * 0.17;
       const othersFade = fo.share < 1 ? formGlobal : 0;
       // Brightness front, -0.1 to 1.1 along the axis while a pulse runs
       // (1.1 to -0.1 when the pulse runs b to a).
@@ -603,8 +619,19 @@ export function ParticleCanvas() {
               }
             }
           }
+          if (boost) {
+            // Globe slot: fv is the latitude, fph the longitude, a third of
+            // the particles fill the core.
+            const k = (orbClock - p.odelay) / 480;
+            m = k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k);
+            lit = 0;
+            const rr = orbR * (p.fsel < 0.3 ? 0.3 + p.fsel * 1.5 : 1);
+            const ph = p.fph + tForm * 0.9;
+            slotX = W / 2 + rr * Math.sqrt(1 - p.fv * p.fv) * Math.cos(ph);
+            slotY = H / 2 + rr * p.fv;
+          }
           fM[i] = m; fLit[i] = lit;
-          const free = 1 - m;
+          const free = boost ? 0 : 1 - m;
 
           // Mouse: repulse (work section hover) or attract (hero)
           if (particleInteraction.repulse) {
@@ -690,24 +717,26 @@ export function ParticleCanvas() {
           }
 
           // Spring toward rest + buzz
-          if (!particleInteraction.gravityBoost && !isBlasting) {
-            p.vx += (p.restX * free + slotX * m + bx - p.x) * 0.04;
-            p.vy += (p.restY * free + slotY * m + by - p.y) * 0.04;
+          if (!isBlasting) {
+            const kk = boost ? 0.04 + 0.05 * m : 0.04;
+            p.vx += (p.restX * (1 - m) + slotX * m + bx - p.x) * kk;
+            p.vy += (p.restY * (1 - m) + slotY * m + by - p.y) * kk;
           }
 
           // Direct gravity pull toward active target
-          if (gt.active && !isBlasting) {
+          // (not during the orb converge: the globe slot spring does the work)
+          if (!boost && gt.active && !isBlasting) {
             const dx   = gt.x - p.x;
             const dy   = gt.y - p.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist > 0) {
               const t     = Math.max(0, 1 - dist / 1200);
-              const force = t * t * (particleInteraction.gravityBoost ? 20.0 : 4.0 * zoneEase * free);
+              const force = t * t * 4.0 * zoneEase * free;
               p.vx += (dx / dist) * force;
               p.vy += (dy / dist) * force;
               p.vx *= 0.96;
               p.vy *= 0.96;
-              const cap = particleInteraction.gravityBoost ? 18 : 8;
+              const cap = 8;
               p.vx = Math.max(-cap, Math.min(cap, p.vx));
               p.vy = Math.max(-cap, Math.min(cap, p.vy));
             }
