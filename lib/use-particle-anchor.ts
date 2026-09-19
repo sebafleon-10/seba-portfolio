@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, type RefObject } from 'react';
-import { particleInteraction } from '@/lib/particle-state';
+import { particleInteraction, type ClearZone } from '@/lib/particle-state';
 
 // Section-level hooks that drive the particle canvas from a DOM element.
 //
@@ -11,7 +11,7 @@ import { particleInteraction } from '@/lib/particle-state';
 // always wins during its 900ms converge.
 //
 // useClearZone: while the element is on screen, its bounding rect (plus pad)
-// is published as the zone the static-phase particles keep clear of. The
+// is published as a zone the static-phase particles keep clear of. The
 // canvas pushes particles out, migrates their rest points, and keeps scatter
 // clusters away from it. Used for body copy that has no opaque surface.
 
@@ -53,7 +53,8 @@ export function useGravityAnchor(ref: RefObject<HTMLElement | null>) {
 export function useClearZone(ref: RefObject<HTMLElement | null>, pad = 40) {
   useEffect(() => {
     let raf = 0;
-    const cz = particleInteraction.clearZone;
+    const cz: ClearZone = { x: -9999, y: -9999, w: 0, h: 0, active: false };
+    particleInteraction.clearZones.push(cz);
     const loop = () => {
       const el = ref.current;
       if (el) {
@@ -75,6 +76,9 @@ export function useClearZone(ref: RefObject<HTMLElement | null>, pad = 40) {
     return () => {
       cancelAnimationFrame(raf);
       cz.active = false;
+      const zones = particleInteraction.clearZones;
+      const i = zones.indexOf(cz);
+      if (i !== -1) zones.splice(i, 1);
     };
   }, [ref, pad]);
 }

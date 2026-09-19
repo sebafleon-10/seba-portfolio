@@ -13,10 +13,13 @@ import { useGravityAnchor, useClearZone } from '@/lib/use-particle-anchor';
 // The section is N screens tall and a full-height stage sticks to the top
 // of the viewport for the whole run. Scroll progress picks the active role
 // (stepped, with hysteresis). One role is visible at a time: an opaque text
-// card on the left, a logo plate on the right, and a hairline tether that
-// redraws between them on every step. Both surfaces are solid card black;
-// the plate is the particle network's gravity anchor and the card publishes
-// a clearing zone. No text shadows, no scrims. Click or Enter opens the role.
+// card on the left, the company's logo mark floating on the right in brand
+// color, and a hairline tether that redraws between them on every step. The
+// mark has no surface: it is the particle network's gravity anchor and
+// publishes its own clearing zone, so the network rings it instead of
+// crossing it. The card publishes a second zone. No text shadows, no scrims.
+// Brand color inside logo marks is the one hue allowed on the home page.
+// Click or Enter opens the role.
 
 const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
 const SURFACE = '#0d0d0d';
@@ -34,7 +37,7 @@ type Role = {
   role: string;
   dates: string;
   oneLine: string;
-  // Large mark on the plate. `width` is the share of the plate it fills.
+  // The floating mark. `width` is its share of the 440px mark box.
   logo: { src: string; alt: string; width: string; style?: CSSProperties };
   // Long company names drop to a smaller mono size so the card stays two
   // lines at most instead of towering over the copy.
@@ -49,7 +52,7 @@ const ROLES: Role[] = [
     role: 'Business Analyst, Strategy and Business Modeling',
     dates: 'Sep 2026 to Present',
     oneLine: 'Building business simulations and the AI tools inside them for leadership teams at large companies.',
-    logo: { src: '/bts-logo-white.svg', alt: 'BTS logo', width: '54%' },
+    logo: { src: '/bts-logo-color.svg', alt: 'BTS logo', width: '88%' },
   },
   {
     // Tag: Python · Excel · Qlik. Location: Chicago, IL (Remote).
@@ -59,13 +62,12 @@ const ROLES: Role[] = [
     role: 'Data & Analytics Consultant (Contract)',
     dates: 'Jun 2026 to Aug 2026',
     oneLine: 'Built a four-warehouse delivery cost-to-serve model and the monthly pipeline that keeps it running.',
-    // The only logo the brand publishes is a red badge; grayscale keeps the
-    // home page hue-free. 250x72 source, so it sits wide on the plate.
     logo: {
       src: '/radiator-logo.png',
       alt: '1-800 Radiator & A/C logo',
-      width: '66%',
-      style: { filter: 'grayscale(1) brightness(1.35) contrast(1.1)' },
+      // 250x72 is the largest badge the brand publishes; kept to 80% so the
+      // upscale stays modest until a bigger source lands.
+      width: '80%',
     },
   },
   {
@@ -74,11 +76,15 @@ const ROLES: Role[] = [
     role: 'Data Analyst',
     dates: 'Jan 2026 to Aug 2026',
     oneLine: "Built the club's front-office analytics from the ground up: sponsorship prospecting, social pipelines, match-day KPIs.",
-    logo: { src: '/ghost-fc-logo.png', alt: 'Chicago Ghost FC crest', width: '50%' },
+    logo: { src: '/ghost-fc-logo.png', alt: 'Chicago Ghost FC crest', width: '68%' },
   },
 ];
 
 const N = ROLES.length;
+// Clear zone padding around the visible mark, and the gap the tether leaves
+// before it.
+const MARK_PAD = 28;
+const TETHER_GAP = 14;
 // How far past a boundary (in role units, 0.5 is the midpoint) the scroll has
 // to travel before the step commits. Stops slow scrolling from flickering.
 const HYSTERESIS = 0.08;
@@ -161,16 +167,21 @@ export function ExperienceSection() {
   const stageRef   = useRef<HTMLDivElement>(null);
   const wallRef    = useRef<HTMLDivElement>(null);
   const cardRef    = useRef<HTMLDivElement>(null);
-  const plateRef   = useRef<HTMLDivElement>(null);
+  const markRef    = useRef<HTMLDivElement>(null);
   const nameRefs   = useRef<(HTMLParagraphElement | null)[]>([]);
   // The stage, not the tall section, drives the label and orb reveal so the
   // 002 label stays put while the stage is pinned.
   const orbLabelRef = useOrbReveal(stageRef);
   const [active, setActive] = useState(0);
   const [tether, setTether] = useState({ left: 0, top: 0, width: 0 });
+  const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
+  // Points at the visible mark so its clear zone hugs the logo's own box
+  // (the Radiator badge is a wide bar, the crest a square).
+  const activeMarkRef = useRef<HTMLImageElement | null>(null);
 
-  useGravityAnchor(plateRef);
+  useGravityAnchor(markRef);
   useClearZone(cardRef, 40);
+  useClearZone(activeMarkRef, MARK_PAD);
 
   for (const r of ROLES) preload(r.logo.src, { as: 'image' });
 
@@ -204,24 +215,28 @@ export function ExperienceSection() {
   };
 
   // The tether runs from the card's right edge, at the height of the active
-  // company name, to the plate's left edge. Measured from the real boxes so
+  // company name, to the mark's left edge. Measured from the real boxes so
   // it stays attached at any width.
   const measureTether = useCallback(() => {
-    const wall = wallRef.current, card = cardRef.current, plate = plateRef.current;
+    const wall = wallRef.current, card = cardRef.current, mark = imgRefs.current[active];
     const name = nameRefs.current[active];
-    if (!wall || !card || !plate || !name) return;
+    if (!wall || !card || !mark || !name) return;
     const w = wall.getBoundingClientRect();
     const c = card.getBoundingClientRect();
-    const pl = plate.getBoundingClientRect();
+    // offsetWidth ignores the entrance scale, so the tether lands on the
+    // mark's settled edge even when measured mid-step.
+    const box = (mark.parentElement as HTMLElement).getBoundingClientRect();
+    const markLeft = box.left + (box.width - mark.offsetWidth) / 2;
     const n = name.getBoundingClientRect();
     setTether({
       left: c.right - w.left,
       top: n.top + n.height / 2 - w.top,
-      width: Math.max(0, pl.left - c.right),
+      width: Math.max(0, markLeft - TETHER_GAP - c.right),
     });
   }, [active]);
 
   useLayoutEffect(() => {
+    activeMarkRef.current = imgRefs.current[active];
     measureTether();
     window.addEventListener('resize', measureTether);
     return () => window.removeEventListener('resize', measureTether);
@@ -256,10 +271,9 @@ export function ExperienceSection() {
           .exp-card { padding: 40px 40px 40px 56px; }
           @media (max-width: 767px) {
             .exp-wall { display: flex; flex-direction: column; align-items: stretch; padding: 72px 20px 24px; gap: 20px; }
-            .exp-panel-cell { order: -1; }
-            .exp-panel {
-              width: 100% !important; aspect-ratio: 16 / 7 !important; max-height: 180px;
-            }
+            .exp-mark-cell { order: -1; }
+            .exp-mark { width: 100% !important; height: 120px !important; }
+            .exp-mark img { width: auto !important; max-width: 70%; }
             .exp-card { padding: 28px 24px !important; }
             .exp-rail, .exp-tether, .exp-row-arrow { display: none !important; }
           }
@@ -317,7 +331,7 @@ export function ExperienceSection() {
             </div>
           </div>
 
-          {/* Tether: redraws from the card to the plate on every step */}
+          {/* Tether: redraws from the card to the mark on every step */}
           <motion.div
             key={active}
             className="exp-tether"
@@ -343,21 +357,16 @@ export function ExperienceSection() {
             }} />
           </motion.div>
 
-          {/* Logo plate: the network's gravity anchor */}
-          <div className="exp-panel-cell">
+          {/* Mark: the logo as its own object and the network's gravity anchor */}
+          <div className="exp-mark-cell">
             <div
-              ref={plateRef}
-              className="exp-panel"
+              ref={markRef}
+              className="exp-mark"
               style={{
                 position: 'relative',
-                width: 'min(100%, calc(70vh * 0.75))',
-                aspectRatio: '3 / 4',
+                width: 'min(100%, 440px)',
+                height: 320,
                 marginLeft: 'auto',
-                borderRadius: 14,
-                overflow: 'hidden',
-                background: SURFACE,
-                border: FRAME,
-                boxShadow: SHADOW,
               }}
             >
               {ROLES.map((r, i) => (
@@ -365,8 +374,8 @@ export function ExperienceSection() {
                   key={r.slug}
                   aria-hidden={i !== active}
                   initial={false}
-                  animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1 : 1.03 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1 : 0.94 }}
+                  transition={{ duration: 0.45, ease: 'easeOut' }}
                   style={{
                     position: 'absolute', inset: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -374,12 +383,13 @@ export function ExperienceSection() {
                   }}
                 >
                   <img
+                    ref={el => { imgRefs.current[i] = el; }}
                     src={r.logo.src}
                     alt={r.logo.alt}
                     draggable={false}
                     style={{
-                      width: r.logo.width, maxHeight: '60%', objectFit: 'contain',
-                      opacity: 0.92, display: 'block', ...r.logo.style,
+                      width: r.logo.width, maxHeight: '100%', objectFit: 'contain',
+                      display: 'block', ...r.logo.style,
                     }}
                   />
                 </motion.div>
