@@ -198,6 +198,7 @@ export function ParticleCanvas() {
     let scatterStart  = 0;
     let staticStart   = 0;
     let smoothGX = -9999, smoothGY = -9999, smoothGInit = false;
+    let calmNow = 0;
     let lastScatterTrigger = 0;
     let lastScatterTime    = -99999;
 
@@ -698,8 +699,11 @@ export function ParticleCanvas() {
       }
 
       // ── Draw connections ───────────────────────────────────────────────────
-      const fade      = 1.0;
-      const lineAlpha = 1.0;
+      // Calm: a section can ask the network to recede. Eased, and released
+      // during an orb-reveal blast so the reveal still lands at full strength.
+      calmNow += ((isBlastingFrame ? 0 : particleInteraction.calm) - calmNow) * 0.05;
+      const fade      = 1 - calmNow * 0.6;
+      const lineAlpha = 1 - calmNow * 0.7;
 
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth   = 0.5;
@@ -781,7 +785,7 @@ export function ParticleCanvas() {
       ctx.fillStyle   = '#ffffff';
       ctx.shadowColor = '#ffffff';
 
-      ctx.shadowBlur  = 8;
+      ctx.shadowBlur  = 8 * (1 - calmNow);
       ctx.globalAlpha = 0.72 * fade;
       ctx.beginPath();
       for (let k = 0; k < ambient.length; k += 3) {
@@ -792,7 +796,7 @@ export function ParticleCanvas() {
       }
       ctx.fill();
 
-      ctx.shadowBlur  = 12;
+      ctx.shadowBlur  = 12 * (1 - calmNow);
       ctx.globalAlpha = 0.92 * fade;
       ctx.beginPath();
       for (let k = 0; k < ambient.length; k += 3) {

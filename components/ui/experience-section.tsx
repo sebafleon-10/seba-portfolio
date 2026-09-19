@@ -1,12 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { MONO } from '@/lib/fonts';
 import { preload } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { motion, useAnimationControls } from 'framer-motion';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
-import { useGravityAnchor, useClearZone } from '@/lib/use-particle-anchor';
+import { useGravityAnchor, useClearZone, useCalm } from '@/lib/use-particle-anchor';
 import { ExperienceTissue } from '@/components/ui/experience-tissue';
 
 // 002 · EXPERIENCE, the pinned stage (Sep 18 2026).
@@ -18,8 +18,9 @@ import { ExperienceTissue } from '@/components/ui/experience-tissue';
 // color, and a private synapse network (ExperienceTissue) bridging the gap,
 // pulsing card to mark on every step. Card and mark float on slow loops like
 // the Contact cards and steps land on a spring. The mark has no surface: it is the particle network's gravity anchor and
-// publishes its own clearing zone, so the network rings it instead of
-// crossing it. The card publishes a second zone. No text shadows, no scrims.
+// one stage zone around card, tissue and mark keeps the network well away,
+// and useCalm dims the network while the stage is pinned so the content
+// is the brightest thing on screen. No text shadows, no scrims.
 // Brand color inside logo marks is the one hue allowed on the home page.
 // Click or Enter opens the role.
 
@@ -84,10 +85,8 @@ const ROLES: Role[] = [
 ];
 
 const N = ROLES.length;
-// Clear zone padding around the visible mark, and the height of the zone
-// that keeps the main network out of the tissue's gap.
-const MARK_PAD = 28;
-const GAP_H = 340;
+// How far the main network recedes while the stage is pinned (0 to 1).
+const CALM = 1;
 // How far past a boundary (in role units, 0.5 is the midpoint) the scroll has
 // to travel before the step commits. Stops slow scrolling from flickering.
 const HYSTERESIS = 0.08;
@@ -176,19 +175,17 @@ export function ExperienceSection() {
   // 002 label stays put while the stage is pinned.
   const orbLabelRef = useOrbReveal(stageRef);
   const [active, setActive] = useState(0);
-  const [gap, setGap] = useState({ left: 0, width: 0 });
   const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
   // Points at the visible mark so its clear zone hugs the logo's own box
   // (the Radiator badge is a wide bar, the crest a square).
   const activeMarkRef = useRef<HTMLImageElement | null>(null);
   const activeNameRef = useRef<HTMLParagraphElement | null>(null);
   const kick = useAnimationControls();
-  const gapRef = useRef<HTMLDivElement>(null);
+  const zoneRef = useRef<HTMLDivElement>(null);
 
   useGravityAnchor(markRef);
-  useClearZone(cardRef, 40);
-  useClearZone(activeMarkRef, MARK_PAD);
-  useClearZone(gapRef, 0);
+  useClearZone(zoneRef, 0);
+  useCalm(stageRef, CALM);
 
   for (const r of ROLES) preload(r.logo.src, { as: 'image' });
 
@@ -221,25 +218,10 @@ export function ExperienceSection() {
     window.scrollTo({ top: top + i * window.innerHeight, behavior: 'smooth' });
   };
 
-  // The gap box spans the card's right edge to the active mark's settled
-  // left edge (offsetWidth ignores the entrance scale).
-  const measureGap = useCallback(() => {
-    const wall = wallRef.current, card = cardRef.current, mark = imgRefs.current[active];
-    if (!wall || !card || !mark) return;
-    const w = wall.getBoundingClientRect();
-    const c = card.getBoundingClientRect();
-    const box = (mark.parentElement as HTMLElement).getBoundingClientRect();
-    const markLeft = box.left + (box.width - mark.offsetWidth) / 2;
-    setGap({ left: c.right - w.left, width: Math.max(0, markLeft - c.right) });
-  }, [active]);
-
   useLayoutEffect(() => {
     activeMarkRef.current = imgRefs.current[active];
     activeNameRef.current = nameRefs.current[active];
-    measureGap();
-    window.addEventListener('resize', measureGap);
-    return () => window.removeEventListener('resize', measureGap);
-  }, [measureGap]);
+  }, [active]);
 
   return (
     <section
@@ -268,13 +250,16 @@ export function ExperienceSection() {
             display: grid; grid-template-columns: 44% 1fr; gap: 64px; align-items: center;
           }
           .exp-card { padding: 40px 40px 40px 56px; }
+          /* 90px past the content box on every side (the wall pads 64). */
+          .exp-zone { position: absolute; inset: -90px -26px; pointer-events: none; }
           @media (max-width: 767px) {
             .exp-wall { display: flex; flex-direction: column; align-items: stretch; padding: 72px 20px 24px; gap: 20px; }
             .exp-mark-cell { order: -1; }
             .exp-mark { width: 100% !important; height: 120px !important; }
             .exp-mark img { width: auto !important; max-width: 70%; }
             .exp-card { padding: 28px 24px !important; }
-            .exp-rail, .exp-tissue, .exp-gap, .exp-row-arrow { display: none !important; }
+            .exp-zone { inset: 48px -4px 0 -4px; }
+            .exp-rail, .exp-tissue, .exp-row-arrow { display: none !important; }
           }
         `}</style>
 
@@ -332,18 +317,10 @@ export function ExperienceSection() {
             </div>
           </motion.div>
 
-          {/* Gap: an empty box over the space between card and mark. It only
-              exists to publish a clear zone so the tissue is the one network
-              drawn there. */}
-          <div
-            ref={gapRef}
-            className="exp-gap"
-            aria-hidden
-            style={{
-              position: 'absolute', left: gap.left, width: gap.width,
-              top: '50%', height: GAP_H, marginTop: -GAP_H / 2, pointerEvents: 'none',
-            }}
-          />
+          {/* Stage zone: one empty box around card, tissue and mark. It only
+              publishes the clear zone, so the network settles well away from
+              the content instead of pressing on three separate edges. */}
+          <div ref={zoneRef} className="exp-zone" aria-hidden />
 
           <ExperienceTissue
             wallRef={wallRef}

@@ -10,6 +10,9 @@ export const particleInteraction = {
   // text card and logo mark). Rest points inside one migrate out, scatter
   // clusters avoid them. Each useClearZone call registers its own entry.
   clearZones: [] as ClearZone[],
+  // 0 to 1, set by a section that wants the network to recede (dimmer dots
+  // and lines, no glow) so its own content leads. The canvas eases toward it.
+  calm: 0,
   orbReveal: { phase: 'idle' as 'idle' | 'converging' | 'holding' | 'scattering' },
   scatterTrigger: 0,
   gravityBoost: false,

@@ -50,6 +50,32 @@ export function useGravityAnchor(ref: RefObject<HTMLElement | null>) {
   }, [ref]);
 }
 
+// useCalm: while the element covers the viewport center, the network dims by
+// `amount` (0 to 1). For sections whose anchor has no opaque surface, where
+// the whole network would otherwise sit bright beside the content.
+export function useCalm(ref: RefObject<HTMLElement | null>, amount = 1) {
+  useEffect(() => {
+    let raf = 0;
+    let mine = false;
+    const loop = () => {
+      const el = ref.current;
+      if (el) {
+        const r = el.getBoundingClientRect();
+        const mid = window.innerHeight / 2;
+        const covers = r.top < mid && r.bottom > mid;
+        if (covers) { particleInteraction.calm = amount; mine = true; }
+        else if (mine) { particleInteraction.calm = 0; mine = false; }
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (mine) particleInteraction.calm = 0;
+    };
+  }, [ref, amount]);
+}
+
 export function useClearZone(ref: RefObject<HTMLElement | null>, pad = 40) {
   useEffect(() => {
     let raf = 0;
