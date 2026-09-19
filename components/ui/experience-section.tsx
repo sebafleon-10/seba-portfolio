@@ -6,21 +6,23 @@ import { preload } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { motion, useAnimationControls } from 'framer-motion';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
-import { useGravityAnchor, useClearZone, useCalm } from '@/lib/use-particle-anchor';
-import { ExperienceTissue } from '@/components/ui/experience-tissue';
+import { useClearZone, useCalm, useFormation, type FormationGeometry } from '@/lib/use-particle-anchor';
+import { particleInteraction, FORMATION_PULSE_MS } from '@/lib/particle-state';
 
 // 002 · EXPERIENCE, the pinned stage (Sep 18 2026).
 //
 // The section is N screens tall and a full-height stage sticks to the top
 // of the viewport for the whole run. Scroll progress picks the active role
 // (stepped, with hysteresis). One role is visible at a time: an opaque text
-// card on the left, the company's logo mark floating on the right in brand
-// color, and a private synapse network (ExperienceTissue) bridging the gap,
-// pulsing card to mark on every step. Card and mark float on slow loops like
-// the Contact cards and steps land on a spring. The mark has no surface: it is the particle network's gravity anchor and
-// one stage zone around card, tissue and mark keeps the network well away,
-// and useCalm dims the network while the stage is pinned so the content
-// is the brightest thing on screen. No text shadows, no scrims.
+// card on the left and the company's logo mark floating on the right in
+// brand color. While the stage is pinned the particle network itself morphs
+// into one living body between the card edge and the mark (useFormation):
+// it breathes, leans and convulses on every step, and a brightness front
+// runs card to mark through the particles, landing as a bump on the logo.
+// Leaving the section releases it as a blast back into the ambient flow.
+// Card and mark float on slow loops like the Contact cards and steps land on
+// a spring. Mobile has no gap, so it keeps the quiet room: one clear zone
+// around the content plus useCalm. No text shadows, no scrims.
 // Brand color inside logo marks is the one hue allowed on the home page.
 // Click or Enter opens the role.
 
@@ -41,7 +43,7 @@ type Role = {
   role: string;
   dates: string;
   oneLine: string;
-  // The floating mark. `width` is its share of the 440px mark box.
+  // The floating mark. `width` is its share of the 390px mark box.
   logo: { src: string; alt: string; width: string; style?: CSSProperties };
   // Long company names drop to a smaller mono size so the card stays two
   // lines at most instead of towering over the copy.
@@ -85,6 +87,9 @@ const ROLES: Role[] = [
 ];
 
 const N = ROLES.length;
+// Everyone joins one body; hmax is its half height at the middle of the gap
+// (the card is about 290 tall, so the body stands about 40 percent over it).
+const FORMATION = { shape: 'spindle' as const, share: 1, hmax: 205 };
 // How far the main network recedes while the stage is pinned (0 to 1).
 const CALM = 1;
 // How far past a boundary (in role units, 0.5 is the midpoint) the scroll has
@@ -183,9 +188,47 @@ export function ExperienceSection() {
   const kick = useAnimationControls();
   const zoneRef = useRef<HTMLDivElement>(null);
 
-  useGravityAnchor(markRef);
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const on = () => setMobile(window.innerWidth < 768);
+    on();
+    window.addEventListener('resize', on, { passive: true });
+    return () => window.removeEventListener('resize', on);
+  }, []);
+
+  // Desktop: the network itself becomes the body between the card and the
+  // mark. Mobile has no gap, so it keeps the quiet room (zone plus calm).
+  const measure = (): FormationGeometry | null => {
+    const card = cardRef.current, name = activeNameRef.current, mark = activeMarkRef.current, wall = wallRef.current;
+    if (!card || !name || !mark || !wall) return null;
+    const c = card.getBoundingClientRect(), n = name.getBoundingClientRect(), m = mark.getBoundingClientRect();
+    const top = Math.min(c.top, m.top), bottom = Math.max(c.bottom, m.bottom);
+    return {
+      ax: c.right + 6, ay: n.top + n.height / 2,
+      bx: m.left - 14, by: m.top + m.height / 2,
+      box: { x: c.left, y: top, w: m.right - c.left, h: bottom - top },
+    };
+  };
+  useFormation(sectionRef, measure, FORMATION, active);
   useClearZone(zoneRef, 0);
-  useCalm(stageRef, CALM);
+  useCalm(stageRef, mobile ? CALM : 0);
+
+  // A pulse runs card to mark after every step and on an idle timer; the
+  // mark takes the hit when the front lands.
+  useEffect(() => {
+    if (mobile || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const fire = () => {
+      if (!particleInteraction.formation.active) return;
+      particleInteraction.formation.pulseAt = performance.now();
+      timers.push(setTimeout(() => {
+        kick.start({ scale: [1, 1.07, 0.98, 1], transition: { duration: 0.55, ease: 'easeOut' } });
+      }, FORMATION_PULSE_MS * 0.92));
+    };
+    timers.push(setTimeout(fire, 180));
+    const idle = setInterval(fire, 5200);
+    return () => { timers.forEach(clearTimeout); clearInterval(idle); };
+  }, [active, mobile, kick]);
 
   for (const r of ROLES) preload(r.logo.src, { as: 'image' });
 
@@ -247,19 +290,20 @@ export function ExperienceSection() {
           .exp-wall {
             position: relative;
             width: 100%; max-width: 1280px; padding: 0 64px;
-            display: grid; grid-template-columns: 44% 1fr; gap: 64px; align-items: center;
+            display: grid; grid-template-columns: 39% 1fr; gap: 64px; align-items: center;
           }
           .exp-card { padding: 40px 40px 40px 56px; }
           /* 90px past the content box on every side (the wall pads 64). */
-          .exp-zone { position: absolute; inset: -90px -26px; pointer-events: none; }
+          .exp-zone { display: none; position: absolute; pointer-events: none; }
+
           @media (max-width: 767px) {
             .exp-wall { display: flex; flex-direction: column; align-items: stretch; padding: 72px 20px 24px; gap: 20px; }
             .exp-mark-cell { order: -1; }
             .exp-mark { width: 100% !important; height: 120px !important; }
             .exp-mark img { width: auto !important; max-width: 70%; }
             .exp-card { padding: 28px 24px !important; }
-            .exp-zone { inset: 48px -4px 0 -4px; }
-            .exp-rail, .exp-tissue, .exp-row-arrow { display: none !important; }
+            .exp-zone { display: block; inset: 48px -4px 0 -4px; }
+            .exp-rail, .exp-row-arrow { display: none !important; }
           }
         `}</style>
 
@@ -317,19 +361,9 @@ export function ExperienceSection() {
             </div>
           </motion.div>
 
-          {/* Stage zone: one empty box around card, tissue and mark. It only
-              publishes the clear zone, so the network settles well away from
-              the content instead of pressing on three separate edges. */}
+          {/* Stage zone (mobile only, display none on desktop): one empty box
+              around the content that publishes the clear zone. */}
           <div ref={zoneRef} className="exp-zone" aria-hidden />
-
-          <ExperienceTissue
-            wallRef={wallRef}
-            cardRef={cardRef}
-            nameRef={activeNameRef}
-            markRef={activeMarkRef}
-            active={active}
-            onArrive={() => kick.start({ scale: [1, 1.07, 0.98, 1], transition: { duration: 0.55, ease: 'easeOut' } })}
-          />
 
           {/* Mark: the logo as its own object and the network's gravity anchor */}
           <div className="exp-mark-cell">
@@ -340,7 +374,7 @@ export function ExperienceSection() {
               transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
               style={{
                 position: 'relative',
-                width: 'min(100%, 440px)',
+                width: 'min(100%, 390px)',
                 height: 320,
                 marginLeft: 'auto',
               }}
