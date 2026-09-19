@@ -1,28 +1,35 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { MONO } from '@/lib/fonts';
 import { preload } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, useAnimationControls } from 'framer-motion';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
-import { useGravityAnchor, useClearZone } from '@/lib/use-particle-anchor';
+import { useGravityAnchor, useClearZone, useCalm } from '@/lib/use-particle-anchor';
+import { ExperienceTissue } from '@/components/ui/experience-tissue';
 
 // 002 · EXPERIENCE, the pinned stage (Sep 18 2026).
 //
 // The section is N screens tall and a full-height stage sticks to the top
 // of the viewport for the whole run. Scroll progress picks the active role
 // (stepped, with hysteresis). One role is visible at a time: an opaque text
-// card on the left, a logo plate on the right, and a hairline tether that
-// redraws between them on every step. Both surfaces are solid card black;
-// the plate is the particle network's gravity anchor and the card publishes
-// a clearing zone. No text shadows, no scrims. Click or Enter opens the role.
+// card on the left, the company's logo mark floating on the right in brand
+// color, and a private synapse network (ExperienceTissue) bridging the gap,
+// pulsing card to mark on every step. Card and mark float on slow loops like
+// the Contact cards and steps land on a spring. The mark has no surface: it is the particle network's gravity anchor and
+// one stage zone around card, tissue and mark keeps the network well away,
+// and useCalm dims the network while the stage is pinned so the content
+// is the brightest thing on screen. No text shadows, no scrims.
+// Brand color inside logo marks is the one hue allowed on the home page.
+// Click or Enter opens the role.
 
 const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
 const SURFACE = '#0d0d0d';
 const FRAME = '1px solid rgba(255,255,255,0.08)';
 const SHADOW = '0 34px 70px -18px rgba(0,0,0,0.6)';
-const STEP = { duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
+// Steps land on a spring so the copy and the mark overshoot and settle.
+const STEP = { type: 'spring' as const, stiffness: 210, damping: 15, mass: 0.9 };
 
 // Most recent role first. The slug doubles as the /experience/<slug> route.
 // Copy for BTS and Radiator comes from the Sep 15 2026 role interviews; the
@@ -34,7 +41,7 @@ type Role = {
   role: string;
   dates: string;
   oneLine: string;
-  // Large mark on the plate. `width` is the share of the plate it fills.
+  // The floating mark. `width` is its share of the 440px mark box.
   logo: { src: string; alt: string; width: string; style?: CSSProperties };
   // Long company names drop to a smaller mono size so the card stays two
   // lines at most instead of towering over the copy.
@@ -49,7 +56,7 @@ const ROLES: Role[] = [
     role: 'Business Analyst, Strategy and Business Modeling',
     dates: 'Sep 2026 to Present',
     oneLine: 'Building business simulations and the AI tools inside them for leadership teams at large companies.',
-    logo: { src: '/bts-logo-white.svg', alt: 'BTS logo', width: '54%' },
+    logo: { src: '/bts-logo-color.svg', alt: 'BTS logo', width: '88%' },
   },
   {
     // Tag: Python · Excel · Qlik. Location: Chicago, IL (Remote).
@@ -59,13 +66,12 @@ const ROLES: Role[] = [
     role: 'Data & Analytics Consultant (Contract)',
     dates: 'Jun 2026 to Aug 2026',
     oneLine: 'Built a four-warehouse delivery cost-to-serve model and the monthly pipeline that keeps it running.',
-    // The only logo the brand publishes is a red badge; grayscale keeps the
-    // home page hue-free. 250x72 source, so it sits wide on the plate.
     logo: {
       src: '/radiator-logo.png',
       alt: '1-800 Radiator & A/C logo',
-      width: '66%',
-      style: { filter: 'grayscale(1) brightness(1.35) contrast(1.1)' },
+      // 250x72 is the largest badge the brand publishes; kept to 80% so the
+      // upscale stays modest until a bigger source lands.
+      width: '80%',
     },
   },
   {
@@ -74,11 +80,13 @@ const ROLES: Role[] = [
     role: 'Data Analyst',
     dates: 'Jan 2026 to Aug 2026',
     oneLine: "Built the club's front-office analytics from the ground up: sponsorship prospecting, social pipelines, match-day KPIs.",
-    logo: { src: '/ghost-fc-logo.png', alt: 'Chicago Ghost FC crest', width: '50%' },
+    logo: { src: '/ghost-fc-logo.png', alt: 'Chicago Ghost FC crest', width: '68%' },
   },
 ];
 
 const N = ROLES.length;
+// How far the main network recedes while the stage is pinned (0 to 1).
+const CALM = 1;
 // How far past a boundary (in role units, 0.5 is the midpoint) the scroll has
 // to travel before the step commits. Stops slow scrolling from flickering.
 const HYSTERESIS = 0.08;
@@ -101,7 +109,7 @@ function RoleCopy({ item, state, onOpen, nameRef }: {
       aria-label={`${item.company}, ${item.role}`}
       initial={false}
       animate={{ opacity: active ? 1 : 0, y: active ? 0 : state === 'past' ? -40 : 40 }}
-      transition={STEP}
+      transition={{ y: STEP, opacity: { duration: 0.35 } }}
       onClick={onOpen}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
       style={{
@@ -161,16 +169,23 @@ export function ExperienceSection() {
   const stageRef   = useRef<HTMLDivElement>(null);
   const wallRef    = useRef<HTMLDivElement>(null);
   const cardRef    = useRef<HTMLDivElement>(null);
-  const plateRef   = useRef<HTMLDivElement>(null);
+  const markRef    = useRef<HTMLDivElement>(null);
   const nameRefs   = useRef<(HTMLParagraphElement | null)[]>([]);
   // The stage, not the tall section, drives the label and orb reveal so the
   // 002 label stays put while the stage is pinned.
   const orbLabelRef = useOrbReveal(stageRef);
   const [active, setActive] = useState(0);
-  const [tether, setTether] = useState({ left: 0, top: 0, width: 0 });
+  const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
+  // Points at the visible mark so its clear zone hugs the logo's own box
+  // (the Radiator badge is a wide bar, the crest a square).
+  const activeMarkRef = useRef<HTMLImageElement | null>(null);
+  const activeNameRef = useRef<HTMLParagraphElement | null>(null);
+  const kick = useAnimationControls();
+  const zoneRef = useRef<HTMLDivElement>(null);
 
-  useGravityAnchor(plateRef);
-  useClearZone(cardRef, 40);
+  useGravityAnchor(markRef);
+  useClearZone(zoneRef, 0);
+  useCalm(stageRef, CALM);
 
   for (const r of ROLES) preload(r.logo.src, { as: 'image' });
 
@@ -203,29 +218,10 @@ export function ExperienceSection() {
     window.scrollTo({ top: top + i * window.innerHeight, behavior: 'smooth' });
   };
 
-  // The tether runs from the card's right edge, at the height of the active
-  // company name, to the plate's left edge. Measured from the real boxes so
-  // it stays attached at any width.
-  const measureTether = useCallback(() => {
-    const wall = wallRef.current, card = cardRef.current, plate = plateRef.current;
-    const name = nameRefs.current[active];
-    if (!wall || !card || !plate || !name) return;
-    const w = wall.getBoundingClientRect();
-    const c = card.getBoundingClientRect();
-    const pl = plate.getBoundingClientRect();
-    const n = name.getBoundingClientRect();
-    setTether({
-      left: c.right - w.left,
-      top: n.top + n.height / 2 - w.top,
-      width: Math.max(0, pl.left - c.right),
-    });
-  }, [active]);
-
   useLayoutEffect(() => {
-    measureTether();
-    window.addEventListener('resize', measureTether);
-    return () => window.removeEventListener('resize', measureTether);
-  }, [measureTether]);
+    activeMarkRef.current = imgRefs.current[active];
+    activeNameRef.current = nameRefs.current[active];
+  }, [active]);
 
   return (
     <section
@@ -250,26 +246,30 @@ export function ExperienceSection() {
         <style>{`
           .exp-wall {
             position: relative;
-            width: 100%; max-width: 1100px; padding: 0 64px;
-            display: grid; grid-template-columns: 52% 1fr; gap: 64px; align-items: center;
+            width: 100%; max-width: 1280px; padding: 0 64px;
+            display: grid; grid-template-columns: 44% 1fr; gap: 64px; align-items: center;
           }
           .exp-card { padding: 40px 40px 40px 56px; }
+          /* 90px past the content box on every side (the wall pads 64). */
+          .exp-zone { position: absolute; inset: -90px -26px; pointer-events: none; }
           @media (max-width: 767px) {
             .exp-wall { display: flex; flex-direction: column; align-items: stretch; padding: 72px 20px 24px; gap: 20px; }
-            .exp-panel-cell { order: -1; }
-            .exp-panel {
-              width: 100% !important; aspect-ratio: 16 / 7 !important; max-height: 180px;
-            }
+            .exp-mark-cell { order: -1; }
+            .exp-mark { width: 100% !important; height: 120px !important; }
+            .exp-mark img { width: auto !important; max-width: 70%; }
             .exp-card { padding: 28px 24px !important; }
-            .exp-rail, .exp-tether, .exp-row-arrow { display: none !important; }
+            .exp-zone { inset: 48px -4px 0 -4px; }
+            .exp-rail, .exp-tissue, .exp-row-arrow { display: none !important; }
           }
         `}</style>
 
         <div ref={wallRef} className="exp-wall">
           {/* Text card: opaque card black so the copy never sits on the network */}
-          <div
+          <motion.div
             ref={cardRef}
             className="exp-card"
+            animate={{ y: [0, -7, -2, -9, 0], x: [0, 2, -1, 2, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
             style={{
               position: 'relative',
               background: SURFACE,
@@ -315,49 +315,34 @@ export function ExperienceSection() {
                 />
               ))}
             </div>
-          </div>
-
-          {/* Tether: redraws from the card to the plate on every step */}
-          <motion.div
-            key={active}
-            className="exp-tether"
-            aria-hidden
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            style={{
-              position: 'absolute',
-              left: tether.left,
-              top: tether.top,
-              width: tether.width,
-              height: 1,
-              background: 'rgba(255,255,255,0.18)',
-              transformOrigin: 'left center',
-              pointerEvents: 'none',
-            }}
-          >
-            <span style={{
-              position: 'absolute', right: -1.5, top: -1.5,
-              width: 4, height: 4, borderRadius: '50%',
-              background: 'rgba(255,255,255,0.6)',
-            }} />
           </motion.div>
 
-          {/* Logo plate: the network's gravity anchor */}
-          <div className="exp-panel-cell">
-            <div
-              ref={plateRef}
-              className="exp-panel"
+          {/* Stage zone: one empty box around card, tissue and mark. It only
+              publishes the clear zone, so the network settles well away from
+              the content instead of pressing on three separate edges. */}
+          <div ref={zoneRef} className="exp-zone" aria-hidden />
+
+          <ExperienceTissue
+            wallRef={wallRef}
+            cardRef={cardRef}
+            nameRef={activeNameRef}
+            markRef={activeMarkRef}
+            active={active}
+            onArrive={() => kick.start({ scale: [1, 1.07, 0.98, 1], transition: { duration: 0.55, ease: 'easeOut' } })}
+          />
+
+          {/* Mark: the logo as its own object and the network's gravity anchor */}
+          <div className="exp-mark-cell">
+            <motion.div
+              ref={markRef}
+              className="exp-mark"
+              animate={{ y: [0, -6, -12, -4, 0], x: [0, -3, 1, -2, 0] }}
+              transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
               style={{
                 position: 'relative',
-                width: 'min(100%, calc(70vh * 0.75))',
-                aspectRatio: '3 / 4',
+                width: 'min(100%, 440px)',
+                height: 320,
                 marginLeft: 'auto',
-                borderRadius: 14,
-                overflow: 'hidden',
-                background: SURFACE,
-                border: FRAME,
-                boxShadow: SHADOW,
               }}
             >
               {ROLES.map((r, i) => (
@@ -365,26 +350,29 @@ export function ExperienceSection() {
                   key={r.slug}
                   aria-hidden={i !== active}
                   initial={false}
-                  animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1 : 1.03 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
+                  animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1 : 0.8 }}
+                  transition={{ scale: STEP, opacity: { duration: 0.35 } }}
                   style={{
                     position: 'absolute', inset: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     pointerEvents: 'none',
                   }}
                 >
+                  <motion.div animate={i === active ? kick : undefined} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <img
+                    ref={el => { imgRefs.current[i] = el; }}
                     src={r.logo.src}
                     alt={r.logo.alt}
                     draggable={false}
                     style={{
-                      width: r.logo.width, maxHeight: '60%', objectFit: 'contain',
-                      opacity: 0.92, display: 'block', ...r.logo.style,
+                      width: r.logo.width, maxHeight: '100%', objectFit: 'contain',
+                      display: 'block', ...r.logo.style,
                     }}
                   />
+                  </motion.div>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

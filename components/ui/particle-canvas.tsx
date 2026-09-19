@@ -198,6 +198,7 @@ export function ParticleCanvas() {
     let scatterStart  = 0;
     let staticStart   = 0;
     let smoothGX = -9999, smoothGY = -9999, smoothGInit = false;
+    let calmNow = 0;
     let lastScatterTrigger = 0;
     let lastScatterTime    = -99999;
 
@@ -265,7 +266,7 @@ export function ParticleCanvas() {
 
       // Smooth gravity target (lerp so stat-to-stat migration feels like ~0.8s ease)
       const gt = particleInteraction.gravityTarget;
-      const cz = particleInteraction.clearZone;
+      const zones = particleInteraction.clearZones;
       if (gt.active) {
         if (!smoothGInit) { smoothGX = gt.x; smoothGY = gt.y; smoothGInit = true; }
         else { smoothGX += (gt.x - smoothGX) * 0.06; smoothGY += (gt.y - smoothGY) * 0.06; }
@@ -359,9 +360,9 @@ export function ParticleCanvas() {
         for (let attempt = 0; attempt < 500 && centers.length < numClusters; attempt++) {
           const cx = margin + Math.random() * (W - margin * 2);
           const cy = margin + Math.random() * (H - margin * 2);
-          const inClearZone = cz.active &&
+          const inClearZone = zones.some(cz => cz.active &&
             cx > cz.x - 120 && cx < cz.x + cz.w + 120 &&
-            cy > cz.y - 120 && cy < cz.y + cz.h + 120;
+            cy > cz.y - 120 && cy < cz.y + cz.h + 120);
           if (
             !inClearZone &&
             centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
@@ -507,15 +508,20 @@ export function ParticleCanvas() {
           const sinceScatter = now - lastScatterTime;
           const isBlasting   = sinceScatter < 900;
 
-          // Clearing zone (home Experience ledger). A soft outward push near
+          // Clearing zones (home Experience text card and logo mark). A soft outward push near
           // and inside the rect, plus rest-point migration so the rest spring
           // stops dragging particles back under the copy. A force alone only
           // wins about 60px against the 0.04 spring.
-          if (cz.active && !isBlasting) {
+          // Gravity eases off within 140px of a zone so an anchor that is also
+          // a zone (the Experience mark) gets a loose halo, not a packed seam.
+          let zoneEase = 1;
+          if (!isBlasting) for (const cz of zones) {
+            if (!cz.active) continue;
             const M = 60;
             const dl = p.x - cz.x, dr = cz.x + cz.w - p.x;
             const dt = p.y - cz.y, db = cz.y + cz.h - p.y;
             const sdf = Math.min(dl, dr, dt, db); // >0 inside, <0 outside (edge distance)
+            zoneEase = Math.min(zoneEase, Math.max(0, Math.min(1, (-sdf - 20) / 120)));
             if (sdf > -M) {
               // Outward normal along the nearest edge
               let nx = 0, ny = 0;
@@ -562,7 +568,7 @@ export function ParticleCanvas() {
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist > 0) {
               const t     = Math.max(0, 1 - dist / 1200);
-              const force = t * t * (particleInteraction.gravityBoost ? 20.0 : 4.0);
+              const force = t * t * (particleInteraction.gravityBoost ? 20.0 : 4.0 * zoneEase);
               p.vx += (dx / dist) * force;
               p.vy += (dy / dist) * force;
               p.vx *= 0.96;
@@ -693,8 +699,11 @@ export function ParticleCanvas() {
       }
 
       // ── Draw connections ───────────────────────────────────────────────────
-      const fade      = 1.0;
-      const lineAlpha = 1.0;
+      // Calm: a section can ask the network to recede. Eased, and released
+      // during an orb-reveal blast so the reveal still lands at full strength.
+      calmNow += ((isBlastingFrame ? 0 : particleInteraction.calm) - calmNow) * 0.05;
+      const fade      = 1 - calmNow * 0.6;
+      const lineAlpha = 1 - calmNow * 0.7;
 
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth   = 0.5;
@@ -776,7 +785,7 @@ export function ParticleCanvas() {
       ctx.fillStyle   = '#ffffff';
       ctx.shadowColor = '#ffffff';
 
-      ctx.shadowBlur  = 8;
+      ctx.shadowBlur  = 8 * (1 - calmNow);
       ctx.globalAlpha = 0.72 * fade;
       ctx.beginPath();
       for (let k = 0; k < ambient.length; k += 3) {
@@ -787,7 +796,7 @@ export function ParticleCanvas() {
       }
       ctx.fill();
 
-      ctx.shadowBlur  = 12;
+      ctx.shadowBlur  = 12 * (1 - calmNow);
       ctx.globalAlpha = 0.92 * fade;
       ctx.beginPath();
       for (let k = 0; k < ambient.length; k += 3) {
