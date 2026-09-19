@@ -4,9 +4,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProp
 import { MONO } from '@/lib/fonts';
 import { preload } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, useAnimationControls } from 'framer-motion';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
 import { useGravityAnchor, useClearZone } from '@/lib/use-particle-anchor';
+import { ExperienceTissue } from '@/components/ui/experience-tissue';
 
 // 002 · EXPERIENCE, the pinned stage (Sep 18 2026).
 //
@@ -14,8 +15,9 @@ import { useGravityAnchor, useClearZone } from '@/lib/use-particle-anchor';
 // of the viewport for the whole run. Scroll progress picks the active role
 // (stepped, with hysteresis). One role is visible at a time: an opaque text
 // card on the left, the company's logo mark floating on the right in brand
-// color, and a hairline tether that redraws between them on every step. The
-// mark has no surface: it is the particle network's gravity anchor and
+// color, and a private synapse network (ExperienceTissue) bridging the gap,
+// pulsing card to mark on every step. Card and mark float on slow loops like
+// the Contact cards and steps land on a spring. The mark has no surface: it is the particle network's gravity anchor and
 // publishes its own clearing zone, so the network rings it instead of
 // crossing it. The card publishes a second zone. No text shadows, no scrims.
 // Brand color inside logo marks is the one hue allowed on the home page.
@@ -25,7 +27,8 @@ const INTER = 'Inter, ui-rounded, system-ui, sans-serif';
 const SURFACE = '#0d0d0d';
 const FRAME = '1px solid rgba(255,255,255,0.08)';
 const SHADOW = '0 34px 70px -18px rgba(0,0,0,0.6)';
-const STEP = { duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
+// Steps land on a spring so the copy and the mark overshoot and settle.
+const STEP = { type: 'spring' as const, stiffness: 210, damping: 15, mass: 0.9 };
 
 // Most recent role first. The slug doubles as the /experience/<slug> route.
 // Copy for BTS and Radiator comes from the Sep 15 2026 role interviews; the
@@ -81,10 +84,10 @@ const ROLES: Role[] = [
 ];
 
 const N = ROLES.length;
-// Clear zone padding around the visible mark, and the gap the tether leaves
-// before it.
+// Clear zone padding around the visible mark, and the height of the zone
+// that keeps the main network out of the tissue's gap.
 const MARK_PAD = 28;
-const TETHER_GAP = 14;
+const GAP_H = 340;
 // How far past a boundary (in role units, 0.5 is the midpoint) the scroll has
 // to travel before the step commits. Stops slow scrolling from flickering.
 const HYSTERESIS = 0.08;
@@ -107,7 +110,7 @@ function RoleCopy({ item, state, onOpen, nameRef }: {
       aria-label={`${item.company}, ${item.role}`}
       initial={false}
       animate={{ opacity: active ? 1 : 0, y: active ? 0 : state === 'past' ? -40 : 40 }}
-      transition={STEP}
+      transition={{ y: STEP, opacity: { duration: 0.35 } }}
       onClick={onOpen}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
       style={{
@@ -173,15 +176,19 @@ export function ExperienceSection() {
   // 002 label stays put while the stage is pinned.
   const orbLabelRef = useOrbReveal(stageRef);
   const [active, setActive] = useState(0);
-  const [tether, setTether] = useState({ left: 0, top: 0, width: 0 });
+  const [gap, setGap] = useState({ left: 0, width: 0 });
   const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
   // Points at the visible mark so its clear zone hugs the logo's own box
   // (the Radiator badge is a wide bar, the crest a square).
   const activeMarkRef = useRef<HTMLImageElement | null>(null);
+  const activeNameRef = useRef<HTMLParagraphElement | null>(null);
+  const kick = useAnimationControls();
+  const gapRef = useRef<HTMLDivElement>(null);
 
   useGravityAnchor(markRef);
   useClearZone(cardRef, 40);
   useClearZone(activeMarkRef, MARK_PAD);
+  useClearZone(gapRef, 0);
 
   for (const r of ROLES) preload(r.logo.src, { as: 'image' });
 
@@ -214,33 +221,25 @@ export function ExperienceSection() {
     window.scrollTo({ top: top + i * window.innerHeight, behavior: 'smooth' });
   };
 
-  // The tether runs from the card's right edge, at the height of the active
-  // company name, to the mark's left edge. Measured from the real boxes so
-  // it stays attached at any width.
-  const measureTether = useCallback(() => {
+  // The gap box spans the card's right edge to the active mark's settled
+  // left edge (offsetWidth ignores the entrance scale).
+  const measureGap = useCallback(() => {
     const wall = wallRef.current, card = cardRef.current, mark = imgRefs.current[active];
-    const name = nameRefs.current[active];
-    if (!wall || !card || !mark || !name) return;
+    if (!wall || !card || !mark) return;
     const w = wall.getBoundingClientRect();
     const c = card.getBoundingClientRect();
-    // offsetWidth ignores the entrance scale, so the tether lands on the
-    // mark's settled edge even when measured mid-step.
     const box = (mark.parentElement as HTMLElement).getBoundingClientRect();
     const markLeft = box.left + (box.width - mark.offsetWidth) / 2;
-    const n = name.getBoundingClientRect();
-    setTether({
-      left: c.right - w.left,
-      top: n.top + n.height / 2 - w.top,
-      width: Math.max(0, markLeft - TETHER_GAP - c.right),
-    });
+    setGap({ left: c.right - w.left, width: Math.max(0, markLeft - c.right) });
   }, [active]);
 
   useLayoutEffect(() => {
     activeMarkRef.current = imgRefs.current[active];
-    measureTether();
-    window.addEventListener('resize', measureTether);
-    return () => window.removeEventListener('resize', measureTether);
-  }, [measureTether]);
+    activeNameRef.current = nameRefs.current[active];
+    measureGap();
+    window.addEventListener('resize', measureGap);
+    return () => window.removeEventListener('resize', measureGap);
+  }, [measureGap]);
 
   return (
     <section
@@ -265,8 +264,8 @@ export function ExperienceSection() {
         <style>{`
           .exp-wall {
             position: relative;
-            width: 100%; max-width: 1100px; padding: 0 64px;
-            display: grid; grid-template-columns: 52% 1fr; gap: 64px; align-items: center;
+            width: 100%; max-width: 1280px; padding: 0 64px;
+            display: grid; grid-template-columns: 44% 1fr; gap: 64px; align-items: center;
           }
           .exp-card { padding: 40px 40px 40px 56px; }
           @media (max-width: 767px) {
@@ -275,15 +274,17 @@ export function ExperienceSection() {
             .exp-mark { width: 100% !important; height: 120px !important; }
             .exp-mark img { width: auto !important; max-width: 70%; }
             .exp-card { padding: 28px 24px !important; }
-            .exp-rail, .exp-tether, .exp-row-arrow { display: none !important; }
+            .exp-rail, .exp-tissue, .exp-gap, .exp-row-arrow { display: none !important; }
           }
         `}</style>
 
         <div ref={wallRef} className="exp-wall">
           {/* Text card: opaque card black so the copy never sits on the network */}
-          <div
+          <motion.div
             ref={cardRef}
             className="exp-card"
+            animate={{ y: [0, -7, -2, -9, 0], x: [0, 2, -1, 2, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
             style={{
               position: 'relative',
               background: SURFACE,
@@ -329,39 +330,37 @@ export function ExperienceSection() {
                 />
               ))}
             </div>
-          </div>
-
-          {/* Tether: redraws from the card to the mark on every step */}
-          <motion.div
-            key={active}
-            className="exp-tether"
-            aria-hidden
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            style={{
-              position: 'absolute',
-              left: tether.left,
-              top: tether.top,
-              width: tether.width,
-              height: 1,
-              background: 'rgba(255,255,255,0.18)',
-              transformOrigin: 'left center',
-              pointerEvents: 'none',
-            }}
-          >
-            <span style={{
-              position: 'absolute', right: -1.5, top: -1.5,
-              width: 4, height: 4, borderRadius: '50%',
-              background: 'rgba(255,255,255,0.6)',
-            }} />
           </motion.div>
+
+          {/* Gap: an empty box over the space between card and mark. It only
+              exists to publish a clear zone so the tissue is the one network
+              drawn there. */}
+          <div
+            ref={gapRef}
+            className="exp-gap"
+            aria-hidden
+            style={{
+              position: 'absolute', left: gap.left, width: gap.width,
+              top: '50%', height: GAP_H, marginTop: -GAP_H / 2, pointerEvents: 'none',
+            }}
+          />
+
+          <ExperienceTissue
+            wallRef={wallRef}
+            cardRef={cardRef}
+            nameRef={activeNameRef}
+            markRef={activeMarkRef}
+            active={active}
+            onArrive={() => kick.start({ scale: [1, 1.07, 0.98, 1], transition: { duration: 0.55, ease: 'easeOut' } })}
+          />
 
           {/* Mark: the logo as its own object and the network's gravity anchor */}
           <div className="exp-mark-cell">
-            <div
+            <motion.div
               ref={markRef}
               className="exp-mark"
+              animate={{ y: [0, -6, -12, -4, 0], x: [0, -3, 1, -2, 0] }}
+              transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
               style={{
                 position: 'relative',
                 width: 'min(100%, 440px)',
@@ -374,14 +373,15 @@ export function ExperienceSection() {
                   key={r.slug}
                   aria-hidden={i !== active}
                   initial={false}
-                  animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1 : 0.94 }}
-                  transition={{ duration: 0.45, ease: 'easeOut' }}
+                  animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1 : 0.8 }}
+                  transition={{ scale: STEP, opacity: { duration: 0.35 } }}
                   style={{
                     position: 'absolute', inset: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     pointerEvents: 'none',
                   }}
                 >
+                  <motion.div animate={i === active ? kick : undefined} style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <img
                     ref={el => { imgRefs.current[i] = el; }}
                     src={r.logo.src}
@@ -392,9 +392,10 @@ export function ExperienceSection() {
                       display: 'block', ...r.logo.style,
                     }}
                   />
+                  </motion.div>
                 </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
