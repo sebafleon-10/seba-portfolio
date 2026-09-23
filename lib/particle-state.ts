@@ -3,7 +3,7 @@
 
 export type ClearZone = { x: number; y: number; w: number; h: number; active: boolean };
 
-export type FormationShape = 'spindle' | 'ring' | 'rim' | 'horizon';
+export type FormationShape = 'spindle' | 'ring' | 'rim';
 
 // How long the brightness front takes to run card to mark through a formation.
 export const FORMATION_PULSE_MS = 1000;
@@ -27,16 +27,14 @@ export const particleInteraction = {
   //   'spindle' fills the gap between anchors a and b up to `hmax` tall
   //             (home Experience: card edge to logo mark);
   //   'ring'    adds a band orbiting `box` (unused);
-  //   'rim'     is an arc of radius `R` about the pivot (cx, cy), clipped to
-  //             the angles a0..a1 (home Projects, above the card fan);
-  //   'horizon' is a line from a to b under the content (home Contact).
+  //   'rim'     is a curved horizon of radius `R` about the pivot (cx, cy),
+  //             clipped to the angles a0..a1 (home Projects, under the card
+  //             fan, which turns about the same pivot).
   // `share` of the population joins, the rest fades out while it is active.
   // `step` is the section's discrete state (a role, a card) and `lean` its
   // shape bias (spindle: an exponent on the axis; rim: its turn in radians).
   // `pulseAt` (a performance.now stamp) sends a brightness front from a to b,
-  // or b to a when `pulseDir` is -1; with `pulseU` in 0..1 it is a ripple
-  // from that point along the shape instead. `hot` lights a stretch of the
-  // horizon (x0..x1) while `on` is 1.
+  // or b to a when `pulseDir` is -1.
   formation: {
     active: false,
     owner: '',
@@ -47,12 +45,10 @@ export const particleInteraction = {
     ax: 0, ay: 0, bx: 0, by: 0,
     box: { x: 0, y: 0, w: 0, h: 0 },
     cx: 0, cy: 0, R: 0, a0: 0, a1: 0,
-    hot: { x0: 0, x1: 0, on: 0 },
     step: 0,
     lean: 1,
     pulseAt: -1,
     pulseDir: 1 as 1 | -1,
-    pulseU: -1,
   },
   // Where the orb reveal globe forms. -1 means the viewport center with the
   // default radius (Who, Experience). `handoff` names the formation owner the

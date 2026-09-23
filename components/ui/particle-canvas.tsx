@@ -228,8 +228,8 @@ export function ParticleCanvas() {
     // The globe center and radius, cached from particleInteraction.orb while
     // the converge runs so a handoff can keep reading the still-turning globe.
     let orbCX = W / 2, orbCY = H / 2, orbRR = Math.min(W, H) * 0.17;
-    // Rim turn (radians) and horizon hover glow, eased on the clock.
-    let rimRot = 0, hotK = 0;
+    // Rim turn (radians), eased on the clock.
+    let rimRot = 0;
 
     // ── Input tracking ─────────────────────────────────────────────────────────
     const mouse = { x: -9999, y: -9999 };
@@ -416,7 +416,7 @@ export function ParticleCanvas() {
         if (fo.active && (!formWas || ownerChange)) {
           if (ownerChange && formHandoff && fo.handoff && formGlobal > 0.5 &&
               !still && !particleInteraction.gravityBoost) {
-            // Shape to shape (rim and horizon): every particle leaves from
+            // Shape to shape (two handoff shapes): every particle leaves from
             // where it stands straight for its new slot, no blast between.
             for (const p of ps) {
               p.hx = p.x; p.hy = p.y;
@@ -456,7 +456,6 @@ export function ParticleCanvas() {
         formLean += (fo.lean - formLean) * 0.04;
         const ease = still ? 1 : 1 - Math.exp(-dtFrame / 220);
         if (fo.shape === 'rim') rimRot += (fo.lean - rimRot) * ease;
-        hotK += ((fo.active ? fo.hot.on : 0) - hotK) * ease;
         if (handClock < 1e9) handClock += dtFrame;
       }
       // Orb reveal converge (gravityBoost): the network gathers into a slowly
@@ -494,8 +493,6 @@ export function ParticleCanvas() {
       // (1.1 to -0.1 when the pulse runs b to a).
       // A pulse stamped before the current owner claimed the shape is not ours.
       const pulseK = fo.pulseAt > 0 && fo.pulseAt >= ownerSince ? (now - fo.pulseAt) / FORMATION_PULSE_MS : -1;
-      // Ripple radius (in u) for a pulse from a point (pulseU in 0..1).
-      const rippleR = fo.pulseU >= 0 && pulseK >= 0 && pulseK <= 1 ? smooth01(pulseK) * 0.7 : -9;
       const frontAB = pulseK >= 0 && pulseK <= 1 ? -0.1 + 1.2 * pulseK * pulseK * (3 - 2 * pulseK) : -9;
       const front   = frontAB === -9 ? -9 : fo.pulseDir === -1 ? 1 - frontAB : frontAB;
       const tForm  = now / 1000;
@@ -670,41 +667,27 @@ export function ParticleCanvas() {
                 slotX = fo.box.x + fo.box.w / 2 + qx;
                 slotY = fo.box.y + fo.box.h / 2 + qy;
               } else if (fo.shape === 'rim') {
-                // The rim of the fan's wheel: an arc about the pivot below the
-                // cards, turned by rimRot and kept inside the clip angles so
-                // its ends never reach an edge. Thicker in the middle.
+                // A curved horizon about a pivot (home Projects: under the card
+                // fan, which turns about the same pivot, so the cards stand on
+                // it). Turned by rimRot and kept inside the clip angles so its
+                // ends never reach an edge. Tapered ends, a slow swell
+                // travelling along it.
+                const tt = still ? 0 : tForm;
                 const half = Math.max(0.05, (fo.a1 - fo.a0) / 2 - 0.13);
                 const mid  = (fo.a0 + fo.a1) / 2 + rimRot;
                 const th   = Math.max(fo.a0, Math.min(fo.a1, mid + (p.fu * 2 - 1) * half));
                 const d = p.fu - front;
                 lit = d > -0.09 && d < 0.09 ? (1 - Math.abs(d) / 0.09) * m : 0;
-                const rr = fo.R + p.fv * fo.hmax * Math.max(0.25, Math.pow(Math.sin(Math.PI * p.fu), 0.7))
-                         * breath * (1 + lit * 0.22);
-                slotX = fo.cx + rr * Math.sin(th) + Math.sin(tForm * p.fw + p.fph) * 4;
-                slotY = fo.cy - rr * Math.cos(th) + Math.cos(tForm * p.fw * 0.8 + p.fph) * 4;
-              } else if (fo.shape === 'horizon') {
-                // A resting line under the content: tapered ends, a slow swell
-                // travelling along it, and the stretch under a hovered card
-                // (fo.hot) swells and lifts toward the card.
-                const tt = still ? 0 : tForm;
-                const x = fo.ax + (fo.bx - fo.ax) * p.fu;
-                let w = 0;
-                if (hotK > 0.001) {
-                  const e = 40;
-                  const edge = Math.min(x - (fo.hot.x0 - e), fo.hot.x1 + e - x) / e;
-                  w = hotK * smooth01(edge);
-                }
-                const th = fo.hmax * Math.pow(Math.sin(Math.PI * p.fu), 0.8)
-                         * (1 + 0.35 * Math.sin(Math.PI * 2 * (1.3 * p.fu - 0.045 * tt)))
-                         * (1 + 0.07 * Math.sin(0.5 * tt)) * (1 + 1.3 * w);
-                let rip = 0;
-                if (rippleR > -9) {
-                  const dd = Math.abs(Math.abs(p.fu - fo.pulseU) - rippleR);
-                  if (dd < 0.06) rip = (1 - dd / 0.06) * (1 - pulseK * 0.6);
-                }
-                lit = Math.max(0.4 * w, rip) * m;
-                slotX = x + Math.sin(tt * p.fw + p.fph) * 3;
-                slotY = fo.ay + p.fv * th - 10 * w + Math.cos(tt * p.fw * 0.8 + p.fph) * 2;
+                // A soft standing glow under the active card (straight up
+                // from the pivot), held there while the arc turns: the
+                // horizon lifting the card.
+                lit = Math.max(lit, 0.24 * Math.exp(-(th * th) / 0.012) * m);
+                const thick = fo.hmax * Math.pow(Math.sin(Math.PI * p.fu), 0.8)
+                            * (1 + 0.35 * Math.sin(Math.PI * 2 * (1.3 * p.fu - 0.045 * tt)))
+                            * (1 + 0.07 * Math.sin(0.5 * tt)) * (1 + lit * 0.3);
+                const rr = fo.R + p.fv * thick;
+                slotX = fo.cx + rr * Math.sin(th) + Math.sin(tt * p.fw + p.fph) * 3;
+                slotY = fo.cy - rr * Math.cos(th) + Math.cos(tt * p.fw * 0.8 + p.fph) * 2;
               } else {
                 const u = Math.pow(p.fu, formLean);
                 const bulge = Math.pow(Math.sin(Math.PI * u), 0.7);
@@ -737,7 +720,7 @@ export function ParticleCanvas() {
                 const a = (4 + Math.random() * 4) * (formStepDelta > 0 ? -1 : 1);
                 p.vx += (-dy / d) * a;
                 p.vy += ( dx / d) * a;
-              } else if (formKick && m > 0.5 && fo.shape !== 'horizon') {
+              } else if (formKick && m > 0.5) {
                 // A step convulses the body: a swirl the slot spring reins in.
                 const cx = (fo.ax + fo.bx) / 2, cy = (fo.ay + fo.by) / 2;
                 const dx = p.x - cx, dy = p.y - cy;

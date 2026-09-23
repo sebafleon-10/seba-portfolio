@@ -40,19 +40,25 @@ const cardRoutes: Record<number, string> = {
   3: '/work/front-office',
 };
 
-// The fan is a wheel: card i sits FAN_STEP px along and FAN_TILT degrees
-// round from the active one. The network's rim (desktop) shares these, so
-// the two can never drift apart.
-const FAN_STEP = 296;
-const FAN_TILT = 18;
-const CARD_W = 748;
-const CARD_H = 452;
+// The fan is a wheel: every card is a spoke turned FAN_TILT degrees per
+// place about a pivot HUB px below its center, so the bottom edges of all
+// the cards stand on one circle. On desktop the network lies along that
+// circle as a curved horizon just under the cards (ARC_GAP), and turns with
+// the fan. Both read these constants, so they can never drift apart.
+const CARD_W = 612;
+const CARD_H = 370;
+const FAN_TILT = 14;
+const HUB = 1000;
 const ACTIVE_SCALE = 1.03;
-// Rim: clearance above the active card, and how far it turns per card
-// (a fraction of the fan's own 18 degrees, so its ends stay on screen).
-const RIM_PAD = 105;
+const SIDE_SCALE = 0.92;
+// Room under the cards for the horizon, inside the fan box.
+const ARC_GAP = 46;
+const FAN_H = CARD_H + ARC_GAP + 70;
+// Horizon: distance below the card bottoms, half-thickness, and how far it
+// turns per card (a fraction of the fan's own tilt, so its ends stay on screen).
+const ARC_DROP = 16;
+const ARC_HMAX = 14;
 const RIM_LEAN = 0.4;
-const RIM_HMAX = 26;
 const DEG = Math.PI / 180;
 
 export function WorkSection() {
@@ -63,43 +69,51 @@ export function WorkSection() {
   const sectionRef    = useRef<HTMLElement>(null);
   const fanRef        = useRef<HTMLDivElement>(null);
 
-  // The active card's center, from the static fan container (the cards
-  // themselves are mid-spring and their boxes inflate as they rotate).
-  const activeCenter = () => {
+  // The active card's bottom center, from the static fan container (the
+  // cards themselves are mid-spring and their boxes inflate as they turn).
+  const activeBase = () => {
     const f = fanRef.current?.getBoundingClientRect();
-    return f ? { x: f.left + f.width / 2, y: f.bottom - CARD_H / 2 } : null;
+    return f ? { x: f.left + f.width / 2, y: f.bottom - ARC_GAP } : null;
   };
 
-  // The small globe forms in the free band above the fan, then unfolds into
-  // the rim (no blast).
+  // The small globe forms right under the active card, where the horizon
+  // will run, then spreads out into it (no blast).
   const orbLabelRef = useOrbReveal(sectionRef, {
     handoff: 'projects',
     center: () => {
-      const s = sectionRef.current, c = activeCenter();
-      if (!s || !c || window.innerWidth < 768) return null;
-      // Just above the active card, clear of the nav and the section label.
+      const c = activeBase();
+      if (!c || window.innerWidth < 768) return null;
       const vh = window.innerHeight;
-      const r = Math.min(window.innerWidth, vh) * 0.078;
-      const cardTop = c.y - (CARD_H * ACTIVE_SCALE) / 2;
-      const y = cardTop - r - 14;
-      return { x: c.x, y: Math.max(r + 90, Math.min(vh - r - 40, y)), r };
+      const r = Math.min(window.innerWidth, vh) * 0.07;
+      return { x: c.x, y: Math.max(r + 90, Math.min(vh - r - 20, c.y + ARC_DROP)), r };
     },
   });
 
-  // Desktop: the network is the rim of the fan's wheel, an arc about the
-  // pivot the fan implies (FAN_STEP / sin(FAN_TILT) below the active card),
-  // clipped so its ends stay on screen.
+  // Desktop: the network is a curved horizon under the fan. Flat cards on a
+  // circle only touch it at their midpoints, so the horizon follows the fan's
+  // real outline instead: the circle through the bottom of the active card
+  // and the outer bottom corners of the cards beside it, ARC_DROP lower,
+  // carried a little past those corners and clipped to stay on screen.
   const measureRim = (): FormationGeometry | null => {
-    const c = activeCenter();
+    const c = activeBase();
     if (!c) return null;
     const W = window.innerWidth, H = window.innerHeight;
-    const hub = FAN_STEP / Math.sin(FAN_TILT * DEG);
-    const cx = c.x, cy = c.y + hub;
-    const R = hub + (CARD_H * ACTIVE_SCALE) / 2 + RIM_PAD;
+    // Outer bottom corner of a neighbour: its bottom center sits on the
+    // wheel (HUB - CARD_H / 2 from the pivot) one tilt round, the corner
+    // half a (side-scaled) card further along its bottom edge.
+    const t = FAN_TILT * DEG, wheel = HUB - CARD_H / 2, halfW = (CARD_W * SIDE_SCALE) / 2;
+    const dx = wheel * Math.sin(t) + halfW * Math.cos(t);
+    const sag = wheel * (1 - Math.cos(t)) + halfW * Math.sin(t);
+    const R = (dx * dx + sag * sag) / (2 * sag);
+    // While the fan is still low on screen the horizon waits at the bottom
+    // edge, and the cards scroll up onto it.
+    const top = Math.min(c.y + ARC_DROP, H - 70);
+    const cx = c.x, cy = top + R;
     const clamp1 = (v: number) => Math.max(-1, Math.min(1, v));
+    const reach = Math.asin(clamp1(dx / R)) * 1.18;
     const yLim = Math.acos(clamp1((cy - (H - 30)) / R));
-    const a1 = Math.min(Math.asin(clamp1((W - 50 - cx) / R)), yLim);
-    const a0 = -Math.min(Math.asin(clamp1((cx - 50) / R)), yLim);
+    const a1 = Math.min(reach, Math.asin(clamp1((W - 50 - cx) / R)), yLim);
+    const a0 = -Math.min(reach, Math.asin(clamp1((cx - 50) / R)), yLim);
     return {
       cx, cy, R, a0, a1,
       ax: cx + R * Math.sin(a0), ay: cy - R * Math.cos(a0),
@@ -107,11 +121,11 @@ export function WorkSection() {
     };
   };
   useFormation(sectionRef, measureRim, {
-    id: 'projects', shape: 'rim', share: 1, hmax: RIM_HMAX, gate: 'line', handoff: true,
+    id: 'projects', shape: 'rim', share: 1, hmax: ARC_HMAX, gate: 'line', handoff: true,
     lean: (1 - active) * RIM_LEAN * FAN_TILT * DEG,
   }, active);
 
-  // A switch sends a front along the rim the way the cards moved (next card:
+  // A switch sends a front along the horizon the way the cards moved (next card:
   // right to left).
   const prevActive = useRef(active);
   useEffect(() => {
@@ -120,7 +134,6 @@ export function WorkSection() {
     if (was === active || !ownsFormation('projects')) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const fo = particleInteraction.formation;
-    fo.pulseU = -1;
     fo.pulseDir = active > was ? -1 : 1;
     fo.pulseAt = performance.now();
   }, [active]);
@@ -214,38 +227,51 @@ export function WorkSection() {
           <div ref={fanRef} style={{
             perspective: '960px',
             position: 'relative',
-            height: '556px',
-            width: '748px',
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
+            height: FAN_H,
+            width: CARD_W,
           }}>
             {cards.map((card, i) => {
               const off      = i - active;
               const isActive = off === 0;
               const rotateZ  = off * FAN_TILT;
-              const x        = off * FAN_STEP;
-              const scale    = isActive ? ACTIVE_SCALE : 0.92;
+              const scale    = isActive ? ACTIVE_SCALE : SIDE_SCALE;
               const rotateX  = isActive ? 0 : 12;
 
               return (
+                // The spoke: turns about the wheel's pivot, HUB below the
+                // card center, so every card's bottom edge stands on the
+                // same circle (the network's horizon runs just under it).
                 <motion.div
                   key={card.id}
+                  animate={{ rotateZ }}
+                  transition={{ type: 'spring', stiffness: 280, damping: 28 }}
+                  style={{
+                    position: 'absolute',
+                    bottom: ARC_GAP,
+                    left: 0,
+                    width: CARD_W,
+                    height: CARD_H,
+                    transformOrigin: `50% ${CARD_H / 2 + HUB}px`,
+                    transformStyle: 'preserve-3d',
+                    zIndex: 100 - Math.abs(off),
+                  }}
+                >
+                <motion.div
                   ref={isActive ? activeCardRef : undefined}
                   onClick={() => isActive ? router.push(cardRoutes[card.id]) : setActive(i)}
                   onMouseEnter={isActive ? () => setActiveHovered(true)  : undefined}
                   onMouseLeave={isActive ? () => setActiveHovered(false) : undefined}
-                  animate={{ x, rotateZ, rotateX, scale, opacity: 1 }}
+                  animate={{ rotateX, scale, opacity: 1 }}
                   transition={{ type: 'spring', stiffness: 280, damping: 28 }}
                   style={{
                     position: 'absolute',
-                    bottom: 0,
-                    width: CARD_W,
-                    height: CARD_H,
+                    inset: 0,
+                    // Scale and lean about the bottom edge, so a card never
+                    // lifts off the horizon.
+                    transformOrigin: '50% 100%',
                     background: card.id === 2 ? '#f8f8f8' : '#1a1a1a',
                     boxShadow: '0 22px 52px rgba(0,0,0,0.65)',
                     borderRadius: 14,
-                    zIndex: 100 - Math.abs(off),
                     transformStyle: 'preserve-3d',
                     cursor: 'pointer',
                     overflow: 'hidden',
@@ -394,6 +420,7 @@ export function WorkSection() {
                     pointerEvents: 'none',
                     zIndex: 10,
                   }} />
+                </motion.div>
                 </motion.div>
               );
             })}

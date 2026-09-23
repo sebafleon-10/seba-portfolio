@@ -134,8 +134,6 @@ export type FormationGeometry = {
   box?: { x: number; y: number; w: number; h: number };
   // rim: pivot, radius, clip angles (radians clockwise from straight up)
   cx?: number; cy?: number; R?: number; a0?: number; a1?: number;
-  // horizon: the lit stretch under a hovered card, on 0 or 1
-  hot?: { x0: number; x1: number; on: number };
 };
 
 export type FormationOptions = {
@@ -192,8 +190,6 @@ export function useFormation(
         fo.ax = g.ax; fo.ay = g.ay; fo.bx = g.bx; fo.by = g.by;
         if (g.box) { fo.box.x = g.box.x; fo.box.y = g.box.y; fo.box.w = g.box.w; fo.box.h = g.box.h; }
         if (g.cx !== undefined) { fo.cx = g.cx; fo.cy = g.cy!; fo.R = g.R!; fo.a0 = g.a0!; fo.a1 = g.a1!; }
-        if (g.hot) { fo.hot.x0 = g.hot.x0; fo.hot.x1 = g.hot.x1; fo.hot.on = g.hot.on; }
-        else fo.hot.on = 0;
         fo.step = live.current.step;
         fo.lean = live.current.lean;
         fo.active = true;

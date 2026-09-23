@@ -98,8 +98,13 @@ export function useOrbReveal(sectionRef: RefObject<HTMLElement | null>, opts?: O
         orbLabelRef.current.style.transform =
           `translateX(-50%) translateY(${targetY}px)`;
 
+      // Fire when the section takes over the line at 75% of the viewport
+      // (the same line useFormation's 'line' gate uses). Scrolling down that
+      // is its top crossing it, as before; scrolling back up it is its bottom
+      // coming back past it, not its bottom edge peeking in, which used to
+      // start a globe in the middle of the section below.
       if (rect.top < window.innerHeight * 0.75 &&
-          rect.bottom > 0 && !hasTriggered.current) run();
+          rect.bottom > window.innerHeight * 0.75 && !hasTriggered.current) run();
 
       if (hasScattered.current && orbLabelRef.current) {
         const entryFade = rect.top > 0

@@ -22,13 +22,14 @@ const NAV_LINKS = [
 let introHasPlayed = false;
 
 function MagneticNavLink({
-  num, label, href, active, taglineReady, index,
+  num, label, href, active, taglineReady, shown, index,
 }: {
   num: string;
   label: string;
   href: string;
   active: boolean;
   taglineReady: boolean;
+  shown: boolean;
   index: number;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -72,14 +73,17 @@ function MagneticNavLink({
 
   return (
     <motion.div
-      style={{ display: 'inline-block', pointerEvents: 'auto' }}
+      style={{ display: 'inline-block', pointerEvents: shown ? 'auto' : 'none' }}
       // If the intro already finished before this link mounted (taglineReady
       // was already true at first render), skip the entrance animation and
       // render directly at the settled state. Otherwise play the staggered
-      // rise-and-fade exactly as before.
+      // rise-and-fade. Scrolling down hides the links (a quick lift and fade,
+      // right to left); scrolling back up replays the rise, left to right.
       initial={taglineReady ? false : { opacity: 0, y: 14 }}
-      animate={taglineReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.15 + index * 0.08 }}
+      animate={shown ? { opacity: [0, 1], y: [14, 0] } : { opacity: 0, y: -10 }}
+      transition={shown
+        ? { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.12 + index * 0.07 }
+        : { duration: 0.28, ease: [0.4, 0, 1, 1], delay: (3 - index) * 0.03 }}
     >
       <motion.a
         ref={ref}
@@ -90,7 +94,7 @@ function MagneticNavLink({
         style={{
           x: sx, y: sy,
           display: 'inline-flex', alignItems: 'baseline',
-          fontFamily: MONO, fontSize: 18, letterSpacing: '0.10em',
+          fontFamily: MONO, fontSize: 14, letterSpacing: '0.10em',
           color: litColor,
           textDecoration: 'none',
           transition: 'color 250ms ease',
@@ -124,6 +128,22 @@ export default function Home() {
     introHasPlayed = true;
     const t = setTimeout(() => setTagline(true), 6500);
     return () => clearTimeout(t);
+  }, []);
+
+  // Nav links step aside while scrolling down (they clashed with the section
+  // labels and content) and come back, replaying their intro, as soon as the
+  // user scrolls up or returns to the hero. Small jitters are ignored.
+  const [navHidden, setNavHidden] = useState(false);
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY, dy = y - lastY;
+      if (y < 120) { setNavHidden(false); lastY = y; return; }
+      if (dy > 8) { setNavHidden(true); lastY = y; }
+      else if (dy < -8) { setNavHidden(false); lastY = y; }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Fade tagline out as user scrolls away from hero
@@ -203,7 +223,7 @@ export default function Home() {
           >
             SL
           </span>
-          <nav style={{ display: 'flex', gap: 32, pointerEvents: 'auto' }}>
+          <nav style={{ display: 'flex', gap: 26, pointerEvents: 'none' }}>
             {NAV_LINKS.map((link, i) => (
               <MagneticNavLink
                 key={link.id}
@@ -212,6 +232,7 @@ export default function Home() {
                 href={link.href}
                 active={activeId === link.id}
                 taglineReady={tagline}
+                shown={tagline && !navHidden}
                 index={i}
               />
             ))}
