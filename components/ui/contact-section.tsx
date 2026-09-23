@@ -5,6 +5,7 @@ import { MONO } from '@/lib/fonts';
 import { motion } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
+import { useFormation, ownsFormation, type FormationGeometry } from '@/lib/use-particle-anchor';
 
 const LINKEDIN_URL = 'https://linkedin.com/in/sebastian-leon-b4015b3a9';
 const EMAIL        = 'sebafleon@gmail.com';
@@ -19,13 +20,72 @@ function LinkedInIcon({ size = 16 }: { size?: number }) {
   );
 }
 
+// Horizon: half-thickness, and how far in from the viewport sides it ends.
+const HORIZON_HMAX = 16;
+const HORIZON_INSET = 0.06;
+
 export function ContactSection() {
   const sectionRef   = useRef<HTMLElement>(null);
-  const orbLabelRef = useOrbReveal(sectionRef);
   const triggerRef   = useRef<HTMLDivElement>(null);
   const linkedinRef  = useRef<HTMLDivElement>(null);
   const emailRef     = useRef<HTMLDivElement>(null);
+  const copyRef      = useRef<HTMLParagraphElement>(null);
   const [hovered, setHovered] = useState<'linkedin' | 'email' | null>(null);
+  const hoveredRef   = useRef(hovered);
+  useEffect(() => { hoveredRef.current = hovered; }, [hovered]);
+
+  // The horizon line: halfway between the copyright line and the viewport
+  // bottom, kept clear of the bottom edge.
+  const horizonY = () => {
+    const c = copyRef.current?.getBoundingClientRect();
+    if (!c) return null;
+    const H = window.innerHeight;
+    return Math.min((c.bottom + H) / 2, H - 40 - HORIZON_HMAX);
+  };
+
+  // The last globe forms where the horizon will lie, then lies down into it.
+  const orbLabelRef = useOrbReveal(sectionRef, {
+    handoff: 'contact',
+    center: () => {
+      const y = horizonY();
+      if (y === null || window.innerWidth < 768) return null;
+      const H = window.innerHeight;
+      const r = Math.min(window.innerWidth, H) * 0.09;
+      return { x: window.innerWidth / 2, y: Math.max(r + 40, Math.min(H - r - 40, y)), r };
+    },
+  });
+
+  // Desktop: the network lies down into a resting horizon under the cards;
+  // the stretch under a hovered card swells and lights.
+  const measureHorizon = (): FormationGeometry | null => {
+    const y = horizonY();
+    if (y === null) return null;
+    const W = window.innerWidth;
+    const h = hoveredRef.current;
+    const card = h === 'linkedin' ? linkedinRef.current : h === 'email' ? emailRef.current : null;
+    const r = card?.getBoundingClientRect();
+    return {
+      ax: W * HORIZON_INSET, ay: y, bx: W * (1 - HORIZON_INSET), by: y,
+      hot: r ? { x0: r.left, x1: r.right, on: 1 } : { x0: 0, x1: 0, on: 0 },
+    };
+  };
+  useFormation(sectionRef, measureHorizon, {
+    id: 'contact', shape: 'horizon', share: 1, hmax: HORIZON_HMAX, gate: 'line', handoff: true,
+  }, 0);
+
+  // Hovering a card sends a ripple out along the horizon from under it.
+  useEffect(() => {
+    if (!hovered || !ownsFormation('contact')) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const card = (hovered === 'linkedin' ? linkedinRef : emailRef).current;
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const W = window.innerWidth;
+    const ax = W * HORIZON_INSET, bx = W * (1 - HORIZON_INSET);
+    const fo = particleInteraction.formation;
+    fo.pulseU = Math.max(0, Math.min(1, (r.left + r.width / 2 - ax) / (bx - ax)));
+    fo.pulseAt = performance.now();
+  }, [hovered]);
 
   useEffect(() => {
     let raf: number;
@@ -263,7 +323,7 @@ export function ContactSection() {
 
         </div>
 
-        <p style={{
+        <p ref={copyRef} style={{
           fontFamily: MONO, fontSize: 11,
           letterSpacing: '0.14em',
           color: 'rgba(255,255,255,0.20)',

@@ -16,32 +16,65 @@ import { particleInteraction } from '@/lib/particle-state';
 // This is the exact effect that shipped in work-section.tsx, extracted so a
 // new section does not add a fourth copy. Tuning lives here only.
 
-export function useOrbReveal(sectionRef: RefObject<HTMLElement | null>) {
+// Options (Projects and Contact): `center` places the globe where the section
+// has room for it, in viewport coordinates, re-read every frame while it runs
+// so it tracks scroll (null falls back to the viewport center). `handoff` is
+// the id of the section's useFormation: when the converge ends the canvas
+// unfolds the globe straight into that shape instead of blasting, if the
+// shape is live (otherwise it blasts as usual).
+export type OrbRevealOptions = {
+  center?: () => { x: number; y: number; r: number } | null;
+  handoff?: string;
+};
+
+export function useOrbReveal(sectionRef: RefObject<HTMLElement | null>, opts?: OrbRevealOptions) {
   const orbLabelRef  = useRef<HTMLParagraphElement>(null);
   const hasTriggered = useRef(false);
   const hasScattered = useRef(false);
   const isRunning    = useRef(false);
+  const optsRef      = useRef(opts);
+  useEffect(() => { optsRef.current = opts; });
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
+    let raf = 0;
+
+    const placeOrb = () => {
+      const orb = particleInteraction.orb;
+      const c = optsRef.current?.center?.() ?? null;
+      if (c) { orb.x = c.x; orb.y = c.y; orb.r = c.r; }
+      else   { orb.x = -1; orb.y = -1; orb.r = -1; }
+    };
 
     const run = () => {
       if (isRunning.current) return;
       isRunning.current = true;
       hasTriggered.current = true;
-      // The canvas owns the converge target (the viewport center) while
-      // gravityBoost is on. gravityTarget is left to the section anchors:
-      // five loops write it, and one of them scrolling off screen used to
-      // switch the converge off mid-flight.
+      // The canvas owns the converge target (the viewport center, or the
+      // section's own spot) while gravityBoost is on. gravityTarget is left
+      // to the section anchors: five loops write it, and one of them
+      // scrolling off screen used to switch the converge off mid-flight.
       // prefers-reduced-motion: no converge and no blast, the label fades in.
       const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!still) particleInteraction.gravityBoost = true;
+      const handoff = optsRef.current?.handoff ?? '';
+      if (!still) {
+        placeOrb();
+        particleInteraction.orb.handoff = handoff;
+        const track = () => { placeOrb(); raf = requestAnimationFrame(track); };
+        raf = requestAnimationFrame(track);
+        particleInteraction.gravityBoost = true;
+      }
 
       setTimeout(() => {
+        cancelAnimationFrame(raf);
         if (!still) {
-          particleInteraction.gravityBoost   = false;
-          particleInteraction.scatterTrigger = Date.now();
+          // With a handoff the canvas decides: unfold or blast. Below 768
+          // there is no shape to unfold into, so blast here as before.
+          const unfold = handoff && window.innerWidth >= 768;
+          if (!unfold) particleInteraction.orb.handoff = '';
+          particleInteraction.gravityBoost = false;
+          if (!unfold) particleInteraction.scatterTrigger = Date.now();
         }
         hasScattered.current = true;
         const r = section.getBoundingClientRect();
@@ -88,6 +121,7 @@ export function useOrbReveal(sectionRef: RefObject<HTMLElement | null>) {
     handleScroll();
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(raf);
       particleInteraction.gravityBoost = false;
     };
   }, [sectionRef]);

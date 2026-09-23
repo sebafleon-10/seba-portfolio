@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
+import { useFormation, ownsFormation, type FormationGeometry } from '@/lib/use-particle-anchor';
 
 // Array order = left-to-right order in the fan (lower index sits further left).
 // `id` is a stable identity used by cardRoutes and the per-card image/style
@@ -39,13 +40,90 @@ const cardRoutes: Record<number, string> = {
   3: '/work/front-office',
 };
 
+// The fan is a wheel: card i sits FAN_STEP px along and FAN_TILT degrees
+// round from the active one. The network's rim (desktop) shares these, so
+// the two can never drift apart.
+const FAN_STEP = 296;
+const FAN_TILT = 18;
+const CARD_W = 748;
+const CARD_H = 452;
+const ACTIVE_SCALE = 1.03;
+// Rim: clearance above the active card, and how far it turns per card
+// (a fraction of the fan's own 18 degrees, so its ends stay on screen).
+const RIM_PAD = 105;
+const RIM_LEAN = 0.4;
+const RIM_HMAX = 26;
+const DEG = Math.PI / 180;
+
 export function WorkSection() {
   const [active, setActive] = useState(1);
   const [activeHovered, setActiveHovered] = useState(false);
   const router = useRouter();
   const activeCardRef = useRef<HTMLDivElement>(null);
   const sectionRef    = useRef<HTMLElement>(null);
-  const orbLabelRef = useOrbReveal(sectionRef);
+  const fanRef        = useRef<HTMLDivElement>(null);
+
+  // The active card's center, from the static fan container (the cards
+  // themselves are mid-spring and their boxes inflate as they rotate).
+  const activeCenter = () => {
+    const f = fanRef.current?.getBoundingClientRect();
+    return f ? { x: f.left + f.width / 2, y: f.bottom - CARD_H / 2 } : null;
+  };
+
+  // The small globe forms in the free band above the fan, then unfolds into
+  // the rim (no blast).
+  const orbLabelRef = useOrbReveal(sectionRef, {
+    handoff: 'projects',
+    center: () => {
+      const s = sectionRef.current, c = activeCenter();
+      if (!s || !c || window.innerWidth < 768) return null;
+      // Just above the active card, clear of the nav and the section label.
+      const vh = window.innerHeight;
+      const r = Math.min(window.innerWidth, vh) * 0.078;
+      const cardTop = c.y - (CARD_H * ACTIVE_SCALE) / 2;
+      const y = cardTop - r - 14;
+      return { x: c.x, y: Math.max(r + 90, Math.min(vh - r - 40, y)), r };
+    },
+  });
+
+  // Desktop: the network is the rim of the fan's wheel, an arc about the
+  // pivot the fan implies (FAN_STEP / sin(FAN_TILT) below the active card),
+  // clipped so its ends stay on screen.
+  const measureRim = (): FormationGeometry | null => {
+    const c = activeCenter();
+    if (!c) return null;
+    const W = window.innerWidth, H = window.innerHeight;
+    const hub = FAN_STEP / Math.sin(FAN_TILT * DEG);
+    const cx = c.x, cy = c.y + hub;
+    const R = hub + (CARD_H * ACTIVE_SCALE) / 2 + RIM_PAD;
+    const clamp1 = (v: number) => Math.max(-1, Math.min(1, v));
+    const yLim = Math.acos(clamp1((cy - (H - 30)) / R));
+    const a1 = Math.min(Math.asin(clamp1((W - 50 - cx) / R)), yLim);
+    const a0 = -Math.min(Math.asin(clamp1((cx - 50) / R)), yLim);
+    return {
+      cx, cy, R, a0, a1,
+      ax: cx + R * Math.sin(a0), ay: cy - R * Math.cos(a0),
+      bx: cx + R * Math.sin(a1), by: cy - R * Math.cos(a1),
+    };
+  };
+  useFormation(sectionRef, measureRim, {
+    id: 'projects', shape: 'rim', share: 1, hmax: RIM_HMAX, gate: 'line', handoff: true,
+    lean: (1 - active) * RIM_LEAN * FAN_TILT * DEG,
+  }, active);
+
+  // A switch sends a front along the rim the way the cards moved (next card:
+  // right to left).
+  const prevActive = useRef(active);
+  useEffect(() => {
+    const was = prevActive.current;
+    prevActive.current = active;
+    if (was === active || !ownsFormation('projects')) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const fo = particleInteraction.formation;
+    fo.pulseU = -1;
+    fo.pulseDir = active > was ? -1 : 1;
+    fo.pulseAt = performance.now();
+  }, [active]);
 
   const canGoPrev = active > 0;
   const canGoNext = active < cards.length - 1;
@@ -133,7 +211,7 @@ export function WorkSection() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
 
           {/* Card fan */}
-          <div style={{
+          <div ref={fanRef} style={{
             perspective: '960px',
             position: 'relative',
             height: '556px',
@@ -145,9 +223,9 @@ export function WorkSection() {
             {cards.map((card, i) => {
               const off      = i - active;
               const isActive = off === 0;
-              const rotateZ  = off * 18;
-              const x        = off * 296;
-              const scale    = isActive ? 1.03 : 0.92;
+              const rotateZ  = off * FAN_TILT;
+              const x        = off * FAN_STEP;
+              const scale    = isActive ? ACTIVE_SCALE : 0.92;
               const rotateX  = isActive ? 0 : 12;
 
               return (
@@ -162,8 +240,8 @@ export function WorkSection() {
                   style={{
                     position: 'absolute',
                     bottom: 0,
-                    width: 748,
-                    height: 452,
+                    width: CARD_W,
+                    height: CARD_H,
                     background: card.id === 2 ? '#f8f8f8' : '#1a1a1a',
                     boxShadow: '0 22px 52px rgba(0,0,0,0.65)',
                     borderRadius: 14,

@@ -6,7 +6,7 @@ import { preload } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
-import { useClearZone, useCalm, useFormation, type FormationGeometry } from '@/lib/use-particle-anchor';
+import { useClearZone, useCalm, useFormation, ownsFormation, type FormationGeometry } from '@/lib/use-particle-anchor';
 import { particleInteraction, FORMATION_PULSE_MS } from '@/lib/particle-state';
 
 // 002 · EXPERIENCE, the pinned stage (Sep 18 2026).
@@ -92,7 +92,9 @@ const ROLES: Role[] = [
 const N = ROLES.length;
 // Everyone joins one body; hmax is its half height at the middle of the gap
 // (the card is about 290 tall, so the body stands about 40 percent over it).
-const FORMATION = { shape: 'spindle' as const, share: 1, hmax: 205 };
+const FORMATION = { id: 'experience', shape: 'spindle' as const, share: 1, hmax: 205, gate: 'pinned' as const };
+// Per-role shape bias: an exponent on the card-to-mark axis.
+const LEAN = [1, 0.78, 1.28];
 // How far the main network recedes while the stage is pinned (0 to 1).
 const CALM = 1;
 // How far past a boundary (in role units, 0.5 is the midpoint) the scroll has
@@ -194,7 +196,7 @@ export function ExperienceSection() {
       box: { x: c.left, y: top, w: m.right - c.left, h: bottom - top },
     };
   };
-  useFormation(sectionRef, measure, FORMATION, active);
+  useFormation(sectionRef, measure, { ...FORMATION, lean: LEAN[active % 3] }, active);
   useClearZone(zoneRef, 0);
   useCalm(stageRef, mobile ? CALM : 0);
 
@@ -206,7 +208,7 @@ export function ExperienceSection() {
     const timers: ReturnType<typeof setTimeout>[] = [];
     const fire = () => {
       const fo = particleInteraction.formation;
-      if (!fo.active) return;
+      if (!ownsFormation('experience')) return;
       fo.pulseDir = -1;
       fo.pulseAt = performance.now();
       timers.push(setTimeout(() => {
