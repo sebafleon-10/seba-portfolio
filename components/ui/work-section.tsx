@@ -57,13 +57,14 @@ const FAN_H = CARD_H + ARC_GAP + 70;
 // Horizon: distance below the card bottoms, half-thickness, and how far it
 // turns per card (a fraction of the fan's own tilt, so its ends stay on screen).
 const ARC_DROP = 16;
-const ARC_HMAX = 14;
-const RIM_LEAN = 0.4;
+const ARC_HMAX = 20;
+const RIM_LEAN = 0.25;
 const DEG = Math.PI / 180;
 
 export function WorkSection() {
   const [active, setActive] = useState(1);
   const [activeHovered, setActiveHovered] = useState(false);
+  const [hoveredSide, setHoveredSide] = useState<number | null>(null);
   const router = useRouter();
   const activeCardRef = useRef<HTMLDivElement>(null);
   const sectionRef    = useRef<HTMLElement>(null);
@@ -93,7 +94,7 @@ export function WorkSection() {
   // circle only touch it at their midpoints, so the horizon follows the fan's
   // real outline instead: the circle through the bottom of the active card
   // and the outer bottom corners of the cards beside it, ARC_DROP lower,
-  // carried a little past those corners and clipped to stay on screen.
+  // carried out toward the screen edges and clipped to stay on screen.
   const measureRim = (): FormationGeometry | null => {
     const c = activeBase();
     if (!c) return null;
@@ -110,10 +111,9 @@ export function WorkSection() {
     const top = Math.min(c.y + ARC_DROP, H - 70);
     const cx = c.x, cy = top + R;
     const clamp1 = (v: number) => Math.max(-1, Math.min(1, v));
-    const reach = Math.asin(clamp1(dx / R)) * 1.18;
     const yLim = Math.acos(clamp1((cy - (H - 30)) / R));
-    const a1 = Math.min(reach, Math.asin(clamp1((W - 50 - cx) / R)), yLim);
-    const a0 = -Math.min(reach, Math.asin(clamp1((cx - 50) / R)), yLim);
+    const a1 = Math.min(Math.asin(clamp1((W - 50 - cx) / R)), yLim);
+    const a0 = -Math.min(Math.asin(clamp1((cx - 50) / R)), yLim);
     return {
       cx, cy, R, a0, a1,
       ax: cx + R * Math.sin(a0), ay: cy - R * Math.cos(a0),
@@ -186,6 +186,10 @@ export function WorkSection() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        // The fan sits high so the horizon has the lower part of the screen
+        // to spread across.
+        paddingBottom: '22vh',
+        boxSizing: 'border-box',
         zIndex: 1,
       }}
     >
@@ -195,7 +199,7 @@ export function WorkSection() {
       <button
         onClick={prev}
         disabled={!canGoPrev}
-        style={{ position: 'absolute', left: 24, top: '50%', transform: 'translateY(-50%)', zIndex: 200 }}
+        style={{ position: 'absolute', left: 24, top: 'calc(50% - 11vh)', transform: 'translateY(-50%)', zIndex: 200 }}
         className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Previous"
       >
@@ -208,7 +212,7 @@ export function WorkSection() {
       <button
         onClick={next}
         disabled={!canGoNext}
-        style={{ position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)', zIndex: 200 }}
+        style={{ position: 'absolute', right: 24, top: 'calc(50% - 11vh)', transform: 'translateY(-50%)', zIndex: 200 }}
         className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Next"
       >
@@ -234,15 +238,26 @@ export function WorkSection() {
               const off      = i - active;
               const isActive = off === 0;
               const rotateZ  = off * FAN_TILT;
-              const scale    = isActive ? ACTIVE_SCALE : SIDE_SCALE;
-              const rotateX  = isActive ? 0 : 12;
+              const sideHover = !isActive && hoveredSide === i;
+              const scale    = isActive ? ACTIVE_SCALE : sideHover ? SIDE_SCALE + 0.03 : SIDE_SCALE;
+              const rotateX  = isActive ? 0 : sideHover ? 4 : 12;
+              const filter   = isActive || sideHover ? 'brightness(1)' : 'brightness(0.72)';
 
               return (
                 // The spoke: turns about the wheel's pivot, HUB below the
                 // card center, so every card's bottom edge stands on the
                 // same circle (the network's horizon runs just under it).
+                // It also takes the pointer: the card inside leans back in
+                // 3D, so hit tests land on this flat plane in front of it.
                 <motion.div
                   key={card.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={isActive ? `Open ${card.title}` : `Show ${card.title}`}
+                  onClick={() => isActive ? router.push(cardRoutes[card.id]) : setActive(i)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (isActive) router.push(cardRoutes[card.id]); else setActive(i); } }}
+                  onMouseEnter={() => isActive ? setActiveHovered(true) : setHoveredSide(i)}
+                  onMouseLeave={() => isActive ? setActiveHovered(false) : setHoveredSide(null)}
                   animate={{ rotateZ }}
                   transition={{ type: 'spring', stiffness: 280, damping: 28 }}
                   style={{
@@ -254,14 +269,13 @@ export function WorkSection() {
                     transformOrigin: `50% ${CARD_H / 2 + HUB}px`,
                     transformStyle: 'preserve-3d',
                     zIndex: 100 - Math.abs(off),
+                    cursor: 'pointer',
+                    outline: 'none',
                   }}
                 >
                 <motion.div
                   ref={isActive ? activeCardRef : undefined}
-                  onClick={() => isActive ? router.push(cardRoutes[card.id]) : setActive(i)}
-                  onMouseEnter={isActive ? () => setActiveHovered(true)  : undefined}
-                  onMouseLeave={isActive ? () => setActiveHovered(false) : undefined}
-                  animate={{ rotateX, scale, opacity: 1 }}
+                  animate={{ rotateX, scale, filter, opacity: 1 }}
                   transition={{ type: 'spring', stiffness: 280, damping: 28 }}
                   style={{
                     position: 'absolute',
@@ -273,7 +287,6 @@ export function WorkSection() {
                     boxShadow: '0 22px 52px rgba(0,0,0,0.65)',
                     borderRadius: 14,
                     transformStyle: 'preserve-3d',
-                    cursor: 'pointer',
                     overflow: 'hidden',
                   }}
                 >
@@ -408,6 +421,40 @@ export function WorkSection() {
                       }}
                     >
                       View Work →
+                    </motion.div>
+                  )}
+
+                  {/* Side cards say what a click does: the same frosted pill,
+                      on the corner that is not tucked behind the front card. */}
+                  {Math.abs(off) === 1 && (
+                    <motion.div
+                      animate={{ opacity: sideHover ? 1 : 0.8 }}
+                      transition={{ duration: 0.22 }}
+                      style={{
+                        position: 'absolute',
+                        top: 14,
+                        ...(off < 0 ? { left: 14 } : { right: 14 }),
+                        fontFamily: MONO,
+                        fontSize: 11,
+                        letterSpacing: '0.22em',
+                        textTransform: 'uppercase',
+                        color: card.id === 2 ? '#000000' : '#ffffff',
+                        background: card.id === 2
+                          ? `rgba(255,255,255,${sideHover ? 0.85 : 0.7})`
+                          : `rgba(0,0,0,${sideHover ? 0.6 : 0.45})`,
+                        border: card.id === 2
+                          ? `2px solid rgba(0,0,0,${sideHover ? 0.3 : 0.16})`
+                          : `2px solid rgba(255,255,255,${sideHover ? 0.55 : 0.3})`,
+                        borderRadius: 999,
+                        padding: '6px 13px',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        transition: 'background 220ms ease, border-color 220ms ease',
+                        pointerEvents: 'none',
+                        zIndex: 11,
+                      }}
+                    >
+                      {off < 0 ? '← Previous' : 'Next →'}
                     </motion.div>
                   )}
 

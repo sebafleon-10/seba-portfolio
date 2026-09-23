@@ -673,7 +673,7 @@ export function ParticleCanvas() {
                 // ends never reach an edge. Tapered ends, a slow swell
                 // travelling along it.
                 const tt = still ? 0 : tForm;
-                const half = Math.max(0.05, (fo.a1 - fo.a0) / 2 - 0.13);
+                const half = Math.max(0.05, (fo.a1 - fo.a0) / 2 - 0.07);
                 const mid  = (fo.a0 + fo.a1) / 2 + rimRot;
                 const th   = Math.max(fo.a0, Math.min(fo.a1, mid + (p.fu * 2 - 1) * half));
                 const d = p.fu - front;
@@ -681,7 +681,7 @@ export function ParticleCanvas() {
                 // A soft standing glow under the active card (straight up
                 // from the pivot), held there while the arc turns: the
                 // horizon lifting the card.
-                lit = Math.max(lit, 0.24 * Math.exp(-(th * th) / 0.012) * m);
+                lit = Math.max(lit, 0.3 * Math.exp(-(th * th) / 0.02) * m);
                 const thick = fo.hmax * Math.pow(Math.sin(Math.PI * p.fu), 0.8)
                             * (1 + 0.35 * Math.sin(Math.PI * 2 * (1.3 * p.fu - 0.045 * tt)))
                             * (1 + 0.07 * Math.sin(0.5 * tt)) * (1 + lit * 0.3);
