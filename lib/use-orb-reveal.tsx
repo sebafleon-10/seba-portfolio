@@ -7,8 +7,8 @@ import { particleInteraction } from '@/lib/particle-state';
 // Shared orb-reveal choreography for the home page sections.
 //
 // Every section (Who, Experience, Projects, Contact) fires the same sequence:
-// when the section scrolls to 75% of the viewport, particles converge on the
-// viewport center for 900ms with gravityBoost, then scatter, and the fixed
+// when the section scrolls to 75% of the viewport, particles gather into a
+// globe at the viewport center for 900ms (gravityBoost), then scatter, and the fixed
 // section label fades in while the section is on screen. The label position
 // tracks the section top on scroll. The sequence re-arms once the section is
 // fully out of view.
@@ -30,15 +30,19 @@ export function useOrbReveal(sectionRef: RefObject<HTMLElement | null>) {
       if (isRunning.current) return;
       isRunning.current = true;
       hasTriggered.current = true;
-      particleInteraction.gravityTarget.active = true;
-      particleInteraction.gravityTarget.x      = window.innerWidth  / 2;
-      particleInteraction.gravityTarget.y      = window.innerHeight / 2;
-      particleInteraction.gravityBoost         = true;
+      // The canvas owns the converge target (the viewport center) while
+      // gravityBoost is on. gravityTarget is left to the section anchors:
+      // five loops write it, and one of them scrolling off screen used to
+      // switch the converge off mid-flight.
+      // prefers-reduced-motion: no converge and no blast, the label fades in.
+      const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!still) particleInteraction.gravityBoost = true;
 
       setTimeout(() => {
-        particleInteraction.gravityTarget.active = false;
-        particleInteraction.gravityBoost         = false;
-        particleInteraction.scatterTrigger       = Date.now();
+        if (!still) {
+          particleInteraction.gravityBoost   = false;
+          particleInteraction.scatterTrigger = Date.now();
+        }
         hasScattered.current = true;
         const r = section.getBoundingClientRect();
         const entryFade = r.top > 0
@@ -84,8 +88,7 @@ export function useOrbReveal(sectionRef: RefObject<HTMLElement | null>) {
     handleScroll();
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      particleInteraction.gravityBoost         = false;
-      particleInteraction.gravityTarget.active = false;
+      particleInteraction.gravityBoost = false;
     };
   }, [sectionRef]);
 
