@@ -45,8 +45,8 @@ const cardRoutes: Record<number, string> = {
 // the cards stand on one circle. On desktop the network lies along that
 // circle as a curved horizon just under the cards (ARC_GAP), and turns with
 // the fan. Both read these constants, so they can never drift apart.
-const CARD_W = 612;
-const CARD_H = 370;
+const CARD_W = 672;
+const CARD_H = 406;
 const FAN_TILT = 14;
 const HUB = 1000;
 const ACTIVE_SCALE = 1.03;
@@ -56,7 +56,7 @@ const ARC_GAP = 46;
 const FAN_H = CARD_H + ARC_GAP + 70;
 // Horizon: distance below the card bottoms, half-thickness, and how far it
 // turns per card (a fraction of the fan's own tilt, so its ends stay on screen).
-const ARC_DROP = 16;
+const ARC_DROP = 70;
 const ARC_HMAX = 20;
 const RIM_LEAN = 0.25;
 const DEG = Math.PI / 180;
