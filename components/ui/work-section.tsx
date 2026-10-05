@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MONO } from '@/lib/fonts';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
 import { useFormation, ownsFormation, type FormationGeometry } from '@/lib/use-particle-anchor';
@@ -58,11 +58,26 @@ const FAN_H = CARD_H + ARC_GAP + 70;
 // turns per card (a fraction of the fan's own tilt, so its ends stay on screen).
 const ARC_DROP = 70;
 const ARC_HMAX = 20;
-const RIM_LEAN = 0.25;
 const DEG = Math.PI / 180;
 
+// The fan is a loop: `pos` counts steps without bound, and the fan shows
+// three slots, pos - 1, pos and pos + 1, each holding card (slot mod n). So
+// there is always a card on both sides and never an end. A slot leaving the
+// fan keeps turning past the edge and fades (EXIT_TILT), and the one coming
+// in swings in from the other side, so a card never crosses the middle.
+const SLOTS = [-1, 0, 1];
+const EXIT_TILT = FAN_TILT * 2;
+const wrap = (i: number) => ((i % cards.length) + cards.length) % cards.length;
+const spokeVariants = {
+  enter: (dir: number) => ({ rotateZ: dir * EXIT_TILT, opacity: 0 }),
+  exit:  (dir: number) => ({ rotateZ: -dir * EXIT_TILT, opacity: 0 }),
+};
+
 export function WorkSection() {
-  const [active, setActive] = useState(1);
+  const [pos, setPos] = useState(1);
+  const active = wrap(pos);
+  // Which way the last step went: 1 next (cards move left), -1 previous.
+  const [dir, setDir] = useState(1);
   const [activeHovered, setActiveHovered] = useState(false);
   const [hoveredSide, setHoveredSide] = useState<number | null>(null);
   const router = useRouter();
@@ -122,30 +137,37 @@ export function WorkSection() {
   };
   useFormation(sectionRef, measureRim, {
     id: 'projects', shape: 'rim', share: 1, hmax: ARC_HMAX, gate: 'line', handoff: true,
-    lean: (1 - active) * RIM_LEAN * FAN_TILT * DEG,
-  }, active);
+    // The loop keeps the fan symmetric, so the horizon never leans.
+    lean: 0,
+  }, pos);
 
   // A switch sends a front along the horizon the way the cards moved (next card:
   // right to left).
-  const prevActive = useRef(active);
+  const prevPos = useRef(pos);
   useEffect(() => {
-    const was = prevActive.current;
-    prevActive.current = active;
-    if (was === active || !ownsFormation('projects')) return;
+    const was = prevPos.current;
+    prevPos.current = pos;
+    if (was === pos || !ownsFormation('projects')) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const fo = particleInteraction.formation;
-    fo.pulseDir = active > was ? -1 : 1;
+    fo.pulseDir = pos > was ? -1 : 1;
     fo.pulseAt = performance.now();
-  }, [active]);
+  }, [pos]);
 
-  const canGoPrev = active > 0;
-  const canGoNext = active < cards.length - 1;
-  const prev = () => setActive(a => a - 1);
-  const next = () => setActive(a => a + 1);
+  const step = (d: number) => { setDir(Math.sign(d)); setPos(p => p + d); };
+  const prev = () => step(-1);
+  const next = () => step(1);
+  // Dots jump the short way round the loop.
+  const goTo = (i: number) => {
+    const n = cards.length;
+    let d = ((i - active) % n + n) % n;
+    if (d > n / 2) d -= n;
+    if (d) step(d);
+  };
 
   // Clear the active-card hover flag whenever the active card changes,
   // so the new front card starts in its base state until the user re-enters.
-  useEffect(() => { setActiveHovered(false); }, [active]);
+  useEffect(() => { setActiveHovered(false); }, [pos]);
 
   useEffect(() => {
     let raf: number;
@@ -198,7 +220,6 @@ export function WorkSection() {
       {/* Left Arrow */}
       <button
         onClick={prev}
-        disabled={!canGoPrev}
         style={{ position: 'absolute', left: 24, top: 'calc(50% - 11vh)', transform: 'translateY(-50%)', zIndex: 200 }}
         className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Previous"
@@ -211,7 +232,6 @@ export function WorkSection() {
       {/* Right Arrow */}
       <button
         onClick={next}
-        disabled={!canGoNext}
         style={{ position: 'absolute', right: 24, top: 'calc(50% - 11vh)', transform: 'translateY(-50%)', zIndex: 200 }}
         className="flex items-center justify-center w-12 h-12 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Next"
@@ -234,11 +254,13 @@ export function WorkSection() {
             height: FAN_H,
             width: CARD_W,
           }}>
-            {cards.map((card, i) => {
-              const off      = i - active;
+            <AnimatePresence initial={false} custom={dir}>
+            {SLOTS.map((off) => {
+              const slot     = pos + off;
+              const card     = cards[wrap(slot)];
               const isActive = off === 0;
               const rotateZ  = off * FAN_TILT;
-              const sideHover = !isActive && hoveredSide === i;
+              const sideHover = !isActive && hoveredSide === slot;
               const scale    = isActive ? ACTIVE_SCALE : sideHover ? SIDE_SCALE + 0.03 : SIDE_SCALE;
               const rotateX  = isActive ? 0 : sideHover ? 4 : 12;
               const filter   = isActive || sideHover ? 'brightness(1)' : 'brightness(0.72)';
@@ -250,16 +272,23 @@ export function WorkSection() {
                 // It also takes the pointer: the card inside leans back in
                 // 3D, so hit tests land on this flat plane in front of it.
                 <motion.div
-                  key={card.id}
+                  key={slot}
                   role="button"
                   tabIndex={0}
                   aria-label={isActive ? `Open ${card.title}` : `Show ${card.title}`}
-                  onClick={() => isActive ? router.push(cardRoutes[card.id]) : setActive(i)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (isActive) router.push(cardRoutes[card.id]); else setActive(i); } }}
-                  onMouseEnter={() => isActive ? setActiveHovered(true) : setHoveredSide(i)}
+                  onClick={() => isActive ? router.push(cardRoutes[card.id]) : step(off)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (isActive) router.push(cardRoutes[card.id]); else step(off); } }}
+                  onMouseEnter={() => isActive ? setActiveHovered(true) : setHoveredSide(slot)}
                   onMouseLeave={() => isActive ? setActiveHovered(false) : setHoveredSide(null)}
-                  animate={{ rotateZ }}
-                  transition={{ type: 'spring', stiffness: 280, damping: 28 }}
+                  custom={dir}
+                  variants={spokeVariants}
+                  initial="enter"
+                  animate={{ rotateZ, opacity: 1 }}
+                  exit="exit"
+                  transition={{
+                    rotateZ: { type: 'spring', stiffness: 280, damping: 28 },
+                    opacity: { duration: 0.3, ease: 'easeOut' },
+                  }}
                   style={{
                     position: 'absolute',
                     bottom: ARC_GAP,
@@ -471,6 +500,7 @@ export function WorkSection() {
                 </motion.div>
               );
             })}
+            </AnimatePresence>
           </div>
 
         </div>
@@ -480,7 +510,7 @@ export function WorkSection() {
           {cards.map((_, i) => (
             <button
               key={i}
-              onClick={() => setActive(i)}
+              onClick={() => goTo(i)}
               style={{
                 width:        i === active ? 24 : 8,
                 height:       8,
