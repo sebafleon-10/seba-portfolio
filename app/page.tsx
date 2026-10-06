@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { MONO } from '@/lib/fonts';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, MotionConfig, useMotionValue, useSpring } from 'framer-motion';
 import { WhoSection }     from '@/components/ui/who-section';
 import { ExperienceSection } from '@/components/ui/experience-section';
 import { WorkSection }    from '@/components/ui/work-section';
@@ -198,6 +198,9 @@ export default function Home() {
   }, []);
 
   return (
+    // prefers-reduced-motion: Framer keeps fades but drops movement on the
+    // whole home page (nav hide and show, card floats, the Projects wheel).
+    <MotionConfig reducedMotion="user">
     <div>
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <section
@@ -337,5 +340,6 @@ export default function Home() {
       <ContactSection />
 
     </div>
+    </MotionConfig>
   );
 }
