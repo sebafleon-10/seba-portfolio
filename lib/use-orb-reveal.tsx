@@ -69,9 +69,9 @@ export function useOrbReveal(sectionRef: RefObject<HTMLElement | null>, opts?: O
       setTimeout(() => {
         cancelAnimationFrame(raf);
         if (!still) {
-          // With a handoff the canvas decides: unfold or blast. Below 768
-          // there is no shape to unfold into, so blast here as before.
-          const unfold = handoff && window.innerWidth >= 768;
+          // With a handoff the canvas decides: unfold or blast. The only
+          // handoff section (Projects) holds its shape on phones too.
+          const unfold = !!handoff;
           if (!unfold) particleInteraction.orb.handoff = '';
           particleInteraction.gravityBoost = false;
           if (!unfold) particleInteraction.scatterTrigger = Date.now();

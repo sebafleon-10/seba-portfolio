@@ -110,8 +110,8 @@ export function useClearZone(ref: RefObject<HTMLElement | null>, pad = 40) {
 }
 
 // useFormation: while the section is in its window, the network morphs into
-// the shape whose geometry `measure` returns. Desktop only: under 768 the
-// room for a shape does not exist.
+// the shape whose geometry `measure` returns. Desktop only unless `phones` is
+// set: under 768 most sections have no room for a shape.
 //
 // Windows (`gate`):
 //   'pinned' is a pinned stage (home Experience): from just before its top
@@ -145,6 +145,8 @@ export type FormationOptions = {
   exitAt?: number;
   handoff?: boolean;
   lean?: number;
+  // Hold the shape under 768 too (home Projects). Off by default.
+  phones?: boolean;
 };
 
 export function ownsFormation(id: string) {
@@ -158,7 +160,7 @@ export function useFormation(
   opts: FormationOptions,
   step: number,
 ) {
-  const { id, shape, share, hmax, gate, exitAt = 1.04, handoff = false, lean = 1 } = opts;
+  const { id, shape, share, hmax, gate, exitAt = 1.04, handoff = false, lean = 1, phones = false } = opts;
   // Read inside the loop without restarting it on every step.
   const live = useRef({ step, lean, measure });
   useEffect(() => { live.current = { step, lean, measure }; });
@@ -180,7 +182,7 @@ export function useFormation(
       } else {
         inWindow = r.top <= vh * 0.75 && r.bottom > vh * 0.75;
       }
-      const g = window.innerWidth >= 768 && inWindow ? live.current.measure() : null;
+      const g = (phones || window.innerWidth >= 768) && inWindow ? live.current.measure() : null;
       const ok = !!g && g.bx - g.ax > 40;
       const entered = ok && !inside;
       inside = ok;
@@ -202,5 +204,5 @@ export function useFormation(
       cancelAnimationFrame(raf);
       if (fo.owner === id) fo.active = false;
     };
-  }, [sectionRef, id, shape, share, hmax, gate, exitAt, handoff]);
+  }, [sectionRef, id, shape, share, hmax, gate, exitAt, handoff, phones]);
 }

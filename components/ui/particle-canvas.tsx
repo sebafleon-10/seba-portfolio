@@ -680,7 +680,10 @@ export function ParticleCanvas() {
                 // ends never reach an edge. Tapered ends, a slow swell
                 // travelling along it.
                 const tt = still ? 0 : tForm;
-                const half = Math.max(0.05, (fo.a1 - fo.a0) / 2 - 0.07);
+                // The end margin is a share of a narrow arc (phones), so it still
+                // spans the screen there; wide arcs keep the full 0.07.
+                const reach = (fo.a1 - fo.a0) / 2;
+                const half = Math.max(0.05, reach - Math.min(0.07, reach * 0.15));
                 const mid  = (fo.a0 + fo.a1) / 2 + rimRot;
                 const th   = Math.max(fo.a0, Math.min(fo.a1, mid + (p.fu * 2 - 1) * half));
                 const d = p.fu - front;
