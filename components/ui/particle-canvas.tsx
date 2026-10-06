@@ -136,6 +136,46 @@ function makeSlot() {
   };
 }
 
+// ── Hero cloud layout ──────────────────────────────────────────────────────────
+// The settled hero clouds used to draw from the spawn stream right after the
+// text shuffle, whose length depends on the window size, so every window size
+// rolled a different layout (some ran over the tagline). The layout now has its
+// own stream and is built in a 1440x757 reference frame, then scaled to the
+// viewport: the same clouds at every size. HERO_SEED was picked by Sebastian
+// (Oct 5 2026) from 3000 scored seeds: four corner clouds, the tagline, nav and
+// SCROLL label left clear.
+const HERO_SEED = -1420255236;
+const HERO_W = 1440, HERO_H = 757;
+function heroLayout(W: number, H: number) {
+  const hr = mulberry32(HERO_SEED);
+  const sx = W / HERO_W, sy = H / HERO_H;
+  const numClusters = 4 + Math.floor(hr() * 3);
+  const margin = 110, minSep = 230;
+  const centers: { x: number; y: number }[] = [];
+  for (let attempt = 0; attempt < 600 && centers.length < numClusters; attempt++) {
+    const cx = margin + hr() * (HERO_W - margin * 2);
+    const cy = margin + hr() * (HERO_H - margin * 2);
+    if (
+      centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
+      Math.hypot(cx - HERO_W / 2, cy - HERO_H / 2) > 220
+    ) centers.push({ x: cx, y: cy });
+  }
+  const tx = new Float32Array(N_TOTAL), ty = new Float32Array(N_TOTAL), delay = new Float32Array(N_TOTAL);
+  for (let i = 0; i < N_TOTAL; i++) {
+    const cluster = centers[Math.floor(hr() * centers.length)];
+    const angle   = hr() * Math.PI * 2;
+    const rx      = 40 + hr() * 240;  // wider X spread: 40–280px
+    const ry      = 20 + hr() * 120;  // shallower Y spread: 20–140px
+    tx[i] = Math.max(20, Math.min(W - 20, (cluster.x + Math.cos(angle) * rx) * sx));
+    ty[i] = Math.max(20, Math.min(H - 20, (cluster.y + Math.sin(angle) * ry) * sy));
+    // The first-load scatter staggers the text particles; the stream keeps
+    // that draw so the layout matches the pinned one (and the snap after a
+    // Back navigation lands on the same clouds).
+    if (i < N_TEXT) delay[i] = hr() * 200;
+  }
+  return { tx, ty, delay };
+}
+
 const smooth01 = (k: number) => (k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k));
 
 // Module-level intro gate: the SEBASTIAN LEON neural-network reveal animation
@@ -265,28 +305,12 @@ export function ParticleCanvas() {
       phase = 'static';
       staticStart = start;
 
-      // Replicate the cluster-distribution math from the hold→scatter
-      // transition (line block beginning "Generate 4-6 organic cluster centers").
-      const numClusters = 4 + Math.floor(rand() * 3);
-      const margin = 110, minSep = 230;
-      const centers: { x: number; y: number }[] = [];
-      for (let attempt = 0; attempt < 600 && centers.length < numClusters; attempt++) {
-        const cx = margin + rand() * (W - margin * 2);
-        const cy = margin + rand() * (H - margin * 2);
-        if (
-          centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
-          Math.hypot(cx - W / 2, cy - H / 2) > 220
-        ) centers.push({ x: cx, y: cy });
-      }
-
+      // The same clouds the hold→scatter transition sends them to.
+      const hero = heroLayout(W, H);
       for (let i = 0; i < N_TOTAL; i++) {
         const p       = ps[i];
-        const cluster = centers[Math.floor(rand() * centers.length)];
-        const angle   = rand() * Math.PI * 2;
-        const rx      = 40 + rand() * 240;
-        const ry      = 20 + rand() * 120;
-        p.x = Math.max(20, Math.min(W - 20, cluster.x + Math.cos(angle) * rx));
-        p.y = Math.max(20, Math.min(H - 20, cluster.y + Math.sin(angle) * ry));
+        p.x = hero.tx[i];
+        p.y = hero.ty[i];
         p.vx = 0; p.vy = 0;
         p.restX = p.x; p.restY = p.y;
         // Buzz personality is normally assigned at chaos→assembly. Initialize
@@ -365,33 +389,16 @@ export function ParticleCanvas() {
         phase = 'scatter';
         scatterStart = now;
 
-        // Generate 4-6 organic cluster centers distributed across the canvas
-        // Keep clusters away from screen center (tagline repulsion zone)
-        const numClusters = 4 + Math.floor(rand() * 3);
-        const margin = 110, minSep = 230;
-        const centers: { x: number; y: number }[] = [];
-        for (let attempt = 0; attempt < 600 && centers.length < numClusters; attempt++) {
-          const cx = margin + rand() * (W - margin * 2);
-          const cy = margin + rand() * (H - margin * 2);
-          if (
-            centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
-            Math.hypot(cx - W / 2, cy - H / 2) > 220
-          ) centers.push({ x: cx, y: cy });
-        }
-
+        // 4-6 organic clouds kept clear of the tagline, the same layout at
+        // every window size (see heroLayout)
+        const hero = heroLayout(W, H);
         const TRAVEL = 1 / (1 - 0.88); // geometric series: total travel with 0.88 damping
         for (let i = 0; i < N_TOTAL; i++) {
           const p       = ps[i];
           const isText  = i < N_TEXT;
-          const cluster = centers[Math.floor(rand() * centers.length)];
-          const angle   = rand() * Math.PI * 2;
-          const rx      = 40 + rand() * 240;  // wider X spread: 40–280px
-          const ry      = 20 + rand() * 120;  // shallower Y spread: 20–140px
-          const targetX = Math.max(20, Math.min(W - 20, cluster.x + Math.cos(angle) * rx));
-          const targetY = Math.max(20, Math.min(H - 20, cluster.y + Math.sin(angle) * ry));
-          p.vx = (targetX - p.x) / TRAVEL;
-          p.vy = (targetY - p.y) / TRAVEL;
-          p.scatterDelay = isText ? rand() * 200 : 0;
+          p.vx = (hero.tx[i] - p.x) / TRAVEL;
+          p.vy = (hero.ty[i] - p.y) / TRAVEL;
+          p.scatterDelay = isText ? hero.delay[i] : 0;
         }
       }
 
