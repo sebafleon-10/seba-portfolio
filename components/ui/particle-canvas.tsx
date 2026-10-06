@@ -94,6 +94,10 @@ type P = {
   fsel: number; fu: number; fv: number; fring: boolean;
   fph: number; fw: number; fdelay: number; fm: number;
   odelay: number;
+  // Handoff (globe or old shape straight into a new shape, no blast):
+  // (hx, hy) is where the particle stood when a shape-to-shape morph began,
+  // hdelay staggers its departure so the new shape unfolds from the middle.
+  hx: number; hy: number; hdelay: number;
 };
 
 function makeP(x: number, y: number, tx = -1, ty = -1): P {
@@ -128,8 +132,51 @@ function makeSlot() {
     fsel: frand(), fu, fv: side * Math.pow(frand(), 1.1), fring: frand() < 0.68,
     fph: frand() * Math.PI * 2, fw: 0.35 + frand() * 0.5, fdelay: 0, fm: 0,
     odelay: 0,
+    hx: 0, hy: 0, hdelay: 0,
   };
 }
+
+// ── Hero cloud layout ──────────────────────────────────────────────────────────
+// The settled hero clouds used to draw from the spawn stream right after the
+// text shuffle, whose length depends on the window size, so every window size
+// rolled a different layout (some ran over the tagline). The layout now has its
+// own stream and is built in a 1440x757 reference frame, then scaled to the
+// viewport: the same clouds at every size. HERO_SEED was picked by Sebastian
+// (Oct 5 2026) from 3000 scored seeds: four corner clouds, the tagline, nav and
+// SCROLL label left clear.
+const HERO_SEED = -1420255236;
+const HERO_W = 1440, HERO_H = 757;
+function heroLayout(W: number, H: number) {
+  const hr = mulberry32(HERO_SEED);
+  const sx = W / HERO_W, sy = H / HERO_H;
+  const numClusters = 4 + Math.floor(hr() * 3);
+  const margin = 110, minSep = 230;
+  const centers: { x: number; y: number }[] = [];
+  for (let attempt = 0; attempt < 600 && centers.length < numClusters; attempt++) {
+    const cx = margin + hr() * (HERO_W - margin * 2);
+    const cy = margin + hr() * (HERO_H - margin * 2);
+    if (
+      centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
+      Math.hypot(cx - HERO_W / 2, cy - HERO_H / 2) > 220
+    ) centers.push({ x: cx, y: cy });
+  }
+  const tx = new Float32Array(N_TOTAL), ty = new Float32Array(N_TOTAL), delay = new Float32Array(N_TOTAL);
+  for (let i = 0; i < N_TOTAL; i++) {
+    const cluster = centers[Math.floor(hr() * centers.length)];
+    const angle   = hr() * Math.PI * 2;
+    const rx      = 40 + hr() * 240;  // wider X spread: 40–280px
+    const ry      = 20 + hr() * 120;  // shallower Y spread: 20–140px
+    tx[i] = Math.max(20, Math.min(W - 20, (cluster.x + Math.cos(angle) * rx) * sx));
+    ty[i] = Math.max(20, Math.min(H - 20, (cluster.y + Math.sin(angle) * ry) * sy));
+    // The first-load scatter staggers the text particles; the stream keeps
+    // that draw so the layout matches the pinned one (and the snap after a
+    // Back navigation lands on the same clouds).
+    if (i < N_TEXT) delay[i] = hr() * 200;
+  }
+  return { tx, ty, delay };
+}
+
+const smooth01 = (k: number) => (k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k));
 
 // Module-level intro gate: the SEBASTIAN LEON neural-network reveal animation
 // should only play on a genuine first load of the site, not on client-side
@@ -211,6 +258,18 @@ export function ParticleCanvas() {
     let formWas = false, formClock = 0, formLive = false, formGlobal = 0;
     let orbWas = false, orbClock = 0;
     let formStep = 0, formLean = 1, formKick = false, lastFrame = performance.now();
+    // Ownership: which section's formation the canvas is drawing, since when,
+    // and how many frames it has been switched off (a release needs 3, so the
+    // one-frame gap when sections hand over inside separate rAF callbacks is
+    // not read as a release).
+    let formOwner = '', formHandoff = false, offFrames = 0, ownerSince = 0, formStepDelta = 0;
+    // Handoff clock (1e9 = idle) and source: 0 the live globe, 1 the snapshot.
+    let handClock = 1e9, handSrc = 0;
+    // The globe center and radius, cached from particleInteraction.orb while
+    // the converge runs so a handoff can keep reading the still-turning globe.
+    let orbCX = W / 2, orbCY = H / 2, orbRR = Math.min(W, H) * 0.17;
+    // Rim turn (radians), eased on the clock.
+    let rimRot = 0;
 
     // ── Input tracking ─────────────────────────────────────────────────────────
     const mouse = { x: -9999, y: -9999 };
@@ -246,28 +305,12 @@ export function ParticleCanvas() {
       phase = 'static';
       staticStart = start;
 
-      // Replicate the cluster-distribution math from the hold→scatter
-      // transition (line block beginning "Generate 4-6 organic cluster centers").
-      const numClusters = 4 + Math.floor(rand() * 3);
-      const margin = 110, minSep = 230;
-      const centers: { x: number; y: number }[] = [];
-      for (let attempt = 0; attempt < 600 && centers.length < numClusters; attempt++) {
-        const cx = margin + rand() * (W - margin * 2);
-        const cy = margin + rand() * (H - margin * 2);
-        if (
-          centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
-          Math.hypot(cx - W / 2, cy - H / 2) > 220
-        ) centers.push({ x: cx, y: cy });
-      }
-
+      // The same clouds the hold→scatter transition sends them to.
+      const hero = heroLayout(W, H);
       for (let i = 0; i < N_TOTAL; i++) {
         const p       = ps[i];
-        const cluster = centers[Math.floor(rand() * centers.length)];
-        const angle   = rand() * Math.PI * 2;
-        const rx      = 40 + rand() * 240;
-        const ry      = 20 + rand() * 120;
-        p.x = Math.max(20, Math.min(W - 20, cluster.x + Math.cos(angle) * rx));
-        p.y = Math.max(20, Math.min(H - 20, cluster.y + Math.sin(angle) * ry));
+        p.x = hero.tx[i];
+        p.y = hero.ty[i];
         p.vx = 0; p.vy = 0;
         p.restX = p.x; p.restY = p.y;
         // Buzz personality is normally assigned at chaos→assembly. Initialize
@@ -346,33 +389,16 @@ export function ParticleCanvas() {
         phase = 'scatter';
         scatterStart = now;
 
-        // Generate 4-6 organic cluster centers distributed across the canvas
-        // Keep clusters away from screen center (tagline repulsion zone)
-        const numClusters = 4 + Math.floor(rand() * 3);
-        const margin = 110, minSep = 230;
-        const centers: { x: number; y: number }[] = [];
-        for (let attempt = 0; attempt < 600 && centers.length < numClusters; attempt++) {
-          const cx = margin + rand() * (W - margin * 2);
-          const cy = margin + rand() * (H - margin * 2);
-          if (
-            centers.every(c => Math.hypot(cx - c.x, cy - c.y) > minSep) &&
-            Math.hypot(cx - W / 2, cy - H / 2) > 220
-          ) centers.push({ x: cx, y: cy });
-        }
-
+        // 4-6 organic clouds kept clear of the tagline, the same layout at
+        // every window size (see heroLayout)
+        const hero = heroLayout(W, H);
         const TRAVEL = 1 / (1 - 0.88); // geometric series: total travel with 0.88 damping
         for (let i = 0; i < N_TOTAL; i++) {
           const p       = ps[i];
           const isText  = i < N_TEXT;
-          const cluster = centers[Math.floor(rand() * centers.length)];
-          const angle   = rand() * Math.PI * 2;
-          const rx      = 40 + rand() * 240;  // wider X spread: 40–280px
-          const ry      = 20 + rand() * 120;  // shallower Y spread: 20–140px
-          const targetX = Math.max(20, Math.min(W - 20, cluster.x + Math.cos(angle) * rx));
-          const targetY = Math.max(20, Math.min(H - 20, cluster.y + Math.sin(angle) * ry));
-          p.vx = (targetX - p.x) / TRAVEL;
-          p.vy = (targetY - p.y) / TRAVEL;
-          p.scatterDelay = isText ? rand() * 200 : 0;
+          p.vx = (hero.tx[i] - p.x) / TRAVEL;
+          p.vy = (hero.ty[i] - p.y) / TRAVEL;
+          p.scatterDelay = isText ? hero.delay[i] : 0;
         }
       }
 
@@ -389,43 +415,91 @@ export function ParticleCanvas() {
       const fo = particleInteraction.formation;
       const dtFrame = Math.min(50, now - lastFrame);
       lastFrame = now;
+      let formOn = false;
       if (phase === 'static') {
-        if (fo.active && !formWas) {
-          // Morph in: nearer particles leave first so it reads as streams.
-          formClock = 0;
-          const cx = (fo.ax + fo.bx) / 2, cy = (fo.ay + fo.by) / 2;
-          for (const p of ps) p.fdelay = still ? -1200 : Math.hypot(p.x - cx, p.y - cy) / W * 1100 + Math.random() * 250;
-        } else if (!fo.active && formWas && !still &&
+        offFrames = fo.active ? 0 : offFrames + 1;
+        formOn = fo.active || (formWas && offFrames < 3);
+        const ownerChange = fo.active && formWas && fo.owner !== formOwner;
+        if (fo.active && (!formWas || ownerChange)) {
+          if (ownerChange && formHandoff && fo.handoff && formGlobal > 0.5 &&
+              !still && !particleInteraction.gravityBoost) {
+            // Shape to shape (two handoff shapes): every particle leaves from
+            // where it stands straight for its new slot, no blast between.
+            for (const p of ps) {
+              p.hx = p.x; p.hy = p.y;
+              p.hdelay = Math.abs(p.fu - 0.5) * 900 + Math.random() * 200;
+            }
+            handSrc = 1; handClock = 0; formClock = 1e6;
+          } else {
+            if (ownerChange && !still && !particleInteraction.gravityBoost &&
+                now - lastScatterTime > 900) {
+              // The old shape leaves as a blast, the new one gathers after it.
+              particleInteraction.scatterTrigger = Date.now();
+            }
+            // Morph in: nearer particles leave first so it reads as streams.
+            formClock = 0;
+            handClock = 1e9;
+            const cx = (fo.ax + fo.bx) / 2, cy = (fo.ay + fo.by) / 2;
+            for (const p of ps) p.fdelay = still ? -1200 : Math.hypot(p.x - cx, p.y - cy) / W * 1100 + Math.random() * 250;
+          }
+          formOwner = fo.owner; formHandoff = fo.handoff;
+          formStep = fo.step; formLean = fo.lean;
+          if (fo.shape === 'rim') rimRot = fo.lean;
+          ownerSince = now;
+        } else if (!formOn && formWas && !still &&
                    !particleInteraction.gravityBoost && now - lastScatterTime > 900) {
           // Morph out: the body leaves as a blast back into the ambient flow.
           particleInteraction.scatterTrigger = Date.now();
         }
-        formWas = fo.active;
+        if (!formOn) handClock = 1e9;
+        formWas = formOn;
         // The morph waits for an orb reveal to finish: it is the third beat.
         if (fo.active && !particleInteraction.gravityBoost && now - lastScatterTime > 900) formClock += dtFrame;
-        formGlobal += ((fo.active ? 1 : 0) - formGlobal) * 0.06;
+        formGlobal += ((formOn ? 1 : 0) - formGlobal) * 0.06;
         if (formGlobal < 0.001) formGlobal = 0;
-        formKick = fo.active && fo.step !== formStep && !still;
+        formStepDelta = fo.step - formStep;
+        formKick = fo.active && formStepDelta !== 0 && !still;
         formStep = fo.step;
-        formLean += ([1, 0.78, 1.28][fo.step % 3] - formLean) * 0.04;
+        formLean += (fo.lean - formLean) * 0.04;
+        const ease = still ? 1 : 1 - Math.exp(-dtFrame / 220);
+        if (fo.shape === 'rim') rimRot += (fo.lean - rimRot) * ease;
+        if (handClock < 1e9) handClock += dtFrame;
       }
       // Orb reveal converge (gravityBoost): the network gathers into a slowly
       // turning globe at the viewport center. Same machinery as the formation:
       // every particle has its own slot, nearer particles leave first, and the
       // ramp runs on the clock so it reads the same at 60 and 120Hz. The
       // canvas owns the target here; gravityTarget belongs to the sections.
+      // A section can place the globe (particleInteraction.orb) and name the
+      // formation it hands off to, which skips the blast at the end.
       const boost = phase === 'static' && particleInteraction.gravityBoost;
+      const orb = particleInteraction.orb;
+      if (boost) {
+        orbCX = orb.x >= 0 ? orb.x : W / 2;
+        orbCY = orb.y >= 0 ? orb.y : H / 2;
+        orbRR = orb.r > 0 ? orb.r : Math.min(W, H) * 0.17;
+      }
       if (boost && !orbWas) {
         orbClock = 0;
-        for (const p of ps) p.odelay = Math.hypot(p.x - W / 2, p.y - H / 2) / (W * 0.6) * 220 + Math.random() * 50;
+        for (const p of ps) p.odelay = Math.hypot(p.x - orbCX, p.y - orbCY) / (W * 0.6) * 220 + Math.random() * 50;
+      }
+      if (!boost && orbWas && phase === 'static' && orb.handoff) {
+        if (fo.active && fo.owner === orb.handoff && !still) {
+          // The globe unfolds straight into the section's shape.
+          for (const p of ps) p.hdelay = Math.abs(p.fu - 0.5) * 900 + Math.random() * 200;
+          handSrc = 0; handClock = 0; formClock = 1e6;
+        } else {
+          // Not ours to hand over (mobile, or scrolled away): blast as usual.
+          particleInteraction.scatterTrigger = Date.now();
+        }
       }
       if (boost) orbClock += dtFrame;
       orbWas = boost;
-      const orbR = Math.min(W, H) * 0.17;
       const othersFade = fo.share < 1 ? formGlobal : 0;
       // Brightness front, -0.1 to 1.1 along the axis while a pulse runs
       // (1.1 to -0.1 when the pulse runs b to a).
-      const pulseK = fo.pulseAt > 0 ? (now - fo.pulseAt) / FORMATION_PULSE_MS : -1;
+      // A pulse stamped before the current owner claimed the shape is not ours.
+      const pulseK = fo.pulseAt > 0 && fo.pulseAt >= ownerSince ? (now - fo.pulseAt) / FORMATION_PULSE_MS : -1;
       const frontAB = pulseK >= 0 && pulseK <= 1 ? -0.1 + 1.2 * pulseK * pulseK * (3 - 2 * pulseK) : -9;
       const front   = frontAB === -9 ? -9 : fo.pulseDir === -1 ? 1 - frontAB : frontAB;
       const tForm  = now / 1000;
@@ -562,8 +636,9 @@ export function ParticleCanvas() {
           // by m, so with no formation the frame is what it always was.
           let m = 0, slotX = 0, slotY = 0, lit = 0;
           const member = p.fsel < fo.share;
-          if ((fo.active || formLive) && member) {
-            if (fo.active) {
+          let hk = 1;
+          if ((formOn || formLive) && member) {
+            if (formOn) {
               const k = (formClock - p.fdelay) / 1200;
               m = k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k);
             } else {
@@ -598,6 +673,31 @@ export function ParticleCanvas() {
                 else corner(-hw + cr, -hh + cr, Math.PI, d - sy);
                 slotX = fo.box.x + fo.box.w / 2 + qx;
                 slotY = fo.box.y + fo.box.h / 2 + qy;
+              } else if (fo.shape === 'rim') {
+                // A curved horizon about a pivot (home Projects: under the card
+                // fan, which turns about the same pivot, so the cards stand on
+                // it). Turned by rimRot and kept inside the clip angles so its
+                // ends never reach an edge. Tapered ends, a slow swell
+                // travelling along it.
+                const tt = still ? 0 : tForm;
+                // The end margin is a share of a narrow arc (phones), so it still
+                // spans the screen there; wide arcs keep the full 0.07.
+                const reach = (fo.a1 - fo.a0) / 2;
+                const half = Math.max(0.05, reach - Math.min(0.07, reach * 0.15));
+                const mid  = (fo.a0 + fo.a1) / 2 + rimRot;
+                const th   = Math.max(fo.a0, Math.min(fo.a1, mid + (p.fu * 2 - 1) * half));
+                const d = p.fu - front;
+                lit = d > -0.09 && d < 0.09 ? (1 - Math.abs(d) / 0.09) * m : 0;
+                // A soft standing glow under the active card (straight up
+                // from the pivot), held there while the arc turns: the
+                // horizon lifting the card.
+                lit = Math.max(lit, 0.3 * Math.exp(-(th * th) / 0.02) * m);
+                const thick = fo.hmax * Math.pow(Math.sin(Math.PI * p.fu), 0.8)
+                            * (1 + 0.35 * Math.sin(Math.PI * 2 * (1.3 * p.fu - 0.045 * tt)))
+                            * (1 + 0.07 * Math.sin(0.5 * tt)) * (1 + lit * 0.3);
+                const rr = fo.R + p.fv * thick;
+                slotX = fo.cx + rr * Math.sin(th) + Math.sin(tt * p.fw + p.fph) * 3;
+                slotY = fo.cy - rr * Math.cos(th) + Math.cos(tt * p.fw * 0.8 + p.fph) * 2;
               } else {
                 const u = Math.pow(p.fu, formLean);
                 const bulge = Math.pow(Math.sin(Math.PI * u), 0.7);
@@ -608,7 +708,29 @@ export function ParticleCanvas() {
                       + p.fv * bulge * fo.hmax * breath * (1 + lit * 0.22)
                       + Math.cos(tForm * p.fw * 0.8 + p.fph) * 6;
               }
-              if (formKick && m > 0.5) {
+              if (handClock < 1600) {
+                // Handoff: leave the globe (still turning) or the old shape
+                // for the new slot, staggered from the middle out.
+                hk = smooth01((handClock - p.hdelay) / 900);
+                let sx = p.hx, sy = p.hy;
+                if (handSrc === 0) {
+                  const rr = orbRR * (p.fsel < 0.3 ? 0.3 + p.fsel * 1.5 : 1);
+                  const ph = p.fph + tForm * 0.9;
+                  sx = orbCX + rr * Math.sqrt(1 - p.fv * p.fv) * Math.cos(ph);
+                  sy = orbCY + rr * p.fv;
+                }
+                slotX = sx + (slotX - sx) * hk;
+                slotY = sy + (slotY - sy) * hk;
+              }
+              if (formKick && m > 0.5 && fo.shape === 'rim') {
+                // A card switch turns the wheel: a swirl along the rim in the
+                // fan's direction (next card = counterclockwise).
+                const dx = p.x - fo.cx, dy = p.y - fo.cy;
+                const d = Math.hypot(dx, dy) || 1;
+                const a = (4 + Math.random() * 4) * (formStepDelta > 0 ? -1 : 1);
+                p.vx += (-dy / d) * a;
+                p.vy += ( dx / d) * a;
+              } else if (formKick && m > 0.5) {
                 // A step convulses the body: a swirl the slot spring reins in.
                 const cx = (fo.ax + fo.bx) / 2, cy = (fo.ay + fo.by) / 2;
                 const dx = p.x - cx, dy = p.y - cy;
@@ -625,10 +747,10 @@ export function ParticleCanvas() {
             const k = (orbClock - p.odelay) / 480;
             m = k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k);
             lit = 0;
-            const rr = orbR * (p.fsel < 0.3 ? 0.3 + p.fsel * 1.5 : 1);
+            const rr = orbRR * (p.fsel < 0.3 ? 0.3 + p.fsel * 1.5 : 1);
             const ph = p.fph + tForm * 0.9;
-            slotX = W / 2 + rr * Math.sqrt(1 - p.fv * p.fv) * Math.cos(ph);
-            slotY = H / 2 + rr * p.fv;
+            slotX = orbCX + rr * Math.sqrt(1 - p.fv * p.fv) * Math.cos(ph);
+            slotY = orbCY + rr * p.fv;
           }
           fM[i] = m; fLit[i] = lit;
           const free = boost ? 0 : 1 - m;
@@ -718,14 +840,18 @@ export function ParticleCanvas() {
 
           // Spring toward rest + buzz
           if (!isBlasting) {
-            const kk = boost ? 0.04 + 0.05 * m : 0.04;
+            // The globe spring (0.09) carries on through a handoff and relaxes
+            // to the formation's 0.04 as each particle lands on its new slot.
+            const kk = boost ? 0.04 + 0.05 * m : 0.04 + 0.05 * (1 - hk);
             p.vx += (p.restX * (1 - m) + slotX * m + bx - p.x) * kk;
             p.vy += (p.restY * (1 - m) + slotY * m + by - p.y) * kk;
           }
 
           // Direct gravity pull toward active target
           // (not during the orb converge: the globe slot spring does the work)
-          if (!boost && gt.active && !isBlasting) {
+          // (nor inside a formation: the damping and cap below are not scaled by
+          // free, and would drag the rim's turn)
+          if (!boost && gt.active && !isBlasting && free > 0.01) {
             const dx   = gt.x - p.x;
             const dy   = gt.y - p.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
@@ -763,8 +889,14 @@ export function ParticleCanvas() {
 
           if (p.x < 0)  { p.x = 0; p.vx =  Math.abs(p.vx); }
           if (p.x > W)  { p.x = W; p.vx = -Math.abs(p.vx); }
-          if (p.y < 0)  p.y += H;
-          if (p.y > H)  p.y -= H;
+          if (m > 0.5) {
+            // A formed particle bounces too: wrapping would streak it across.
+            if (p.y < 0) { p.y = 0; p.vy =  Math.abs(p.vy); }
+            if (p.y > H) { p.y = H; p.vy = -Math.abs(p.vy); }
+          } else {
+            if (p.y < 0)  p.y += H;
+            if (p.y > H)  p.y -= H;
+          }
 
           if (m > 0.15) orgDots.push(p.x, p.y, p.r, lit);
           else if (!member && othersFade > 0) otherDots.push(p.x, p.y, p.r);

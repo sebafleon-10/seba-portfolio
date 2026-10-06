@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { motion, type Variants } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
+import { useClearZone } from '@/lib/use-particle-anchor';
 import { VerticalMarquee } from '@/components/ui/vertical-marquee';
 
 const photoCardVariants: Variants = {
@@ -38,6 +39,10 @@ export function WhoSection() {
   const orbLabelRef = useOrbReveal(sectionRef);
   const cardRef      = useRef<HTMLDivElement>(null);
   const marqueeRef   = useRef<HTMLDivElement>(null);
+  // Phones: the ticker and link under the photo have no surface, so the
+  // network keeps off them. Hidden on desktop, where the zone stays inactive.
+  const footRef      = useRef<HTMLDivElement>(null);
+  useClearZone(footRef, 14);
 
   useEffect(() => {
     const marqueeContainer = marqueeRef.current;
@@ -136,6 +141,43 @@ export function WhoSection() {
         .who-composition:hover .who-cta { color: rgba(255,255,255,1); }
         .who-composition:hover .who-cta::after { width: 100%; }
         .who-composition:hover .who-arrow { transform: translateX(6px); }
+        .who-foot { display: none; }
+        @keyframes who-ticker { to { transform: translateX(-50%); } }
+        /* Phones: the photo goes big and central, and the achievements run
+           across the screen under it as a sideways ticker. */
+        @media (max-width: 767px) {
+          .who-composition {
+            height: auto !important;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 104px 0 36px;
+          }
+          .who-photo {
+            position: relative !important; left: auto !important; top: auto !important;
+            width: min(319px, calc(100vw - 56px)) !important;
+            height: min(420px, 50vh) !important;
+          }
+          .who-marquee-zone, .who-cta-desktop { display: none !important; }
+          .who-foot { display: block; width: 100vw; margin-top: 30px; }
+          .who-ticker {
+            overflow: hidden;
+            -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+            mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+          }
+          .who-ticker-track {
+            display: flex; width: max-content;
+            animation: who-ticker 22s linear infinite;
+          }
+          .who-ticker-item {
+            font-family: Inter, sans-serif; font-size: 24px; font-weight: 300;
+            letter-spacing: -0.01em; color: rgba(255,255,255,0.95);
+            white-space: nowrap; padding: 10px 0;
+          }
+          .who-ticker-item::after { content: '·'; margin: 0 18px; color: rgba(255,255,255,0.4); }
+          .who-foot .who-cta { position: relative; display: inline-block; margin: 30px 0 0 28px; font-size: 13px; letter-spacing: 0.3em; }
+        }
+        @media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+          .who-ticker-track { animation: none; }
+        }
       `}</style>
 
       <motion.div
@@ -153,6 +195,7 @@ export function WhoSection() {
       >
         {/* Photo card, floating, contained within viewport, scaled up from contact-section pattern */}
         <motion.div
+          className="who-photo"
           variants={photoCardVariants}
           style={{
             position: 'absolute',
@@ -186,7 +229,7 @@ export function WhoSection() {
         </motion.div>
 
         {/* Right zone, vertical marquee, anchored 240px from the right viewport edge */}
-        <div style={{
+        <div className="who-marquee-zone" style={{
           position: 'absolute',
           left: '32vw',
           right: 240,
@@ -260,7 +303,7 @@ export function WhoSection() {
 
         {/* CTA, anchored below the photo card, left-aligned with it */}
         <div
-          className="who-cta"
+          className="who-cta who-cta-desktop"
           style={{
             position: 'absolute',
             left: 232,
@@ -277,6 +320,32 @@ export function WhoSection() {
           }}
         >
           Explore the story <span className="who-arrow">→</span>
+        </div>
+
+        {/* Phones only: sideways ticker of the achievements, then the link.
+            The track holds the list twice and slides half its width, so the
+            loop has no seam. */}
+        <div ref={footRef} className="who-foot">
+          <div className="who-ticker">
+            <div className="who-ticker-track">
+              {[0, 1].map((copy) => (
+                marqueeItems.map((item) => (
+                  <span key={`${copy}-${item}`} className="who-ticker-item" aria-hidden={copy === 1}>{item}</span>
+                ))
+              ))}
+            </div>
+          </div>
+          <div
+            className="who-cta"
+            style={{
+              fontFamily: MONO,
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.9)',
+              transition: 'color 200ms ease',
+            }}
+          >
+            Explore the story <span className="who-arrow">→</span>
+          </div>
         </div>
       </motion.div>
     </section>

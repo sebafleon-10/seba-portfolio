@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { MONO } from '@/lib/fonts';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, MotionConfig, useMotionValue, useSpring } from 'framer-motion';
 import { WhoSection }     from '@/components/ui/who-section';
 import { ExperienceSection } from '@/components/ui/experience-section';
 import { WorkSection }    from '@/components/ui/work-section';
@@ -22,13 +22,14 @@ const NAV_LINKS = [
 let introHasPlayed = false;
 
 function MagneticNavLink({
-  num, label, href, active, taglineReady, index,
+  num, label, href, active, taglineReady, shown, index,
 }: {
   num: string;
   label: string;
   href: string;
   active: boolean;
   taglineReady: boolean;
+  shown: boolean;
   index: number;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -72,32 +73,36 @@ function MagneticNavLink({
 
   return (
     <motion.div
-      style={{ display: 'inline-block', pointerEvents: 'auto' }}
+      style={{ display: 'inline-block', pointerEvents: shown ? 'auto' : 'none' }}
       // If the intro already finished before this link mounted (taglineReady
       // was already true at first render), skip the entrance animation and
       // render directly at the settled state. Otherwise play the staggered
-      // rise-and-fade exactly as before.
+      // rise-and-fade. Scrolling down hides the links (a quick lift and fade,
+      // right to left); scrolling back up replays the rise, left to right.
       initial={taglineReady ? false : { opacity: 0, y: 14 }}
-      animate={taglineReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.15 + index * 0.08 }}
+      animate={shown ? { opacity: [0, 1], y: [14, 0] } : { opacity: 0, y: -10 }}
+      transition={shown
+        ? { duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.12 + index * 0.07 }
+        : { duration: 0.28, ease: [0.4, 0, 1, 1], delay: (3 - index) * 0.03 }}
     >
       <motion.a
         ref={ref}
         href={href}
+        className="nav-link"
         onMouseMove={onMouseMove}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
         style={{
           x: sx, y: sy,
           display: 'inline-flex', alignItems: 'baseline',
-          fontFamily: MONO, fontSize: 18, letterSpacing: '0.10em',
+          fontFamily: MONO, fontSize: 14, letterSpacing: '0.10em',
           color: litColor,
           textDecoration: 'none',
           transition: 'color 250ms ease',
           willChange: 'transform',
         }}
       >
-        <span style={{ display: 'inline-flex', letterSpacing: '0.35em', marginRight: '0.55em' }}>
+        <span className="nav-num" style={{ display: 'inline-flex', letterSpacing: '0.35em', marginRight: '0.55em' }}>
           {numChars.map((c, i) => renderChar(c, i))}
         </span>
         <span style={{ display: 'inline-flex' }}>
@@ -124,6 +129,22 @@ export default function Home() {
     introHasPlayed = true;
     const t = setTimeout(() => setTagline(true), 6500);
     return () => clearTimeout(t);
+  }, []);
+
+  // Nav links step aside while scrolling down (they clashed with the section
+  // labels and content) and come back, replaying their intro, as soon as the
+  // user scrolls up or returns to the hero. Small jitters are ignored.
+  const [navHidden, setNavHidden] = useState(false);
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY, dy = y - lastY;
+      if (y < 120) { setNavHidden(false); lastY = y; return; }
+      if (dy > 8) { setNavHidden(true); lastY = y; }
+      else if (dy < -8) { setNavHidden(false); lastY = y; }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Fade tagline out as user scrolls away from hero
@@ -177,6 +198,9 @@ export default function Home() {
   }, []);
 
   return (
+    // prefers-reduced-motion: Framer keeps fades but drops movement on the
+    // whole home page (nav hide and show, card floats, the Projects wheel).
+    <MotionConfig reducedMotion="user">
     <div>
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <section
@@ -189,6 +213,7 @@ export default function Home() {
       >
         {/* Nav */}
         <header
+          className="site-header"
           style={{
             position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10,
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -203,7 +228,7 @@ export default function Home() {
           >
             SL
           </span>
-          <nav style={{ display: 'flex', gap: 32, pointerEvents: 'auto' }}>
+          <nav className="site-nav" style={{ display: 'flex', gap: 26, pointerEvents: 'none' }}>
             {NAV_LINKS.map((link, i) => (
               <MagneticNavLink
                 key={link.id}
@@ -212,6 +237,7 @@ export default function Home() {
                 href={link.href}
                 active={activeId === link.id}
                 taglineReady={tagline}
+                shown={tagline && !navHidden}
                 index={i}
               />
             ))}
@@ -232,6 +258,7 @@ export default function Home() {
           }}
         >
           <p
+            className="hero-tagline"
             style={{
               fontFamily: MONO, fontSize: 25, letterSpacing: '0.35em',
               textTransform: 'uppercase', color: 'rgba(255,255,255,0.88)',
@@ -280,6 +307,24 @@ export default function Home() {
             transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           />
         </div>
+
+        {/* Phones: the nav drops its numbers so the four labels fit beside
+            SL, and the tagline wraps centered inside a side gutter. */}
+        <style>{`
+          @media (max-width: 767px) {
+            .site-header { padding: 22px 20px !important; }
+            .site-nav { gap: 14px !important; }
+            .nav-link { font-size: 11px !important; letter-spacing: 0.06em !important; }
+            .nav-num { display: none !important; }
+            .hero-tagline {
+              font-size: 19px !important;
+              line-height: 1.8;
+              text-align: center;
+              /* The extra left pad balances the trailing letter-spacing. */
+              padding: 0 20px 0 calc(20px + 0.35em);
+            }
+          }
+        `}</style>
       </section>
 
       {/* ── Who ────────────────────────────────────────────────────────────── */}
@@ -295,5 +340,6 @@ export default function Home() {
       <ContactSection />
 
     </div>
+    </MotionConfig>
   );
 }

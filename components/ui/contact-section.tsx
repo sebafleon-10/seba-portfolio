@@ -5,6 +5,7 @@ import { MONO } from '@/lib/fonts';
 import { motion } from 'framer-motion';
 import { particleInteraction } from '@/lib/particle-state';
 import { useOrbReveal, OrbLabel } from '@/lib/use-orb-reveal';
+import { useClearZone } from '@/lib/use-particle-anchor';
 
 const LINKEDIN_URL = 'https://linkedin.com/in/sebastian-leon-b4015b3a9';
 const EMAIL        = 'sebafleon@gmail.com';
@@ -25,6 +26,9 @@ export function ContactSection() {
   const triggerRef   = useRef<HTMLDivElement>(null);
   const linkedinRef  = useRef<HTMLDivElement>(null);
   const emailRef     = useRef<HTMLDivElement>(null);
+  // The copyright line has no surface under it, so the network keeps off it.
+  const footRef      = useRef<HTMLParagraphElement>(null);
+  useClearZone(footRef, 18);
   const [hovered, setHovered] = useState<'linkedin' | 'email' | null>(null);
 
   useEffect(() => {
@@ -91,13 +95,35 @@ export function ContactSection() {
     >
       <OrbLabel labelRef={orbLabelRef}>004 · CONTACT</OrbLabel>
 
-      <div ref={triggerRef} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 48 }}>
+      {/* Phones: the same two cards, one above the other with shorter
+          photos, tilted a touch opposite ways. Each keeps its own float. */}
+      <style>{`
+        @media (max-width: 767px) {
+          .contact-col { gap: 26px !important; }
+          .contact-row { flex-direction: column !important; align-items: center !important; gap: 26px !important; }
+          .contact-card { width: min(335px, calc(100vw - 40px)) !important; }
+          .contact-photo { height: 170px !important; }
+          .contact-li-img { object-position: center 18% !important; }
+          .contact-info { padding: 14px 16px !important; min-height: 0 !important; }
+          .contact-name { font-size: 18px !important; margin-bottom: 3px !important; }
+          .contact-sub { font-size: 12px !important; }
+          .contact-aff { gap: 7px !important; }
+          .contact-aff span { font-size: 11px !important; }
+          .contact-email { font-size: 17px !important; margin-bottom: 4px !important; }
+          .contact-tilt-a { transform: rotate(-1.5deg) translateX(-4px); }
+          .contact-tilt-b { transform: rotate(1.5deg) translateX(4px); }
+        }
+      `}</style>
 
-        <div style={{ display: 'flex', gap: 60, alignItems: 'flex-start' }}>
+      <div ref={triggerRef} className="contact-col" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 48 }}>
+
+        <div className="contact-row" style={{ display: 'flex', gap: 60, alignItems: 'flex-start' }}>
 
           {/* LinkedIn card */}
+          <div className="contact-tilt-a">
           <motion.div
             ref={linkedinRef}
+            className="contact-card"
             animate={{ y: [0, -8, -3, -10, 0], x: [0, 2, -1, 3, 0] }}
             transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
             whileHover={{ scale: 1.03 }}
@@ -110,10 +136,11 @@ export function ContactSection() {
               transition: 'border-color 0.3s ease',
             }}
           >
-            <div style={{ width: '100%', height: 340, overflow: 'hidden', position: 'relative' }}>
+            <div className="contact-photo" style={{ width: '100%', height: 340, overflow: 'hidden', position: 'relative' }}>
               <img
                 src="/linkedin-profile.jpg"
                 alt="Sebastian Leon"
+                className="contact-li-img"
                 draggable={false}
                 style={{
                   width: '100%', height: '100%',
@@ -156,7 +183,7 @@ export function ContactSection() {
               </motion.div>
             </div>
 
-            <div style={{
+            <div className="contact-info" style={{
               background: '#ffffff',
               padding: 20,
               minHeight: 80,
@@ -167,14 +194,14 @@ export function ContactSection() {
               gap: 12,
             }}>
               <div style={{ minWidth: 0 }}>
-                <p style={{
+                <p className="contact-name" style={{
                   fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
                   fontWeight: 700, fontSize: 22,
                   color: '#000000', margin: '0 0 6px',
                 }}>
                   Sebastian Leon
                 </p>
-                <p style={{
+                <p className="contact-sub" style={{
                   fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
                   fontWeight: 400, fontSize: 14,
                   color: '#666666', margin: 0,
@@ -187,7 +214,7 @@ export function ContactSection() {
               {/* Affiliations stacked like the LinkedIn header. Both rows share
                   one structure: a fixed-width icon column, then a bold name at
                   the same size, so the two names align on the left. */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
+              <div className="contact-aff" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12, flexShrink: 0 }}>
                 {[
                   // Icon column is exactly the tile width, and the BTS mark fills
                   // ~90% of it, matching LinkedIn's proportions so both names sit
@@ -209,10 +236,13 @@ export function ContactSection() {
               </div>
             </div>
           </motion.div>
+          </div>
 
           {/* Email card */}
+          <div className="contact-tilt-b">
           <motion.div
             ref={emailRef}
+            className="contact-card"
             animate={{ y: [0, -6, -11, -4, 0], x: [0, -3, 1, -2, 0] }}
             transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
             whileHover={{ scale: 1.03 }}
@@ -225,7 +255,7 @@ export function ContactSection() {
               transition: 'border-color 0.3s ease',
             }}
           >
-            <div style={{ width: '100%', height: 340, overflow: 'hidden' }}>
+            <div className="contact-photo" style={{ width: '100%', height: 340, overflow: 'hidden' }}>
               <img
                 src="/builder.jpg"
                 alt="Builder"
@@ -238,12 +268,12 @@ export function ContactSection() {
               />
             </div>
 
-            <div style={{
+            <div className="contact-info" style={{
               background: '#1a1a1a',
               padding: 24,
               minHeight: 80,
             }}>
-              <p style={{
+              <p className="contact-email" style={{
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif',
                 fontWeight: 300, fontSize: 20,
                 color: '#ffffff', margin: '0 0 6px',
@@ -260,10 +290,11 @@ export function ContactSection() {
               </p>
             </div>
           </motion.div>
+          </div>
 
         </div>
 
-        <p style={{
+        <p ref={footRef} style={{
           fontFamily: MONO, fontSize: 11,
           letterSpacing: '0.14em',
           color: 'rgba(255,255,255,0.20)',
