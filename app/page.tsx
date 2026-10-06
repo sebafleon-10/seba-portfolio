@@ -317,8 +317,8 @@ export default function Home() {
               font-size: 19px !important;
               line-height: 1.8;
               text-align: center;
-              padding: 0 20px;
-              margin-right: -0.35em !important;
+              /* The extra left pad balances the trailing letter-spacing. */
+              padding: 0 20px 0 calc(20px + 0.35em);
             }
           }
         `}</style>
