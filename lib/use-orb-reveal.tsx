@@ -161,5 +161,5 @@ export function OrbLabel({
   labelRef: RefObject<HTMLParagraphElement | null>;
   children: ReactNode;
 }) {
-  return <p ref={labelRef} style={ORB_LABEL_STYLE}>{children}</p>;
+  return <p ref={labelRef} className="orb-label" style={ORB_LABEL_STYLE}>{children}</p>;
 }

@@ -88,6 +88,7 @@ function MagneticNavLink({
       <motion.a
         ref={ref}
         href={href}
+        className="nav-link"
         onMouseMove={onMouseMove}
         onMouseEnter={onEnter}
         onMouseLeave={onLeave}
@@ -101,7 +102,7 @@ function MagneticNavLink({
           willChange: 'transform',
         }}
       >
-        <span style={{ display: 'inline-flex', letterSpacing: '0.35em', marginRight: '0.55em' }}>
+        <span className="nav-num" style={{ display: 'inline-flex', letterSpacing: '0.35em', marginRight: '0.55em' }}>
           {numChars.map((c, i) => renderChar(c, i))}
         </span>
         <span style={{ display: 'inline-flex' }}>
@@ -209,6 +210,7 @@ export default function Home() {
       >
         {/* Nav */}
         <header
+          className="site-header"
           style={{
             position: 'fixed', top: 0, left: 0, right: 0, zIndex: 10,
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -223,7 +225,7 @@ export default function Home() {
           >
             SL
           </span>
-          <nav style={{ display: 'flex', gap: 26, pointerEvents: 'none' }}>
+          <nav className="site-nav" style={{ display: 'flex', gap: 26, pointerEvents: 'none' }}>
             {NAV_LINKS.map((link, i) => (
               <MagneticNavLink
                 key={link.id}
@@ -253,6 +255,7 @@ export default function Home() {
           }}
         >
           <p
+            className="hero-tagline"
             style={{
               fontFamily: MONO, fontSize: 25, letterSpacing: '0.35em',
               textTransform: 'uppercase', color: 'rgba(255,255,255,0.88)',
@@ -301,6 +304,24 @@ export default function Home() {
             transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           />
         </div>
+
+        {/* Phones: the nav drops its numbers so the four labels fit beside
+            SL, and the tagline wraps centered inside a side gutter. */}
+        <style>{`
+          @media (max-width: 767px) {
+            .site-header { padding: 22px 20px !important; }
+            .site-nav { gap: 14px !important; }
+            .nav-link { font-size: 11px !important; letter-spacing: 0.06em !important; }
+            .nav-num { display: none !important; }
+            .hero-tagline {
+              font-size: 19px !important;
+              line-height: 1.8;
+              text-align: center;
+              padding: 0 20px;
+              margin-right: -0.35em !important;
+            }
+          }
+        `}</style>
       </section>
 
       {/* ── Who ────────────────────────────────────────────────────────────── */}

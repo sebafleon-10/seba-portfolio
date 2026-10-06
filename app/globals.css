@@ -173,3 +173,11 @@ html {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
 }
+/* Section orb labels (lib/use-orb-reveal.tsx) on phones: small enough that
+   "002 · EXPERIENCE" clears the SL mark. Inline style sets the desktop size. */
+@media (max-width: 767px) {
+  .orb-label {
+    font-size: 15px !important;
+    letter-spacing: 0.28em !important;
+  }
+}
