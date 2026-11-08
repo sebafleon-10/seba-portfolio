@@ -12,6 +12,7 @@ const NO_PARTICLE_ROUTES = [
   '/work/american-airlines',
   '/work/front-office',
   '/work/p2p-lending',
+  '/work/marketing-targeting',
   '/who',
   '/experience',
 ];
