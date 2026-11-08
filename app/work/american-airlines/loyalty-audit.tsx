@@ -124,7 +124,6 @@ export function LoyaltyAudit() {
         </p>
         <a href="https://github.com/sebafleon-10/airline-loyalty" target="_blank" rel="noopener noreferrer"
           style={{ display: 'inline-block', marginTop: 24, fontFamily: INTER, fontSize: 15, fontWeight: 500, color: ACCENT_BRIGHT, textDecoration: 'none', borderBottom: `1px solid ${accentAlpha(0.5)}`, paddingBottom: 2 }}>
-          {/* PLACEHOLDER: repo goes public once Sebastian approves publishing it. */}
           Read the audit code →
         </a>
       </div>
