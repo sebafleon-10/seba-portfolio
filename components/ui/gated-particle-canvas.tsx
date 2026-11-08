@@ -13,6 +13,7 @@ const NO_PARTICLE_ROUTES = [
   '/work/front-office',
   '/work/p2p-lending',
   '/work/marketing-targeting',
+  '/work/house-prices',
   '/who',
   '/experience',
 ];
