@@ -409,5 +409,5 @@ export default function HousePricesPage() {
   );
 }
 
-// PLACEHOLDER: repo URL goes live once Sebastian approves publishing the GitHub repo.
+// Public analysis repo, created Nov 8 2026.
 const REPO_URL = 'https://github.com/sebafleon-10/housing-prices';
