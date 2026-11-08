@@ -30,6 +30,12 @@ const cards = [
     tag: 'Regression · IPUMS · Labor Economics',
     desc: 'Triple-interaction OLS model on IPUMS CPS data',
   },
+  {
+    id: 4,
+    title: 'P2P Default Risk',
+    tag: 'XGBoost · Credit Risk · Python',
+    desc: "Picking better loans than LendingClub's own grade",
+  },
 ];
 
 // Keyed by card id, not fan position. Ghost FC (id 1) moved to the
@@ -38,6 +44,7 @@ const cardRoutes: Record<number, string> = {
   0: '/work/american-airlines',
   2: '/work/remote-work',
   3: '/work/front-office',
+  4: '/work/p2p-lending',
 };
 
 // The fan is a wheel: every card is a spoke turned FAN_TILT degrees per
@@ -399,6 +406,22 @@ export function WorkSection() {
                         inset: 0,
                         width: '100%', height: '100%',
                         objectFit: 'cover', objectPosition: 'center top',
+                        display: 'block',
+                      }}
+                    />
+                  )}
+
+                  {/* P2P card image, the 2015 loan field sorted by the model */}
+                  {card.id === 4 && (
+                    <img
+                      src="/p2p-lending-card.jpg"
+                      alt="1,000 LendingClub loans sorted by predicted default risk"
+                      draggable={false}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%', height: '100%',
+                        objectFit: 'cover', objectPosition: 'center',
                         display: 'block',
                       }}
                     />
