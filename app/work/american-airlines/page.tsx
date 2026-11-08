@@ -13,7 +13,7 @@ function HeroSection() {
   useEffect(() => { setIsLoaded(true); }, []);
 
   return (
-    <section className="relative w-full" style={{ height: 'auto', zIndex: 1 }}>
+    <section className="relative w-full aa-hero" style={{ height: 'auto', zIndex: 1 }}>
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -32,14 +32,15 @@ function HeroSection() {
         />
       </div>
 
-      <div style={{ position: 'absolute', top: '68px', left: '96px', zIndex: 10 }}>
+      <div className="aa-neural" style={{ position: 'absolute', top: '68px', left: '96px', zIndex: 10 }}>
         <NeuralTextReveal />
       </div>
 
-      <div className="relative flex" style={{ minHeight: '100vh', paddingTop: '60px', paddingBottom: '60px', zIndex: 10 }}>
+      <div className="relative flex aa-hero-row" style={{ minHeight: '100vh', paddingTop: '60px', paddingBottom: '60px', zIndex: 10 }}>
 
-        <div className="flex flex-col justify-end relative" style={{ flex: '0 0 52%', padding: '0 56px 72px 96px', zIndex: 2 }}>
+        <div className="flex flex-col justify-end relative aa-hero-text" style={{ flex: '0 0 52%', padding: '0 56px 72px 96px', zIndex: 2 }}>
           <motion.h1
+            className="aa-hero-title"
             initial={{ opacity: 0, y: 30 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
@@ -57,6 +58,7 @@ function HeroSection() {
           </motion.h1>
 
           <motion.p
+            className="aa-hero-intro"
             initial={{ opacity: 0, y: 30 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.35, ease: 'easeOut' }}
@@ -77,6 +79,7 @@ function HeroSection() {
         </div>
 
         <div
+          className="aa-hero-photo"
           style={{
             position: 'absolute', top: 0, right: 0, width: '58%', height: '100%',
             overflow: 'hidden', zIndex: 1,
@@ -98,7 +101,7 @@ function HeroSection() {
             WebkitMaskComposite: 'source-in',
           }}
         >
-          <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '22%', background: 'linear-gradient(to right, #000000 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
+          <div className="aa-hero-scrim-left" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '22%', background: 'linear-gradient(to right, #000000 0%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'linear-gradient(to top, transparent 0%, rgba(0,0,0,0.55) 50%, transparent 100%)', zIndex: 2, pointerEvents: 'none' }} />
           <img
             src="/aa-capstone.jpg"
@@ -121,9 +124,48 @@ function HeroSection() {
   );
 }
 
+// Phone layout (under 768), the site pattern: classes on the elements and
+// !important over the inline desktop styles, so 768 and up is untouched.
+// The hero stacks as a photo band: partnership line, the presenting photo
+// full width dissolving into the dot grid, then the title overlapping that
+// fade. overflow-x clip keeps the entrance offsets (cards slide in from 40px
+// to the side) from widening the page; clip, not hidden, so nothing becomes
+// a scroll container.
+const PHONE_CSS = `
+  @media (max-width: 767px) {
+    .aa-page { overflow-x: clip; }
+    .aa-hero { overflow: hidden; }
+    .aa-neural { top: 64px !important; left: -50px !important; }
+    .aa-hero-row { flex-direction: column !important; min-height: 0 !important; padding: 188px 0 0 !important; }
+    .aa-hero-photo {
+      position: relative !important; order: -1; width: 100% !important; height: 50svh !important;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 55%, transparent 100%) !important;
+      mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 55%, transparent 100%) !important;
+    }
+    .aa-hero-scrim-left { display: none; }
+    .aa-hero-text { flex: none !important; margin-top: -84px; padding: 0 20px 72px !important; }
+    .aa-hero-title { font-size: 44px !important; }
+    .aa-hero-intro { font-size: 18px !important; margin-bottom: 0 !important; }
+    .aa-wrap { padding: 0 20px !important; }
+    .aa-eyebrow { font-size: 11px !important; letter-spacing: 0.25em !important; }
+    .aa-proj-eyebrow { margin-bottom: 28px !important; }
+    .aa-proj-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+    .aa-proj-card { padding: 28px 24px !important; min-height: 0 !important; border-radius: 18px !important; }
+    .aa-proj-h { font-size: 26px !important; margin-bottom: 14px !important; }
+    .aa-proj-body { font-size: 16px !important; line-height: 1.7 !important; }
+    .aa-deliv { padding: 96px 0 88px !important; }
+    .aa-deliv-h { margin-bottom: 28px !important; }
+    .aa-deliv .cvs-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
+    .aa-deliv .cvs-card { height: auto !important; padding: 22px !important; border-radius: 18px !important; }
+    .aa-deliv .cvs-value { font-size: 20px !important; }
+    .aa-deliv .cvs-desc { font-size: 16px !important; line-height: 1.65 !important; }
+  }
+`;
+
 export default function AmericanAirlinesPage() {
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <div className="aa-page" style={{ minHeight: '100vh' }}>
+      <style>{PHONE_CSS}</style>
 
       {/* Shared dot-grid background, matching /work/remote-work for visual
           coherence across all detail pages. Fixed full-viewport, behind all
@@ -133,16 +175,16 @@ export default function AmericanAirlinesPage() {
       <HeroSection />
 
       <section style={{ position: 'relative', zIndex: 1, padding: '0 0 80px' }}>
-        <div style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
+        <div className="aa-wrap" style={{ maxWidth: 1200, width: '100%', margin: '0 auto', padding: '0 64px' }}>
 
-          <p style={{
+          <p className="aa-eyebrow aa-proj-eyebrow" style={{
             fontFamily: MONO, fontSize: 10,
             letterSpacing: '0.4em', textTransform: 'uppercase' as const,
             color: 'rgba(255,255,255,0.22)',
             marginBottom: 80, display: 'block',
           }}>The Project</p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
+          <div className="aa-proj-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
             {[
               {
                 number: '01',
@@ -162,6 +204,7 @@ export default function AmericanAirlinesPage() {
             ].map((col, i) => (
               <motion.div
                 key={i}
+                className="aa-proj-card"
                 initial={i === 0 ? { opacity: 0, x: -40 } : i === 1 ? { opacity: 0, y: 40 } : { opacity: 0, x: 40 }}
                 whileInView={{ opacity: 1, x: 0, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
@@ -189,13 +232,13 @@ export default function AmericanAirlinesPage() {
                   letterSpacing: '0.3em', textTransform: 'uppercase' as const,
                   color: 'rgba(0,0,0,0.3)', margin: '0 0 20px',
                 }}>{col.number}</p>
-                <h3 style={{
+                <h3 className="aa-proj-h" style={{
                   fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
                   fontSize: 32, fontWeight: 700,
                   color: '#000000', letterSpacing: '-0.02em',
                   lineHeight: 1.1, margin: '0 0 20px',
                 }}>{col.label}</h3>
-                <p style={{
+                <p className="aa-proj-body" style={{
                   fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
                   fontSize: 17, fontWeight: 300,
                   color: 'rgba(0,0,0,0.62)',
@@ -209,14 +252,14 @@ export default function AmericanAirlinesPage() {
 
       <LoyaltyAudit />
 
-      <section style={{ position: 'relative', zIndex: 1, padding: '140px 0 120px' }}>
-        <div style={{ maxWidth: 1400, width: '100%', margin: '0 auto', padding: '0 64px' }}>
-          <p style={{
+      <section className="aa-deliv" style={{ position: 'relative', zIndex: 1, padding: '140px 0 120px' }}>
+        <div className="aa-wrap" style={{ maxWidth: 1400, width: '100%', margin: '0 auto', padding: '0 64px' }}>
+          <p className="aa-eyebrow" style={{
             fontFamily: MONO, fontSize: 10,
             letterSpacing: '0.4em', textTransform: 'uppercase' as const,
             color: 'rgba(255,255,255,0.22)', display: 'block', marginBottom: 12,
           }}>Deliverables</p>
-          <h2 style={{
+          <h2 className="aa-deliv-h" style={{
             fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
             fontSize: 'clamp(32px, 4vw, 52px)', fontWeight: 700,
             color: '#ffffff', margin: '0 0 48px', letterSpacing: '-0.03em',
