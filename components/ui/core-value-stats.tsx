@@ -41,7 +41,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
           )}
         </div>
       )}
-      <div style={{
+      <div className="cvs-grid" style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
         gap: 24,
@@ -117,7 +117,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
             >
               <a href={item.href} target="_blank" rel="noopener noreferrer"
                 style={{ textDecoration: 'none', display: 'block' }}>
-                <div style={{
+                <div className="cvs-card" style={{
                   background: 'radial-gradient(ellipse at top left, rgba(0,71,127,0.22) 0%, transparent 65%), #111111',
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#ffffff',
@@ -126,7 +126,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                   padding: 24,
                   display: 'flex', flexDirection: 'column', justifyContent: 'flex-start',
                 }}>
-                  <p style={{
+                  <p className="cvs-value" style={{
                     color: '#ffffff',
                     fontSize: 28,
                     fontFamily: MONO,
@@ -146,7 +146,7 @@ export default function CoreValueStats({ stats, title, subtitle, description }: 
                     padding: '3px 12px',
                     marginBottom: 12,
                   }}>{item.label}</span>
-                  <p style={{
+                  <p className="cvs-desc" style={{
                     color: 'rgba(255,255,255,0.75)',
                     fontSize: 20,
                     lineHeight: 1.75,
