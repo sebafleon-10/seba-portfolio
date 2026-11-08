@@ -42,6 +42,12 @@ const cards = [
     tag: 'Logistic · Off-policy eval · Python',
     desc: 'Three campaigns, three bets, and a model that graded its own homework',
   },
+  {
+    id: 6,
+    title: 'House Prices',
+    tag: 'Lasso · Data audit · Python',
+    desc: 'Half the prices were fake; on the real ones, priced within 5.5%',
+  },
 ];
 
 // Keyed by card id, not fan position. Ghost FC (id 1) moved to the
@@ -52,6 +58,7 @@ const cardRoutes: Record<number, string> = {
   3: '/work/front-office',
   4: '/work/p2p-lending',
   5: '/work/marketing-targeting',
+  6: '/work/house-prices',
 };
 
 // The fan is a wheel: every card is a spoke turned FAN_TILT degrees per
@@ -439,6 +446,22 @@ export function WorkSection() {
                     <img
                       src="/marketing-targeting-card.jpg"
                       alt="Bars comparing what a personalization model promised with what it earned"
+                      draggable={false}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%', height: '100%',
+                        objectFit: 'cover', objectPosition: 'center',
+                        display: 'block',
+                      }}
+                    />
+                  )}
+
+                  {/* House prices card image, real prices vs the placeholder spike */}
+                  {card.id === 6 && (
+                    <img
+                      src="/house-prices-card.jpg"
+                      alt="Histogram of real house prices next to a narrow spike of placeholder prices"
                       draggable={false}
                       style={{
                         position: 'absolute',
