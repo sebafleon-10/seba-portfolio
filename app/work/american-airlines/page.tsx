@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { NeuralTextReveal } from '@/components/ui/neural-text-reveal';
 import CoreValueStats from '@/components/ui/core-value-stats';
 import { DotGridBackground } from '@/components/ui/dot-grid-background';
+import { LoyaltyAudit } from './loyalty-audit';
 
 function HeroSection() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -206,6 +207,8 @@ export default function AmericanAirlinesPage() {
         </div>
       </section>
 
+      <LoyaltyAudit />
+
       <section style={{ position: 'relative', zIndex: 1, padding: '140px 0 120px' }}>
         <div style={{ maxWidth: 1400, width: '100%', margin: '0 auto', padding: '0 64px' }}>
           <p style={{
@@ -258,7 +261,7 @@ export default function AmericanAirlinesPage() {
             {
               value: 'MACHINE LEARNING MODEL',
               label: 'code',
-              description: 'XGBoost + LightGBM predict Gen Z loyalty enrollment. SHAP ranks the service drivers. K-Means segments generational behavior.',
+              description: 'XGBoost + LightGBM on the Kaggle survey\'s customer-type label, SHAP drivers, and K-Means segments. See the audit above for what its 99% measured.',
               href: 'https://colab.research.google.com/drive/13JB5oxn4z8e_q8CCXwUyM05fI8vDyjvW?authuser=1',
               type: 'Open Notebook',
             },
