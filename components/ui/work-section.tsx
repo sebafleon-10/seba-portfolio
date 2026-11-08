@@ -36,6 +36,12 @@ const cards = [
     tag: 'XGBoost · Credit Risk · Python',
     desc: "Picking better loans than LendingClub's own grade",
   },
+  {
+    id: 5,
+    title: 'Marketing Targeting',
+    tag: 'Logistic · Off-policy eval · Python',
+    desc: 'Three campaigns, three bets, and a model that graded its own homework',
+  },
 ];
 
 // Keyed by card id, not fan position. Ghost FC (id 1) moved to the
@@ -45,6 +51,7 @@ const cardRoutes: Record<number, string> = {
   2: '/work/remote-work',
   3: '/work/front-office',
   4: '/work/p2p-lending',
+  5: '/work/marketing-targeting',
 };
 
 // The fan is a wheel: every card is a spoke turned FAN_TILT degrees per
@@ -416,6 +423,22 @@ export function WorkSection() {
                     <img
                       src="/p2p-lending-card.jpg"
                       alt="1,000 LendingClub loans sorted by predicted default risk"
+                      draggable={false}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        width: '100%', height: '100%',
+                        objectFit: 'cover', objectPosition: 'center',
+                        display: 'block',
+                      }}
+                    />
+                  )}
+
+                  {/* Marketing card image, promised vs earned bars */}
+                  {card.id === 5 && (
+                    <img
+                      src="/marketing-targeting-card.jpg"
+                      alt="Bars comparing what a personalization model promised with what it earned"
                       draggable={false}
                       style={{
                         position: 'absolute',
