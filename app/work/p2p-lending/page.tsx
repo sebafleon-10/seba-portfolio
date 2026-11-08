@@ -374,7 +374,7 @@ const METHOD = [
   { t: 'Real dollars', b: "Profit is what each loan actually paid back minus what was lent, in nominal dollars over the loan's life." },
 ];
 
-// PLACEHOLDER: repo URL goes live once Sebastian approves creating the GitHub repo.
+// Public analysis repo, created Nov 8 2026.
 const REPO_URL = 'https://github.com/sebafleon-10/p2p-default-risk';
 const DELIVERABLES = [
   { kind: 'Code', title: 'GitHub repo', body: 'Data build, the model ladder, the profit and calibration analysis, and every number on this page.', href: REPO_URL, cta: 'View the code' },
