@@ -52,6 +52,15 @@ const cards = [
 
 // Keyed by card id, not fan position. Ghost FC (id 1) moved to the
 // Experience section on Sep 13 2026 and lives at /experience/ghost-fc.
+// Covers on a light paper: the title, fade and pills switch to dark ink.
+// Keyed by card id; the value is the paper color the bottom fade melts into.
+// `via` and `end` set how far up the fade climbs: Remote Work's chart sits
+// high, the Marketing chart fills the card, so its fade stays low.
+const LIGHT_PAPER: Record<number, { rgb: string; via: number; end: number }> = {
+  2: { rgb: '255,255,255', via: 50, end: 100 }, // Remote Work, white chart
+  5: { rgb: '245,239,227', via: 26, end: 50 },  // Marketing Targeting, cream chart
+};
+
 const cardRoutes: Record<number, string> = {
   0: '/work/american-airlines',
   2: '/work/remote-work',
@@ -332,6 +341,8 @@ export function WorkSection() {
             {SLOTS.map((off) => {
               const slot     = pos + off;
               const card     = cards[wrap(slot)];
+              const paper    = LIGHT_PAPER[card.id];
+              const light    = paper !== undefined;
               const isActive = off === 0;
               const rotateZ  = off * FAN_TILT;
               const sideHover = !isActive && hoveredSide === slot;
@@ -386,7 +397,7 @@ export function WorkSection() {
                     // Scale and lean about the bottom edge, so a card never
                     // lifts off the horizon.
                     transformOrigin: '50% 100%',
-                    background: card.id === 2 ? '#f8f8f8' : '#1a1a1a',
+                    background: paper ? `rgb(${paper.rgb})` : '#1a1a1a',
                     boxShadow: '0 22px 52px rgba(0,0,0,0.65)',
                     borderRadius: 14,
                     transformStyle: 'preserve-3d',
@@ -425,49 +436,49 @@ export function WorkSection() {
                     />
                   )}
 
-                  {/* P2P card image, a wall of loan lights, dimmed past the funding cutoff */}
+                  {/* P2P card image, train.py and the model ladder in the terminal */}
                   {card.id === 4 && (
                     <img
                       src="/p2p-lending-card.jpg"
-                      alt="A wall of lights, a few glowing violet, the last fifth dimmed past a bright seam"
+                      alt="Code editor with train.py and a terminal listing each model's AUC, XGBoost highest"
                       draggable={false}
                       style={{
                         position: 'absolute',
                         inset: 0,
                         width: '100%', height: '100%',
-                        objectFit: 'cover', objectPosition: 'center',
+                        objectFit: 'cover', objectPosition: 'left center',
                         display: 'block',
                       }}
                     />
                   )}
 
-                  {/* Marketing card image, three ballot cards, one checked */}
+                  {/* Marketing card image, the push-notification chart on cream paper */}
                   {card.id === 5 && (
                     <img
                       src="/marketing-targeting-card.jpg"
-                      alt="Three paper ballot cards under a spotlight, the middle one checked in violet"
+                      alt="Chart of each customer's predicted chance of ordering against days since their last order, with the breakeven line"
                       draggable={false}
                       style={{
                         position: 'absolute',
                         inset: 0,
                         width: '100%', height: '100%',
-                        objectFit: 'cover', objectPosition: 'center',
+                        objectFit: 'cover', objectPosition: 'left center',
                         display: 'block',
                       }}
                     />
                   )}
 
-                  {/* House prices card image, a model house on a lit range strip */}
+                  {/* House prices card image, the audit notebook where the prices flatline */}
                   {card.id === 6 && (
                     <img
                       src="/house-prices-card.jpg"
-                      alt="A white model house in front of a violet measuring line with one bright tick"
+                      alt="Notebook plot of sale price by row: a wide spread up to row 1,460, then a flat band of placeholder prices"
                       draggable={false}
                       style={{
                         position: 'absolute',
                         inset: 0,
                         width: '100%', height: '100%',
-                        objectFit: 'cover', objectPosition: 'center',
+                        objectFit: 'cover', objectPosition: 'left center',
                         display: 'block',
                       }}
                     />
@@ -490,8 +501,8 @@ export function WorkSection() {
                   )}
 
                   {/* Gradient overlay */}
-                  {card.id === 2 ? (
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent" />
+                  {light ? (
+                    <div className="pointer-events-none absolute inset-0" style={{ background: `linear-gradient(to top, rgb(${paper!.rgb}), rgba(${paper!.rgb},0.8) ${paper!.via}%, rgba(${paper!.rgb},0) ${paper!.end}%)` }} />
                   ) : (
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                   )}
@@ -508,7 +519,7 @@ export function WorkSection() {
                     <h2 style={{
                       fontSize: phone ? 18 : 20,
                       fontWeight: 700,
-                      color: card.id === 2 ? '#111' : '#ffffff',
+                      color: light ? '#111' : '#ffffff',
                       lineHeight: 1.1,
                       fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
                       margin: phone ? '0 0 4px' : '0 0 10px',
@@ -519,7 +530,7 @@ export function WorkSection() {
 
                     <p style={{
                       fontSize: phone ? 12 : 14,
-                      color: card.id === 2 ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.7)',
+                      color: light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.7)',
                       lineHeight: 1.6,
                       fontFamily: 'Inter, ui-rounded, system-ui, sans-serif',
                       fontWeight: 400,
@@ -551,19 +562,19 @@ export function WorkSection() {
                         letterSpacing: '0.22em',
                         textTransform: 'uppercase',
                         color: activeHovered
-                          ? (card.id === 2 ? '#000000' : '#ffffff')
-                          : (card.id === 2 ? 'rgba(0,0,0,0.88)' : 'rgba(255,255,255,0.92)'),
-                        background: card.id === 2
+                          ? (light ? '#000000' : '#ffffff')
+                          : (light ? 'rgba(0,0,0,0.88)' : 'rgba(255,255,255,0.92)'),
+                        background: light
                           ? `rgba(255,255,255,${activeHovered ? 0.78 : 0.6})`
                           : `rgba(0,0,0,${activeHovered ? 0.55 : 0.4})`,
-                        border: card.id === 2
+                        border: light
                           ? `2px solid rgba(0,0,0,${activeHovered ? 0.28 : 0.14})`
                           : `2px solid rgba(255,255,255,${activeHovered ? 0.5 : 0.28})`,
                         borderRadius: 999,
                         padding: '5px 11px',
                         backdropFilter: 'blur(8px)',
                         WebkitBackdropFilter: 'blur(8px)',
-                        textShadow: card.id === 2
+                        textShadow: light
                           ? '0 1px 0 rgba(255,255,255,0.45)'
                           : '0 1px 2px rgba(0,0,0,0.45)',
                         transition: 'color 220ms ease, background 220ms ease, border-color 220ms ease',
@@ -589,11 +600,11 @@ export function WorkSection() {
                         fontSize: 11,
                         letterSpacing: '0.22em',
                         textTransform: 'uppercase',
-                        color: card.id === 2 ? '#000000' : '#ffffff',
-                        background: card.id === 2
+                        color: light ? '#000000' : '#ffffff',
+                        background: light
                           ? `rgba(255,255,255,${sideHover ? 0.85 : 0.7})`
                           : `rgba(0,0,0,${sideHover ? 0.6 : 0.45})`,
-                        border: card.id === 2
+                        border: light
                           ? `2px solid rgba(0,0,0,${sideHover ? 0.3 : 0.16})`
                           : `2px solid rgba(255,255,255,${sideHover ? 0.55 : 0.3})`,
                         borderRadius: 999,
