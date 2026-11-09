@@ -425,11 +425,11 @@ export function WorkSection() {
                     />
                   )}
 
-                  {/* P2P card image, the 2015 loan field sorted by the model */}
+                  {/* P2P card image, a wall of loan lights, dimmed past the funding cutoff */}
                   {card.id === 4 && (
                     <img
                       src="/p2p-lending-card.jpg"
-                      alt="1,000 LendingClub loans sorted by predicted default risk"
+                      alt="A wall of lights, a few glowing violet, the last fifth dimmed past a bright seam"
                       draggable={false}
                       style={{
                         position: 'absolute',
@@ -441,11 +441,11 @@ export function WorkSection() {
                     />
                   )}
 
-                  {/* Marketing card image, promised vs earned bars */}
+                  {/* Marketing card image, three ballot cards, one checked */}
                   {card.id === 5 && (
                     <img
                       src="/marketing-targeting-card.jpg"
-                      alt="Bars comparing what a personalization model promised with what it earned"
+                      alt="Three paper ballot cards under a spotlight, the middle one checked in violet"
                       draggable={false}
                       style={{
                         position: 'absolute',
@@ -457,11 +457,11 @@ export function WorkSection() {
                     />
                   )}
 
-                  {/* House prices card image, real prices vs the placeholder spike */}
+                  {/* House prices card image, a model house on a lit range strip */}
                   {card.id === 6 && (
                     <img
                       src="/house-prices-card.jpg"
-                      alt="Histogram of real house prices next to a narrow spike of placeholder prices"
+                      alt="A white model house in front of a violet measuring line with one bright tick"
                       draggable={false}
                       style={{
                         position: 'absolute',
